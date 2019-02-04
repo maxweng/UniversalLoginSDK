@@ -5,7 +5,14 @@ jobs:
       - image: circleci/node:10.15
     steps:
       - checkout
+      - restore_cache:
+          keys:
+          - node_modules-{{ checksum "yarn.lock" }}-v{{ .Environment.CACHE_VERSION }}
       - run: yarn
+      - save_cache:
+          key: node_modules-{{ checksum "yarn.lock" }}-v{{ .Environment.CACHE_VERSION }}
+          paths:
+            - ./node_modules
       - run: cd universal-login-contracts && yarn test
   test_relayer:
     docker:
@@ -19,7 +26,14 @@ jobs:
           POSTGRES_DB: universal_login_relayer_test
     steps:
       - checkout
+      - restore_cache:
+          keys:
+          - node_modules-{{ checksum "yarn.lock" }}-v{{ .Environment.CACHE_VERSION }}
       - run: yarn
+      - save_cache:
+          key: node_modules-{{ checksum "yarn.lock" }}-v{{ .Environment.CACHE_VERSION }}
+          paths:
+            - ./node_modules
       - run: cd universal-login-relayer && yarn test
   test_sdk:
     docker:
@@ -33,7 +47,14 @@ jobs:
           POSTGRES_DB: universal_login_relayer_test
     steps:
       - checkout
+      - restore_cache:
+          keys:
+          - node_modules-{{ checksum "yarn.lock" }}-v{{ .Environment.CACHE_VERSION }}
       - run: yarn
+      - save_cache:
+          key: node_modules-{{ checksum "yarn.lock" }}-v{{ .Environment.CACHE_VERSION }}
+          paths:
+            - ./node_modules
       - run: cd universal-login-sdk && yarn test
   test_example:
     docker:
@@ -47,7 +68,14 @@ jobs:
           POSTGRES_DB: universal_login_relayer_test
     steps:
       - checkout
+      - restore_cache:
+          keys:
+          - node_modules-{{ checksum "yarn.lock" }}-v{{ .Environment.CACHE_VERSION }}
       - run: yarn
+      - save_cache:
+          key: node_modules-{{ checksum "yarn.lock" }}-v{{ .Environment.CACHE_VERSION }}
+          paths:
+            - ./node_modules
       - run: cd universal-login-example && yarn test
   lint:
     docker:
