@@ -30,6 +30,9 @@ class MainScreenView extends Component {
     return (
       <div className={classIf(this.props.busy, 'main-screen loadbar', 'main-screen')}>
         <div className="container text-center">
+          <p>You current points is{' '}
+            <span className="bold">{this.props.fxPoints}</span>
+          </p>
           <p>
             You have{' '}
             <span className="bold">
@@ -68,7 +71,8 @@ MainScreenView.propTypes = {
   onClickerClick: PropTypes.func,
   loaded: PropTypes.bool,
   busy: PropTypes.bool,
-  events: PropTypes.array
+  events: PropTypes.array,
+  fxPoints: PropTypes.number
 };
 
 export default MainScreenView;

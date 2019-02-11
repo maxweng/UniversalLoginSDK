@@ -30,6 +30,7 @@ class MainScreen extends Component {
 
   async componentDidMount() {
     await this.updateClicksLeft();
+    await this.updateFxPoints();
     this.historyService.subscribe(this.setState.bind(this));
     this.ensNameService.subscribe();
   }
@@ -42,6 +43,12 @@ class MainScreen extends Component {
       clicksLeft
     });
     this.timeout = setTimeout(this.updateClicksLeft.bind(this), 2000);
+  }
+
+  async updateFxPoints() {
+    this.setState({
+      fxPoints:0
+    });
   }
 
   componentWillUnmount() {
@@ -71,6 +78,7 @@ class MainScreen extends Component {
           busy={this.state.busy}
           onClickerClick={this.onClickerClick.bind(this)}
           lastClick={this.state.lastClick}
+          fxPoints={this.state.fxPoints}
         />
       </div>
     );
