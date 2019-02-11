@@ -1,7 +1,6 @@
 const startGanache = require('./startGanache.js');
 const deployEns = require('./deployEns.js');
 const deployToken = require('./deployToken');
-const deployFXPoints = require('./deployFXPoints');
 const {getWallets} = require('ethereum-waffle');
 const {providers} = require('ethers');
 const ensureDatabaseExist = require('../common/ensureDatabaseExist');
@@ -51,11 +50,10 @@ async function startDevelopment(nodeUrl) {
   const [,,,, ensDeployer, deployWallet] = await getWallets(provider);
   const ensAddress = await deployEns(ensDeployer, ensDomains);
   const tokenAddress = await deployToken(deployWallet);
-  const fXPointsAddress = await deployFXPoints(deployWallet);
   await ensureDatabaseExist(databaseConfig);
   const relayerConfig = getRelayerConfig(jsonRpcUrl, deployWallet, tokenAddress, ensAddress, ensDomains);
   await startDevelopmentRelayer(relayerConfig, knex(databaseConfig), deployWallet);
-  return {jsonRpcUrl, deployWallet, tokenAddress, fXPointsAddress, ensAddress, ensDomains};
+  return {jsonRpcUrl, deployWallet, tokenAddress, ensAddress, ensDomains};
 }
 
 module.exports = startDevelopment;

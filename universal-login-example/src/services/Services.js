@@ -27,11 +27,11 @@ class Services {
     this.sdk = new EthereumIdentitySDK(this.config.relayerUrl, this.provider);
     this.ensService = new EnsService(this.sdk, this.provider, this.config);
     this.tokenService = new TokenService(this.config.tokenContractAddress, this.provider);
-    this.fXPointsService = new FXPointsService(this.config.fXPointsContractAddress, this.provider);
+    this.fxPointsService = new FXPointsService(this.config.fxPointsContractAddress, this.provider);
     this.storageService = overrides.storageService || new StorageService();
     this.identityService = new IdentityService(this.sdk, this.emitter, this.storageService, this.provider);
     this.backupService = new BackupService(this.identityService);
-    this.clickService = new ClickService(this.identityService, {clicker: this.config.clickerContractAddress, token: this.config.tokenContractAddress, fXPoints: this.config.fXPointsContractAddress}, this.defaultPaymentOptions);
+    this.clickService = new ClickService(this.identityService, {clicker: this.config.clickerContractAddress, token: this.config.tokenContractAddress, fxPoints: this.config.fxPointsContractAddress}, this.defaultPaymentOptions);
     this.historyService = new HistoryService(this.config.clickerContractAddress, this.provider, this.ensService);
     this.ensNameService = new EnsNameService(this.ensService, this.historyService);
     this.authorisationService = new AuthorisationService(this.sdk, this.emitter);

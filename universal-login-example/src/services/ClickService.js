@@ -18,9 +18,9 @@ class ClickService {
       gasToken: this.addresses.token,
       ...this.defaultPaymentOptions
     };
-
+  
     const message2 = {
-      to: this.addresses.fXPoints,
+      to: this.addresses.fxPoints,
       from: this.identityService.identity.address,
       value: 0,
       data: new utils.Interface(FXPoints.interface).functions.spend.encode([1]),
