@@ -14,7 +14,7 @@ function IdentityCreated(props) {
       <div>
         <strong>You created a new account</strong>
         <p>
-          Received 20 <em>kliks</em>
+          Received 100 <em>kliks</em>
         </p>
       </div>
     </div>

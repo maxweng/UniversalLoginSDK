@@ -47,10 +47,7 @@ class Login extends Component {
     return (
       <div className="login-view">
         <div className="container">
-          <h1 className="main-title">Universal Logins Clicker</h1>
-          <p className="login-view-text">
-          Clicker is an example application, that demonstrates Universal Logins, a design pattern for storing funds and connecting to Ethereum applications.
-          </p>
+          <h1 className="main-title">FastX Points Demo</h1>
           <IdentitySelector
             onNextClick={(identity) => this.onNextClick(identity)}
             onChange={this.onChange.bind(this)}
