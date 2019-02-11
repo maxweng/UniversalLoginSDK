@@ -4,6 +4,7 @@ import ethers from 'ethers';
 import fs from 'fs';
 import Clicker from '../build/Clicker';
 import Token from '../build/Token';
+import FXPoints from '../build/FXPoints';
 
 const {jsonRpcUrl} = config;
 
@@ -27,9 +28,12 @@ class ContractsDeployer {
     this.deployer = this.wallets[this.wallets.length - 1];
     const clickerContract = await deployContract(this.deployer, Clicker);
     const tokenContract = await deployContract(this.deployer, Token);
+    const fXPointsContract = await deployContract(this.deployer, FXPoints);
     const variables = {};
+    console.log({fXPointsContract})
     variables.CLICKER_CONTRACT_ADDRESS = clickerContract.address;
     variables.TOKEN_CONTRACT_ADDRESS = tokenContract.address;
+    variables.FXPOINTS_CONTRACT_ADDRESS = fXPointsContract.address;
     this.save('./.env', variables);
   }
 }

@@ -14,6 +14,7 @@ class MainScreen extends Component {
     this.ensNameService = services.ensNameService;
     this.clickService = services.clickService;
     this.tokenService = services.tokenService;
+    this.fXPointsService = services.fXPointsService;
     this.identityService = services.identityService;
     this.state = {lastClick: '0', lastPresser: 'nobody', events: [], loaded: false, busy: false};
   }
@@ -46,9 +47,13 @@ class MainScreen extends Component {
   }
 
   async updateFxPoints() {
+    const {address} = this.identityService.identity;
+    const balance = await this.fXPointsService.getBalance(address);
+    const fxPoints = parseInt(balance, 10);
     this.setState({
-      fxPoints:0
+      fxPoints
     });
+    this.timeout = setTimeout(this.updateFxPoints.bind(this), 2000);
   }
 
   componentWillUnmount() {
