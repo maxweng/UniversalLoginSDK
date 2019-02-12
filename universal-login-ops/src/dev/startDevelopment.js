@@ -23,7 +23,7 @@ const databaseConfig = {
   }
 };
 
-const ensDomains = ['mylogin.eth', 'universal-id.eth', 'popularapp.eth'];
+const ensDomains = ['fastx.eth','mylogin.eth', 'universal-id.eth', 'popularapp.eth'];
 
 function getRelayerConfig(jsonRpcUrl, wallet, tokenContractAddress, ensAddress, ensRegistrars) {
   return {
