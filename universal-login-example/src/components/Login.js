@@ -18,7 +18,7 @@ class Login extends Component {
     let userName = await this.IbankService.getUserName();
     if(userName){
       //暂时写死域名，之后要改
-      this.onNextClick(userName+'.fastx.eth')
+      this.onNextClick(userName+'.'+process.env.ENS_DOMAIN_1)
     }
   }
 

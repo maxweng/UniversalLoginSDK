@@ -9,5 +9,5 @@ module.exports = Object.freeze({
     ensAddress: process.env.ENS_ADDRESS,
     chainId: 0,
   },
-  ensRegistrars: [process.env.ENS_DOMAIN_1, process.env.ENS_DOMAIN_2, process.env.ENS_DOMAIN_3],
+  ensRegistrars: [process.env.ENS_DOMAIN_1],
 });
