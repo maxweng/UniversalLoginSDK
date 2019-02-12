@@ -2,6 +2,7 @@ import {EventEmitter} from 'fbemitter';
 import EthereumIdentitySDK from 'universal-login-sdk';
 import {providers} from 'ethers';
 import servicesConfig from '../../config/config';
+import IbankService from './IbankService';
 import IdentityService from './IdentityService';
 import ClickService from './ClickService';
 import HistoryService from './HistoryService';
@@ -31,6 +32,7 @@ class Services {
     this.storageService = overrides.storageService || new StorageService();
     this.identityService = new IdentityService(this.sdk, this.emitter, this.storageService, this.provider);
     this.backupService = new BackupService(this.identityService);
+    this.IbankService = new IbankService(this.storageService)
     this.clickService = new ClickService(this.identityService, {clicker: this.config.clickerContractAddress, token: this.config.tokenContractAddress, fxPoints: this.config.fxPointsContractAddress}, this.defaultPaymentOptions);
     this.historyService = new HistoryService(this.config.clickerContractAddress, this.provider, this.ensService);
     this.ensNameService = new EnsNameService(this.ensService, this.historyService);

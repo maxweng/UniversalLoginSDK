@@ -10,6 +10,16 @@ class Login extends Component {
     };
     this.identityService = this.props.services.identityService;
     this.sdk = this.props.services.sdk;
+    this.IbankService = this.props.services.IbankService;
+    this.getUserName();
+  }
+
+  async getUserName() {
+    let userName = await this.IbankService.getUserName();
+    if(userName){
+      //暂时写死域名，之后要改
+      this.onNextClick(userName+'.mylogin.eth')
+    }
   }
 
   async identityExist(identity) {
