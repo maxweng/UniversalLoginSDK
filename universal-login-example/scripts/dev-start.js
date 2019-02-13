@@ -3,11 +3,6 @@ import Clicker from '../build/Clicker';
 import FXPoints from '../build/FXPoints';
 import {startDevelopment, createEnv, spawnProcess} from 'universal-login-ops';
 
-async function deployClickerContract(deployWallet) {
-  const clickerContract = await deployContract(deployWallet, Clicker);
-  console.log(`Clicker contract address: ${clickerContract.address}`);
-  return clickerContract.address;
-}
 
 async function deployClickerContract(deployWallet) {
   const clickerContract = await deployContract(deployWallet, Clicker);

@@ -40,7 +40,7 @@ function getRelayerConfig(jsonRpcUrl, wallet, tokenContractAddress, ensAddress, 
 }
 
 function getMigrationPath() {
-  const packagePath = require.resolve('universal-login-relayer/package.json');
+  const packagePath = require.resolve('fastx-points-relayer/package.json');
   return join(dirname(packagePath), 'migrations');
 }
 

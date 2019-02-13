@@ -1,6 +1,6 @@
 const {waitToBeMined} = require('universal-login-contracts');
 const Token = require('../../build/Token');
-const Relayer = require('universal-login-relayer').default;
+const Relayer = require('fastx-points-relayer').default;
 const {utils, Contract} = require('ethers');
 
 class TokenGrantingRelayer extends Relayer {

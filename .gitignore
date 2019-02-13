@@ -28,4 +28,9 @@
 /universal-login-sdk/dist/
 /universal-login-sdk/node_modules/
 /universal-login-sdk/yarn-error.log
+/fastx-points-relayer/.env
+/fastx-points-relayer/build/
+/fastx-points-relayer/dist/
+/fastx-points-relayer/node_modules
+/fastx-points-relayer/yarn-error.log
 yarn-error.log

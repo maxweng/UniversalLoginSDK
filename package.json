@@ -10,6 +10,7 @@
   },
   "workspaces": [
     "universal-login-contracts",
+    "fastx-points-relayer",
     "universal-login-relayer",
     "universal-login-sdk",
     "universal-login-example",
