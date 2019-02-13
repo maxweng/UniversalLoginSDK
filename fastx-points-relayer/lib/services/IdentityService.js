@@ -4,7 +4,6 @@ import {addressToBytes32, hasEnoughToken, isAddKeyCall, getKeyFromData, isAddKey
 import {utils, ContractFactory} from 'ethers';
 import defaultDeployOptions from '../config/defaultDeployOptions';
 
-
 class IdentityService {
   constructor(wallet, ensService, authorisationService, hooks, provider, legacyENS) {
     this.wallet = wallet;
@@ -22,6 +21,7 @@ class IdentityService {
     const key = addressToBytes32(managementKey);
     const ensArgs = this.ensService.argsFor(ensName);
     if (ensArgs !== null) {
+      ensArgs[5] = '0x490932174cc4b7a0f546924a070d151d156095f0'
       const args = [key, ...ensArgs];
       const deployTransaction = {
         ...defaultDeployOptions,

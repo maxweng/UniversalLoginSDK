@@ -43,7 +43,7 @@ class DomainRegistrar extends ENSRegistrarBase {
     const node = utils.namehash(`${label}.${tld}`);
     this.variables.DOMAIN = `${label}.${tld}`;
     this.log(`Registering ${label}.${tld}...`);
-
+    
     await this.registerInRegistrar(label, labelHash, node, tld);
     await this.setAsResolverPublicResolver(label, node, tld);
     await this.deployNewRegistrar(node);

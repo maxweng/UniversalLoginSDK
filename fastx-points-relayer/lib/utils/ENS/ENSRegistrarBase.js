@@ -13,7 +13,8 @@ class ENSRegistrarBase {
 
   async prepareNameRegistration(domain) {
     this.registrarAddress = await this.ens.owner(utils.namehash(domain));
-    this.resolverAddress = await this.ens.resolver(utils.namehash(domain));
+    // this.resolverAddress = await this.ens.resolver(utils.namehash(domain));
+    this.resolverAddress = this.config.chainSpec.publicResolverAddress;
   }
 }
 

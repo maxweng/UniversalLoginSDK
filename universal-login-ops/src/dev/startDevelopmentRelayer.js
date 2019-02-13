@@ -1,7 +1,8 @@
-const DevelopmentRelayer = require('./developmentRelayer');
+// const DevelopmentRelayer = require('./developmentRelayer');
+const Relayer = require('fastx-points-relayer').default;
 
 async function startDevelopmentRelayer(configuration, database, wallet) {
-  const relayer = new DevelopmentRelayer(configuration, database, wallet.provider);
+  const relayer = new Relayer(configuration, database, wallet.provider);
   relayer.start();
   console.log(`Relayer started on port ${configuration.port}...`);
   return relayer;

@@ -22,7 +22,7 @@
   "scripts": {
     "test": "NODE_ENV=test mocha -r ts-node/register test -t 10000 \"test/**/*.{js,ts}\"",
     "lint": "tslint -p tsconfig.json \"{lib,test,migrations,scripts}/**/*.{ts,js}\"",
-    "build": "tsc --build tsconfig.build.json",
+    "build": "waffle .waffle.js && tsc --build tsconfig.build.json",
     "relayer:start": "node build/startRelayer.js",
     "ganache:start": "ts-node scripts/ganache.js",
     "ens:deploy": "ts-node scripts/deployENS.js",

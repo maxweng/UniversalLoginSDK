@@ -2,11 +2,12 @@ import {utils, Contract} from 'ethers';
 import ENS from 'universal-login-contracts/build/ENS';
 
 class ENSService {
-  constructor(ensAddress, ensRegistrars, provider) {
+  constructor(ensAddress, ensRegistrars, provider, publicResolverAddress) {
     this.ensRegistrars = ensRegistrars;
     this.ensAddress = ensAddress;
     this.domainsInfo = {};
     this.provider = provider;
+    this.publicResolverAddress = publicResolverAddress;
   }
 
   async start() {
@@ -39,8 +40,9 @@ class ENSService {
     if (registrarConfig === null) {
       return null;
     }
-    const {resolverAddress} = registrarConfig;
+    // const {resolverAddress} = registrarConfig;
     const {registrarAddress} = registrarConfig;
+    const resolverAddress = this.publicResolverAddress;
     return [hashLabel, ensName, node, this.ensAddress, registrarAddress, resolverAddress];
   }
 }

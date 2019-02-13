@@ -12,6 +12,7 @@ import {EventEmitter} from 'fbemitter';
 import useragent from 'express-useragent';
 import {utils, Contract}  from 'ethers';
 import {waitToBeMined} from 'universal-login-contracts';
+import Token from '../abi/Token';
 
 const defaultPort = 3311;
 
@@ -29,32 +30,37 @@ class Relayer {
     this.provider = provider || new providers.JsonRpcProvider(config.jsonRpcUrl, config.chainSpec);
     this.wallet = new Wallet(config.privateKey, this.provider);
     this.database = database;
-    // this.tokenContractAddress = config.tokenContractAddress;
-    // this.tokenContract = new Contract(this.tokenContractAddress, Token.interface, this.wallet);
-    // this.addHooks();
+    this.tokenContractAddress = config.tokenContractAddress;
+    this.tokenContract = new Contract(this.tokenContractAddress, Token.interface, this.wallet);
+    this.addHooks();
   }
 
-  // addHooks() {
-  //   const tokenAmount = utils.parseEther('100');
-  //   const etherAmount = utils.parseEther('100');
-  //   this.hooks.addListener('created', async (transaction) => {
-  //     const receipt = await waitToBeMined(this.provider, transaction.hash);
-  //     if (receipt.status) {
-  //       const tokenTransaction = await this.tokenContract.transfer(receipt.contractAddress, tokenAmount);
-  //       await waitToBeMined(this.provider, tokenTransaction.hash);
-  //       const transaction = {
-  //         to: receipt.contractAddress,
-  //         value: etherAmount
-  //       };
-  //       await this.wallet.sendTransaction(transaction);
-  //     }
-  //   });
-  // }
+  addHooks() {
+    const tokenAmount = utils.parseEther('100');
+    const etherAmount = utils.parseEther('100');
+    this.hooks.addListener('created', async (transaction) => {
+      const receipt = await waitToBeMined(this.provider, transaction.hash);
+      if (receipt.status) {
+        console.log(receipt.contractAddress)
+        console.log({
+          tokenAmount
+        })
+        const tokenTransaction = await this.tokenContract.transfer(receipt.contractAddress, tokenAmount);
+        await waitToBeMined(this.provider, tokenTransaction.hash);
+        const transaction = {
+          to: receipt.contractAddress,
+          value: etherAmount
+        };
+        await this.wallet.sendTransaction(transaction);
+      }
+    });
+  }
 
   async start() {
     this.database.migrate.latest();
     this.runServer();
     await this.ensService.start();
+    console.log('Relayer is start')
   }
 
   runServer() {
@@ -64,7 +70,7 @@ class Relayer {
       origin : '*',
       credentials: true,
     }));
-    this.ensService = new ENSService(this.config.chainSpec.ensAddress, this.config.ensRegistrars, this.provider);
+    this.ensService = new ENSService(this.config.chainSpec.ensAddress, this.config.ensRegistrars, this.provider, this.config.chainSpec.publicResolverAddress);
     this.authorisationService = new AuthorisationService(this.database);
     this.identityService = new IdentityService(this.wallet, this.ensService, this.authorisationService, this.hooks, this.provider, this.config.legacyENS);
     this.app.use(bodyParser.json());

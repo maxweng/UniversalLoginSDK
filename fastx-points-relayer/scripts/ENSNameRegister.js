@@ -1,6 +1,6 @@
+
 import ENSNameRegistrar from '../lib/utils/ENS/ENSNameRegistrar';
 import config from '../lib/config/ensRegistration';
-
 
 if (process.argv.length === 4) {
   const registrar = new ENSNameRegistrar(config);
