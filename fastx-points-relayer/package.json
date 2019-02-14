@@ -28,6 +28,7 @@
     "relayer:start": "node build/startRelayer.js",
     "ganache:start": "ts-node scripts/ganache.js",
     "ens:deploy": "ts-node scripts/deployENS.js",
+    "resolver:deploy": "ts-node scripts/deployResolver.js",
     "register:domain": "ts-node scripts/domainRegister.js",
     "register:name": "ts-node scripts/ENSNameRegister.js",
     "clean": "rm -fr node_modules build",

@@ -21,7 +21,6 @@ class IdentityService {
     const key = addressToBytes32(managementKey);
     const ensArgs = this.ensService.argsFor(ensName);
     if (ensArgs !== null) {
-      ensArgs[5] = '0x490932174cc4b7a0f546924a070d151d156095f0'
       const args = [key, ...ensArgs];
       const deployTransaction = {
         ...defaultDeployOptions,

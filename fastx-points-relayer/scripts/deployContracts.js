@@ -39,7 +39,7 @@ class ContractsDeployer {
       tokenContract:tokenContract.address,
       fxPointsContract:fxPointsContract.address
     })
-    //this.save('./.env', variables);
+    //this.save('../.env', variables);
   }
 }
 

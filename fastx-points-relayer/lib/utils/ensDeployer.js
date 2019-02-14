@@ -44,7 +44,8 @@ class ENSDeployer {
     const deployerPrivateKey = defaultAccounts[defaultAccounts.length - 1].secretKey;
     const deployer = new ENSDeployer(provider, deployerPrivateKey);
     await deployer.deployRegistrars(registrars, tld);
-    deployer.save('.env');
+    console.log(deployer.variables.ENS_ADDRESS)
+    //deployer.save('.env');
   }
 }
 
