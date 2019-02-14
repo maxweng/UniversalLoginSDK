@@ -2,7 +2,9 @@ import express from 'express';
 import IdentityRouter from './routes/identity';
 import ConfigRouter from './routes/config';
 import RequestAuthorisationRouter from './routes/authorisation';
+import FastxPointsRouter from './routes/fastxPoints';
 import IdentityService from './services/IdentityService';
+import FXPointsService from './services/FXPointsService';
 import ENSService from './services/ensService';
 import bodyParser from 'body-parser';
 import {Wallet, providers} from 'ethers';
@@ -73,10 +75,12 @@ class Relayer {
     this.ensService = new ENSService(this.config.chainSpec.ensAddress, this.config.ensRegistrars, this.provider, this.config.chainSpec.publicResolverAddress);
     this.authorisationService = new AuthorisationService(this.database);
     this.identityService = new IdentityService(this.wallet, this.ensService, this.authorisationService, this.hooks, this.provider, this.config.legacyENS);
+    this.fXPointsService = new FXPointsService(this.config.fxPointsContractAddress,this.provider)
     this.app.use(bodyParser.json());
     this.app.use('/identity', IdentityRouter(this.identityService));
     this.app.use('/config', ConfigRouter(this.config.chainSpec));
     this.app.use('/authorisation', RequestAuthorisationRouter(this.authorisationService));
+    this.app.use('/fastxPoints',FastxPointsRouter(this.fXPointsService));
     this.app.use(errorHandler);
     this.server = this.app.listen(this.port);
   }

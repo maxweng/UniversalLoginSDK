@@ -11,5 +11,6 @@ module.exports = Object.freeze({
     chainId: 0,
   },
   ensRegistrars: [process.env.ENS_DOMAIN_1],
-  tokenContractAddress: process.env.TOKEN_CONTRACT_ADDRESS
+  tokenContractAddress: process.env.TOKEN_CONTRACT_ADDRESS,
+  fxPointsContractAddress: process.env.FXPOINTS_CONTRACT_ADDRESS
 });
