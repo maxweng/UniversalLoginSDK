@@ -4,7 +4,7 @@ import ConfigRouter from './routes/config';
 import RequestAuthorisationRouter from './routes/authorisation';
 import FastxPointsRouter from './routes/fastxPoints';
 import IdentityService from './services/IdentityService';
-import FXPointsService from './services/FXPointsService';
+import FXPointsService from './services/fxPointsService';
 import ENSService from './services/ensService';
 import bodyParser from 'body-parser';
 import {Wallet, providers} from 'ethers';
