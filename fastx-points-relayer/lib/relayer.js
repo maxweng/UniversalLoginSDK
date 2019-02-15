@@ -3,6 +3,7 @@ import IdentityRouter from './routes/identity';
 import ConfigRouter from './routes/config';
 import RequestAuthorisationRouter from './routes/authorisation';
 import FastxPointsRouter from './routes/fastxPoints';
+import FXInfoRouter from './routes/fxInfoRouter';
 import IdentityService from './services/IdentityService';
 import FXPointsService from './services/fxPointsService';
 import ENSService from './services/ensService';
@@ -81,6 +82,7 @@ class Relayer {
     this.app.use('/config', ConfigRouter(this.config.chainSpec));
     this.app.use('/authorisation', RequestAuthorisationRouter(this.authorisationService));
     this.app.use('/fastxPoints',FastxPointsRouter(this.fXPointsService));
+    this.app.use('/getFXPInfo', FXInfoRouter())
     this.app.use(errorHandler);
     this.server = this.app.listen(this.port);
   }
