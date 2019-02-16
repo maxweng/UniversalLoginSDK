@@ -12,6 +12,14 @@ class FXPointsService {
   async getBalance(address) {
     return await this.tokenContract.balanceOf(address)
   }
+
+  async getPlayerInfoByAddress(address) {
+    return await this.tokenContract.getPlayerInfoByAddress(address)
+  }
+
+  async getCurrentRoundInfo() {
+    return await this.tokenContract.getCurrentRoundInfo()
+  }
 }
 
 export default FXPointsService;
