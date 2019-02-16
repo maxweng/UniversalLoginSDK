@@ -1,10 +1,18 @@
 import React, {Component} from 'react';
+import Iframe from 'react-iframe'
 import MainScreenView from '../views/MainScreenView';
 import HeaderView from '../views/HeaderView';
 import RequestsBadge from './RequestsBadge';
 import AccountLink from './AccountLink';
 import ProfileIdentity from './ProfileIdentity';
 import PropTypes from 'prop-types';
+
+function getQueryString(name)
+{
+     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+     var r = window.location.search.substr(1).match(reg);
+     if(r!=null)return  unescape(r[2]); return null;
+}
 
 class MainScreen extends Component {
   constructor(props) {
@@ -16,6 +24,8 @@ class MainScreen extends Component {
     this.tokenService = services.tokenService;
     this.fxPointsService = services.fxPointsService;
     this.identityService = services.identityService;
+    this.gameUrl = services.config.gameUrl + '?address=' + getQueryString('address') + '&access_code=' + getQueryString('access_code');
+    console.log(this.gameUrl)
     this.state = {lastClick: '0', lastPresser: 'nobody', events: [], loaded: false, busy: false};
   }
 
@@ -76,7 +86,13 @@ class MainScreen extends Component {
           />
           <AccountLink setView={this.setView.bind(this)} />
         </HeaderView>
-        <canvas id="GameCanvas" style={{backgroundColor:'black',width:'100%',height:'100%'}}></canvas>
+        <Iframe url={this.gameUrl}
+        width="100%"
+        height="600px"
+        id="game"
+        display="initial"
+        position="relative"
+        allowFullScreen/>
         {/* <MainScreenView
           clicksLeft={this.state.clicksLeft}
           events={this.state.events}

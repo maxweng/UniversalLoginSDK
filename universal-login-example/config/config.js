@@ -7,5 +7,6 @@ module.exports = Object.freeze({
   ensDomains: [process.env.ENS_DOMAIN_1],
   clickerContractAddress: process.env.CLICKER_CONTRACT_ADDRESS,
   tokenContractAddress: process.env.TOKEN_CONTRACT_ADDRESS,
-  fxPointsContractAddress: process.env.FXPOINTS_CONTRACT_ADDRESS
+  fxPointsContractAddress: process.env.FXPOINTS_CONTRACT_ADDRESS,
+  gameUrl: process.env.GAME_URL
 });

@@ -76,7 +76,6 @@ class ContentContainer extends Component {
         greetingService={services.greetingService}
         viewParameters={this.state.viewParameters} />;
     } else if (this.state.view === 'MainScreen') {
-      console.log(services.identityService.identity.address)
       var url = window.location.href; //获取当前url          
       if (url.indexOf("?")>0) {
           url = url.split("?")[0];
