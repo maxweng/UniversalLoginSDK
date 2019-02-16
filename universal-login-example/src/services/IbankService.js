@@ -51,11 +51,15 @@ class IbankService {
         return null
     } else{
         let accessCode = getQueryString('access_code');
-        let accessToken = await this.getAccessToken(accessCode);
-        let userInfo = await this.getUserInfo(accessToken);
-        //暂时用open_id代替user_name
-        let userName = userInfo.open_id
-        return userName
+        if(accessCode){
+          let accessToken = await this.getAccessToken(accessCode);
+          let userInfo = await this.getUserInfo(accessToken);
+          //暂时用open_id代替user_name
+          let userName = userInfo.open_id
+          return userName
+        }else{
+          return null
+        }      
     }
   }
 }

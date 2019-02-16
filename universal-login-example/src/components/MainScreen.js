@@ -76,7 +76,8 @@ class MainScreen extends Component {
           />
           <AccountLink setView={this.setView.bind(this)} />
         </HeaderView>
-        <MainScreenView
+        <canvas id="GameCanvas" style={{backgroundColor:'black',width:'100%',height:'100%'}}></canvas>
+        {/* <MainScreenView
           clicksLeft={this.state.clicksLeft}
           events={this.state.events}
           loaded={this.state.loaded}
@@ -84,7 +85,7 @@ class MainScreen extends Component {
           onClickerClick={this.onClickerClick.bind(this)}
           lastClick={this.state.lastClick}
           fxPoints={this.state.fxPoints}
-        />
+        /> */}
       </div>
     );
   }

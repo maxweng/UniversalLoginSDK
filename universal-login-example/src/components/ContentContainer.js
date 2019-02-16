@@ -10,8 +10,34 @@ import PendingAuthorizations from './PendingAuthorizations';
 import Backup from './Backup';
 import Trusted from './Trusted';
 import RecoverAccount from './RecoverAccount';
+import CoinCenter from './CoinCenter';
 import PropTypes from 'prop-types';
 import {scrollTo} from '../utils';
+
+function setParam(param, value) {
+  var query = location.search.substring(1);
+  var p = new RegExp("(^|)" + param + "=([^&]*)(|$)");
+  if (p.test(query)) {
+      var firstParam = query.split(param)[0];
+      var secondParam = query.split(param)[1];
+      if (secondParam.indexOf("&") > -1) {
+          var lastPraam = secondParam.substring(secondParam.indexOf('&')+1);
+          return '?' + firstParam + param + '=' + value + '&' + lastPraam;
+      } else {
+          if (firstParam) {
+              return '?' + firstParam + param + '=' + value;
+          } else {
+              return '?' + param + '=' + value;
+          }
+      }
+  } else {
+      if (query == '') {
+          return '?' + param + '=' + value;
+      } else {
+          return '?' + query + '&' + param + '=' + value;
+      }
+  }
+}
 
 class ContentContainer extends Component {
   constructor(props) {
@@ -50,6 +76,12 @@ class ContentContainer extends Component {
         greetingService={services.greetingService}
         viewParameters={this.state.viewParameters} />;
     } else if (this.state.view === 'MainScreen') {
+      console.log(services.identityService.identity.address)
+      var url = window.location.href; //获取当前url          
+      if (url.indexOf("?")>0) {
+          url = url.split("?")[0];
+      }
+      history.pushState(history.state, '', url+setParam("address", services.identityService.identity.address))
       return <MainScreen services={services}/>;      
     } else if (this.state.view === 'Account') {
       return (<Account identityService={services.identityService}/>);
@@ -63,6 +95,8 @@ class ContentContainer extends Component {
       return <Trusted setView={this.setView.bind(this)}/>;
     } else if (this.state.view === 'RecoverAccount') {
       return <RecoverAccount services={services} setView={this.setView.bind(this)}/>;
+    } else if (this.state.view === 'CoinCenter') {
+      return <CoinCenter setView={this.setView.bind(this)}/>;
     }
   }
 }
