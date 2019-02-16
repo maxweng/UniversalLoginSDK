@@ -95,7 +95,7 @@ class ContentContainer extends Component {
     } else if (this.state.view === 'RecoverAccount') {
       return <RecoverAccount services={services} setView={this.setView.bind(this)}/>;
     } else if (this.state.view === 'CoinCenter') {
-      return <CoinCenter setView={this.setView.bind(this)}/>;
+      return <CoinCenter identityService={services.identityService} IbankService={services.IbankService}/>;
     }
   }
 }

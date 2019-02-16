@@ -57,6 +57,21 @@ class IbankService {
     } 
   }
 
+  async getBalance(accessToken) {
+    const url = 'http://101.200.36.28:5000/lbank/user/balance';
+    const method = 'POST';
+    let body  = new FormData();
+    body.append('app_key', appKey);
+    body.append('access_token', accessToken);
+    const response = await fetch(url, {method, body});
+    const responseJson = await response.json();
+    if (response.status === 200) {
+      return responseJson.data
+    }else{
+      new Error(`${response.status}`);
+    } 
+  }
+
   async getUserName () {
     const identity = await this.storageService.getIdentity();
     if (identity) {
@@ -72,7 +87,7 @@ class IbankService {
         }else{
           console.log('getAccessCode')
           // await this.getAccessCode();
-          window.location.href="http://101.200.36.28:5000/lbank/user/access?app=test"
+          //window.location.href="http://101.200.36.28:5000/lbank/user/access?app=test"
           return null
         }      
     }

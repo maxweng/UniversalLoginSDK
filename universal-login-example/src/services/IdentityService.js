@@ -91,6 +91,17 @@ class IdentityService {
       return true;
     }
   }
+
+  async getFXPInfo() {
+    const data = await this.sdk.getFXPInfo();
+    return data;
+  }
+  async getPlayerInfo() {
+    const data = await this.sdk.getPlayerInfo(this.identity.address);
+    return data;
+  }
+
+  
 }
 
 export default IdentityService;

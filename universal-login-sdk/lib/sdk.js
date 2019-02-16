@@ -152,6 +152,30 @@ class EthereumIdentitySDK {
     throw new Error(`${response.status}`);
   }
 
+  async getFXPInfo(identityAddress) {
+    const url = `${this.relayerUrl}/getFXPInfo/`;
+    const method = 'GET';
+   
+    const response = await fetch(url, {headers, method});
+    const responseJson = await response.json();
+    if (response.status === 200) {
+      return responseJson;
+    }
+    throw new Error(`${response.status}`);
+  }
+
+  async getPlayerInfo(identityAddress) {
+    const url = `${this.relayerUrl}/getPlayerInfo/${identityAddress}`;
+    const method = 'GET';
+   
+    const response = await fetch(url, {headers, method});
+    const responseJson = await response.json();
+    if (response.status === 200) {
+      return responseJson;
+    }
+    throw new Error(`${response.status}`);
+  }
+
   async fetchPendingAuthorisations(identityAddress) {
     return this.relayerObserver.fetchPendingAuthorisations(identityAddress);
   }
