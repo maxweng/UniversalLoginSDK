@@ -8,7 +8,9 @@ function getQueryString(name)
      if(r!=null)return  unescape(r[2]); return null;
 }
 
-const appKey = '2bmhkhced55m2q3b69lcgvxuvouc2x9sj59xljfwc81enxfqdf368bt3mdniihq9';
+const appKey = '200728419515141';
+
+const HOST = "http://101.200.36.28:6111";
 
 class IbankService {
   constructor(storageService) {
@@ -16,39 +18,28 @@ class IbankService {
   }
 
   async getAccessToken(accessCode) {
-    const url = 'http://101.200.36.28:5000/lbank/user/access_token';
+    const url = HOST+'/lbank/user/access_token';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', appKey);
     body.append('access_code', accessCode);
-    const response = await fetch(url, {method, body});
+    const response = await fetch(url, {credentials: 'include',method, body});
     const responseJson = await response.json();
     if (response.status === 200) {
-      return responseJson.data.access_token
+      return responseJson.data
     }else{
       new Error(`${response.status}`);
     }
   }
 
   async getUserInfo(accessToken) {
-    const url = 'http://101.200.36.28:5000/lbank/user/info';
+    const url = HOST+'/lbank/user/info';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', appKey);
     body.append('access_token', accessToken);
-    const response = await fetch(url, {method, body});
-    const responseJson = await response.json();
-    if (response.status === 200) {
-      return responseJson.data
-    }else{
-      new Error(`${response.status}`);
-    } 
-  }
-
-  async getAccessCode() {
-    const url = 'http://101.200.36.28:5000/lbank/user/access?app=test';
-    const method = 'GET';
-    const response = await fetch(url, {method});
+    // body.append('open_id', openId);
+    const response = await fetch(url, {credentials: 'include',method, body});
     const responseJson = await response.json();
     if (response.status === 200) {
       return responseJson.data
@@ -58,12 +49,12 @@ class IbankService {
   }
 
   async getBalance(accessToken) {
-    const url = 'http://101.200.36.28:5000/lbank/user/balance';
+    const url = HOST+'/lbank/user/balance';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', appKey);
-    body.append('access_token', accessToken);
-    const response = await fetch(url, {method, body});
+    body.append('access_token', accessToken.access_token);
+    const response = await fetch(url, {credentials: 'include',method, body});
     const responseJson = await response.json();
     if (response.status === 200) {
       return responseJson.data
@@ -80,14 +71,11 @@ class IbankService {
         let accessCode = getQueryString('access_code');
         if(accessCode){
           let accessToken = await this.getAccessToken(accessCode);
-          let userInfo = await this.getUserInfo(accessToken);
-          //暂时用open_id代替user_name
+          let userInfo = await this.getUserInfo(accessToken.access_token,accessToken.open_id);
           let userName = userInfo.open_id
           return userName
         }else{
-          console.log('getAccessCode')
-          // await this.getAccessCode();
-          //window.location.href="http://101.200.36.28:5000/lbank/user/access?app=test"
+          //window.location.href=HOST+"/lbank/user/access?app=test"
           return null
         }      
     }
