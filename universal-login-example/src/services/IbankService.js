@@ -8,38 +8,40 @@ function getQueryString(name)
      if(r!=null)return  unescape(r[2]); return null;
 }
 
-const appKey = '200728419515141';
-
 const HOST = "http://101.200.36.28:6111";
 
 class IbankService {
   constructor(storageService) {
     this.storageService = storageService;
+    this.appKey = '200728419515141';
   }
 
   async getAccessToken(accessCode) {
     const url = HOST+'/lbank/user/access_token';
     const method = 'POST';
     let body  = new FormData();
-    body.append('app_key', appKey);
+    body.append('app_key', this.appKey);
     body.append('access_code', accessCode);
-    const response = await fetch(url, {credentials: 'include',method, body});
+    const response = await fetch(url, {method, body});
     const responseJson = await response.json();
     if (response.status === 200) {
+      this.openId = responseJson.data.open_id;
+      this.refreshToken = responseJson.data.refresh_token;
+      this.accessToken = responseJson.data.access_token;
       return responseJson.data
     }else{
       new Error(`${response.status}`);
     }
   }
 
-  async getUserInfo(accessToken) {
+  async getUserInfo() {
     const url = HOST+'/lbank/user/info';
     const method = 'POST';
     let body  = new FormData();
-    body.append('app_key', appKey);
-    body.append('access_token', accessToken);
-    // body.append('open_id', openId);
-    const response = await fetch(url, {credentials: 'include',method, body});
+    body.append('app_key', this.appKey);
+    body.append('access_token', this.accessToken);
+    body.append('open_id', this.openId);
+    const response = await fetch(url, {method, body});
     const responseJson = await response.json();
     if (response.status === 200) {
       return responseJson.data
@@ -48,13 +50,46 @@ class IbankService {
     } 
   }
 
-  async getBalance(accessToken) {
+  async isValid() {
+    const url = HOST+'/lbank/user/valid_token';
+    const method = 'POST';
+    let body  = new FormData();
+    body.append('app_key', this.appKey);
+    body.append('access_token', this.accessToken);
+    body.append('open_id', this.openId);
+    const response = await fetch(url, {method, body});
+    const responseJson = await response.json();
+    if (response.status === 200) {
+      return responseJson.data
+    }else{
+      new Error(`${response.status}`);
+    } 
+  }
+
+  async onRefreshToken() {
+    const url = HOST+'/lbank/user/refresh_token';
+    const method = 'POST';
+    let body  = new FormData();
+    body.append('app_key', this.appKey);
+    body.append('refresh_token', this.refreshToken);
+    body.append('open_id', this.openId);
+    const response = await fetch(url, {method, body});
+    const responseJson = await response.json();
+    if (response.status === 200) {
+      return responseJson.data
+    }else{
+      new Error(`${response.status}`);
+    } 
+  }
+
+  async getBalance() {
     const url = HOST+'/lbank/user/balance';
     const method = 'POST';
     let body  = new FormData();
-    body.append('app_key', appKey);
-    body.append('access_token', accessToken.access_token);
-    const response = await fetch(url, {credentials: 'include',method, body});
+    body.append('app_key', this.appKey);
+    body.append('access_token', this.accessToken);
+    body.append('open_id', this.openId);
+    const response = await fetch(url, {method, body});
     const responseJson = await response.json();
     if (response.status === 200) {
       return responseJson.data
@@ -71,7 +106,7 @@ class IbankService {
         let accessCode = getQueryString('access_code');
         if(accessCode){
           let accessToken = await this.getAccessToken(accessCode);
-          let userInfo = await this.getUserInfo(accessToken.access_token,accessToken.open_id);
+          let userInfo = await this.getUserInfo();
           let userName = userInfo.open_id
           return userName
         }else{

@@ -32,11 +32,10 @@ class CoinCenter extends Component {
     let playerInfo = await this.identityService.getPlayerInfo()
     let accessCode = getQueryString('access_code');
     let accessToken = await this.IbankService.getAccessToken(accessCode);
-    let userInfo = await this.IbankService.getUserInfo(accessToken);
-    let userBalance = await this.IbankService.getBalance(accessToken);
+    let userInfo = await this.IbankService.getUserInfo();
+    let userBalance = await this.IbankService.getBalance();
     let that = this
     setInterval(function(){
-      console.log(1)
       that.setState({
         timeLeft: that.state.timeLeft - 1
       })
