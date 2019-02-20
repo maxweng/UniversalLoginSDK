@@ -1,0 +1,565 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "playerID",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "playerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "isNewPlayer",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "amountPaid",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "timeStamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "onNewName",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "compressedData",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "compressedIDs",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "playerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "ethIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "keysBought",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "winnerAddr",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "winnerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "amountWon",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "newPot",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "genAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "potAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "airDropPot",
+          "type": "uint256"
+        }
+      ],
+      "name": "onEndTx",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "playerID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "playerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "ethOut",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "timeStamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "onWithdraw",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "playerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "ethOut",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "compressedData",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "compressedIDs",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "winnerAddr",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "winnerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "amountWon",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "newPot",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "genAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "onWithdrawAndDistribute",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "affiliateID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "name": "roundID",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "buyerID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "timeStamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "onAffiliatePayout",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "roundID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "amountAddedToPot",
+          "type": "uint256"
+        }
+      ],
+      "name": "onPotSwapDeposit",
+      "type": "event"
+    }
+  ],
+  "evm": {
+    "bytecode": {
+      "linkReferences": {},
+      "object": "6080604052348015600f57600080fd5b50603580601d6000396000f3fe6080604052600080fdfea165627a7a7230582008ee925e2ed344a5e329e14796f8f18b1ca542ea27e02c5c4b73dbd3209967d50029",
+      "opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x35 DUP1 PUSH1 0x1D PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG1 PUSH6 0x627A7A723058 KECCAK256 ADDMOD 0xee SWAP3 0x5e 0x2e 0xd3 DIFFICULTY 0xa5 0xe3 0x29 0xe1 0x47 SWAP7 0xf8 CALL DUP12 SHR 0xa5 TIMESTAMP 0xea 0x27 0xe0 0x2c 0x5c 0x4b PUSH20 0xDBD3209967D50029000000000000000000000000 ",
+      "sourceMap": "25:1883:9:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;25:1883:9;;;;;;;"
+    },
+    "deployedBytecode": {
+      "linkReferences": {},
+      "object": "6080604052600080fdfea165627a7a7230582008ee925e2ed344a5e329e14796f8f18b1ca542ea27e02c5c4b73dbd3209967d50029",
+      "opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG1 PUSH6 0x627A7A723058 KECCAK256 ADDMOD 0xee SWAP3 0x5e 0x2e 0xd3 DIFFICULTY 0xa5 0xe3 0x29 0xe1 0x47 SWAP7 0xf8 CALL DUP12 SHR 0xa5 TIMESTAMP 0xea 0x27 0xe0 0x2c 0x5c 0x4b PUSH20 0xDBD3209967D50029000000000000000000000000 ",
+      "sourceMap": "25:1883:9:-;;;;;"
+    }
+  },
+  "interface": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "playerID",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "playerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "isNewPlayer",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "amountPaid",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "timeStamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "onNewName",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "compressedData",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "compressedIDs",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "playerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "ethIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "keysBought",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "winnerAddr",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "winnerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "amountWon",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "newPot",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "genAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "potAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "airDropPot",
+          "type": "uint256"
+        }
+      ],
+      "name": "onEndTx",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "playerID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "playerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "ethOut",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "timeStamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "onWithdraw",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "playerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "playerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "ethOut",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "compressedData",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "compressedIDs",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "winnerAddr",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "winnerName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "name": "amountWon",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "newPot",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "genAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "onWithdrawAndDistribute",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "affiliateID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "affiliateName",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "name": "roundID",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "buyerID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "timeStamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "onAffiliatePayout",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "roundID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "amountAddedToPot",
+          "type": "uint256"
+        }
+      ],
+      "name": "onPotSwapDeposit",
+      "type": "event"
+    }
+  ],
+  "bytecode": "6080604052348015600f57600080fd5b50603580601d6000396000f3fe6080604052600080fdfea165627a7a7230582008ee925e2ed344a5e329e14796f8f18b1ca542ea27e02c5c4b73dbd3209967d50029"
+}
