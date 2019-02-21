@@ -177,8 +177,8 @@ contract PlayerBook {
      * (this might cost a lot of gas)
      */
     function registerNameXaddr(string memory _nameString, address _affCode, bool _all)
-        isHuman()
         public
+        isHuman()
         payable 
     {
         // make sure name fees paid
@@ -225,8 +225,8 @@ contract PlayerBook {
      * @param _gameID game id 
      */
     function addMeToGame(uint256 _gameID)
-        isHuman()
         public
+        isHuman()
     {
         require(_gameID <= gID_, "silly player, that game doesn't exist yet");
         address _addr = msg.sender;
@@ -248,8 +248,8 @@ contract PlayerBook {
      * -functionhash- 0x0c6940ea
      */
     function addMeToAllGames()
-        isHuman()
         public
+        isHuman()
     {
         address _addr = msg.sender;
         uint256 _pID = pIDxAddr_[_addr];
@@ -275,8 +275,8 @@ contract PlayerBook {
      * @param _nameString the name you want to use 
      */
     function useMyOldName(string memory _nameString)
-        isHuman()
         public 
+        isHuman()
     {
         // filter name, and get pID
         bytes32 _name = _nameString.nameFilter();
@@ -388,8 +388,8 @@ contract PlayerBook {
     }
 
     function registerNameXaddrFromDapp(address _addr, bytes32 _name, address _affCode, bool _all)
-        isRegisteredGame()
         external
+        isRegisteredGame()
         payable
         returns(bool, uint256)
     {
@@ -426,8 +426,8 @@ contract PlayerBook {
     
 
     function addGame(address _gameAddress, string memory _gameNameStr)
-        onlyDevs()
         public
+        onlyDevs()
     {
         require(gameIDs_[_gameAddress] == 0, "derp, that games already been registered");
         
@@ -439,15 +439,15 @@ contract PlayerBook {
     
         games_[gID_].receivePlayerInfo(1, plyr_[1].addr, plyr_[1].name, 0);
         games_[gID_].receivePlayerInfo(2, plyr_[2].addr, plyr_[2].name, 0);
-        games_[gID_].receivePlayerInfo(3, plyr_[3].addr, plyr_[3].name, 0);
-        games_[gID_].receivePlayerInfo(4, plyr_[4].addr, plyr_[4].name, 0);
+        // games_[gID_].receivePlayerInfo(3, plyr_[3].addr, plyr_[3].name, 0);
+        // games_[gID_].receivePlayerInfo(4, plyr_[4].addr, plyr_[4].name, 0);
 
         emit onNewGame(_gameAddress, gID_);
     }
     
     function setRegistrationFee(uint256 _fee)
-        onlyDevs()
         public
+        onlyDevs()
     {
         registrationFee_ = _fee;
     }
