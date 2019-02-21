@@ -88,7 +88,7 @@ class MainScreen extends Component {
         </HeaderView>
         <Iframe url={this.gameUrl}
         width="100%"
-        height="600px"
+        height={window.innerHeight-92}
         id="game"
         display="initial"
         position="relative"
