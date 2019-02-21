@@ -4,6 +4,7 @@ const {Wallet, ethers} = require('ethers');
 const fs = require('fs');
 const Clicker = require('../abi/Clicker');
 const Token = require('../abi/Token');
+const PlayerBook = require('../abi/PlayerBook');
 const FXPoints = require('../abi/FXPoints');
 
 const {jsonRpcUrl,privateKey} = config;
@@ -29,16 +30,24 @@ class ContractsDeployer {
     this.deployer = new Wallet(privateKey, this.provider);
     const clickerContract = await deployContract(this.deployer, Clicker);
     const tokenContract = await deployContract(this.deployer, Token);
+    const playerBookContract = await deployContract(
+        this.deployer, PlayerBook, [], {gasLimit:0x6691b7}
+      );
     const fxPointsContract = await deployContract(this.deployer, FXPoints);
     const variables = {};
     variables.CLICKER_CONTRACT_ADDRESS = clickerContract.address;
     variables.TOKEN_CONTRACT_ADDRESS = tokenContract.address;
+    variables.PLAYERBOOK_CONTRACT_ADDRESS = playerBookContract.address;
     variables.FXPOINTS_CONTRACT_ADDRESS = fxPointsContract.address;
-    console.log({
-      clickerContract:clickerContract.address,
-      tokenContract:tokenContract.address,
-      fxPointsContract:fxPointsContract.address
-    })
+
+    await fxPointsContract.activate(playerBookContract.address)
+
+    await playerBookContract.addGame(fxPointsContract.address, "fxpoints")
+    let activated = await fxPointsContract.activated_()
+    
+    console.log(`FXPoints contracts deployed, ${activated}`)
+
+    console.log({variables})
     //this.save('../.env', variables);
   }
 }
