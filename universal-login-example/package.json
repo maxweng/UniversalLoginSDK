@@ -16,6 +16,8 @@
     "react-dom": "^16.4.1",
     "react-iframe": "^1.4.0",
     "scrypt-js": "^2.0.4",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.85.0",
     "src": "^1.1.2",
     "universal-login-relayer": "^0.1.6",
     "universal-login-sdk": "^0.1.9"

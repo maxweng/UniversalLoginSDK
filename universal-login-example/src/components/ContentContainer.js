@@ -13,6 +13,7 @@ import RecoverAccount from './RecoverAccount';
 import CoinCenter from './CoinCenter';
 import PropTypes from 'prop-types';
 import {scrollTo} from '../utils';
+import 'semantic-ui-css/semantic.min.css'
 
 function setParam(param, value) {
   var query = location.search.substring(1);

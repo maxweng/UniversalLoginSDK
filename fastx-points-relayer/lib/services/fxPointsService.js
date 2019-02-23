@@ -20,6 +20,10 @@ class FXPointsService {
   async getCurrentRoundInfo() {
     return await this.tokenContract.getCurrentRoundInfo()
   }
+
+  async withdraw(address) {
+    return await this.tokenContract.withdraw.sendTransaction({from: address})
+  }
 }
 
 export default FXPointsService;

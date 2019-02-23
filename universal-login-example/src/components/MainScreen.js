@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
 import Iframe from 'react-iframe'
+import { Button } from 'semantic-ui-react'
 import MainScreenView from '../views/MainScreenView';
 import HeaderView from '../views/HeaderView';
 import RequestsBadge from './RequestsBadge';
 import AccountLink from './AccountLink';
 import ProfileIdentity from './ProfileIdentity';
 import PropTypes from 'prop-types';
+import PointsCenterModal from './PointsCenterModal';
 
 function getQueryString(name)
 {
@@ -25,18 +27,19 @@ class MainScreen extends Component {
     this.fxPointsService = services.fxPointsService;
     this.identityService = services.identityService;
     this.gameUrl = services.config.gameUrl + '?address=' + getQueryString('address') + '&access_code=' + getQueryString('access_code');
-    console.log(this.gameUrl)
-    this.state = {lastClick: '0', lastPresser: 'nobody', events: [], loaded: false, busy: false};
-  }
-
-  setView(view) {
-    const {emitter} = this.props.services;
-    emitter.emit('setView', view);
-  }
-
-  async onClickerClick() {
-    this.setState({busy: true});
-    await this.clickService.click(() => this.setState({busy: false}));
+    this.state = {
+      lastClick: '0', 
+      lastPresser: 'nobody', 
+      events: [], 
+      loaded: false, 
+      busy: false, 
+      open: false,
+      fxPoints: 0,
+      dividends: 0,
+      airDropPot: 0,
+      timeLeft: 0,
+      activeDrags: 0
+    };
   }
 
   async componentDidMount() {
@@ -44,6 +47,44 @@ class MainScreen extends Component {
     await this.updateFxPoints();
     this.historyService.subscribe(this.setState.bind(this));
     this.ensNameService.subscribe();
+    let playerInfo = await this.identityService.getPlayerInfo();
+    let gamePool = await this.identityService.getFXPInfo();
+    this.setState({
+      fxPoints: playerInfo.balance,
+      dividends: playerInfo.aff+playerInfo.gen+playerInfo.win,
+      airDropPot: gamePool.airDropPot,
+      timeLeft: gamePool.timeLeft,
+    })
+    let that = this
+    setInterval(function(){
+      that.setState({
+        timeLeft: that.state.timeLeft - 1
+      })
+    }, 1000)
+  }
+
+  show(event) {
+    event.preventDefault()
+    this.setState({ open: true })
+  }
+
+  close() {
+    this.setState({ open: false })
+  }
+
+  setView(view) {
+    const {emitter} = this.props.services;
+    emitter.emit('setView', view);
+  }
+
+  async withdraw() {
+    const result = await this.identityService.withdraw();
+    console.log(result)
+  }
+
+  async onClickerClick() {
+    this.setState({busy: true});
+    await this.clickService.click(() => this.setState({busy: false}));
   }
 
   async updateClicksLeft() {
@@ -73,6 +114,14 @@ class MainScreen extends Component {
   }
 
   render() {
+    const pointsCenterModalProps = {
+      fxPoints: this.state.fxPoints,
+      dividends: this.state.dividends,
+      airDropPot: this.state.airDropPot,
+      timeLeft: this.state.timeLeft,
+      onWithdraw: this.withdraw.bind(this),
+    }
+    
     return (
       <div>
         <HeaderView>
@@ -86,6 +135,9 @@ class MainScreen extends Component {
           />
           <AccountLink setView={this.setView.bind(this)} />
         </HeaderView>
+        <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'150px'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} />
+        
+        <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
         <Iframe url={this.gameUrl}
         width="100%"
         height={window.innerHeight-92}

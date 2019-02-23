@@ -6,9 +6,9 @@ const AccountLink = (props) => (
   <button onClick={() => props.setView('Account')} className="btn header-btn">
     Account
   </button>
-  <button onClick={() => props.setView('CoinCenter')} className="btn header-btn">
+  {/* <button onClick={() => props.setView('CoinCenter')} className="btn header-btn">
     积分中心
-  </button>
+  </button> */}
 </div>
 );
 

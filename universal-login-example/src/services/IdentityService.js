@@ -96,12 +96,17 @@ class IdentityService {
     const data = await this.sdk.getFXPInfo();
     return data;
   }
+
   async getPlayerInfo() {
     const data = await this.sdk.getPlayerInfo(this.identity.address);
     return data;
   }
 
-  
+  async withdraw() {
+    
+    const data = await this.sdk.withdraw(this.identity.address);
+    return data;
+  }
 }
 
 export default IdentityService;
