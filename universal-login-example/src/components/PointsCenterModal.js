@@ -48,46 +48,54 @@ class PointsCenterModal extends Component {
           <Button content='返回' basic onClick={close} style={{float:'right',padding: '16px 12px'}} size='mini'/>
         </Modal.Header>
         <Modal.Content>
-        <Grid columns={2} divided stackable textAlign='center'>
+        <Grid columns={2} stackable textAlign='center'>
           <Grid.Row>
-            <Grid.Column>
+            <Grid.Column className="chest_box" width='7'>
               <h4>分红拿到爽</h4>
-              <Grid columns={2} textAlign='center' style={{paddingTop:'40px'}}>
-                <Grid.Row>
-                  <Grid.Column>
-                    <div>FX积分</div>
-                    <div>{fxPoints}</div>
-                  </Grid.Column>
-                  <Grid.Column>
-                    <div>我的分红</div>
-                    <div>{dividends}</div>
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-              <Image src={require('../img/treasure_chest_small.png')} className="chest_img" onClick={onWithdraw}/>
-              <span style={{fontSize:'12px',color:'#333'}}>点击宝箱领取分红奖励</span>
-              <Button content='提现记录' basic size='mini' style={{float:'right'}}/>
-            </Grid.Column>
-            <Grid.Column>
-              <h4>幸运大抽奖</h4>
-              <Grid columns={2} textAlign='center' style={{paddingTop:'40px'}}>
-                <Grid.Row>
-                  <Grid.Column>
-                    <div>奖池大奖</div>
-                    <div>{airDropPot}</div>
-                  </Grid.Column>
-                  <Grid.Column>
-                    <div>倒计时</div>
-                    <div>{this.sec_to_time(timeLeft)}</div>
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-              <Image src={require('../img/treasure_chest_big.png')} className="chest_img"/>
-              <div style={{display:'inline-block'}}>
-                <div style={{fontSize:'12px',color:'#333'}}>点击宝箱抽取大奖</div>
-                <div style={{fontSize:'12px',color:'#333'}}>剩余抽奖次数 0</div>
+              <div>
+                <Grid columns={2} textAlign='center' style={{paddingTop:'40px'}}>
+                  <Grid.Row>
+                    <Grid.Column className="coin_box">
+                      <img src={require('../img/icon_FXPoints.png')} />
+                      <div className='title'>FX 积分</div>
+                      <div className='coin'>{fxPoints}</div>
+                    </Grid.Column>
+                    <Grid.Column className="coin_box">
+                      <img src={require('../img/icon_dividens.png')} />
+                      <div className='title'>我的分红</div>
+                      <div className='coin'>{dividends}</div>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                <Image src={require('../img/treasure_chest_small.png')} className="chest_img" onClick={onWithdraw}/>
+                <span style={{fontSize:'12px'}}>点击宝箱领取分红奖励</span>
+                <Button content='提现记录' basic size='mini'/>
               </div>
-              <Button content='抽奖记录记录' basic size='mini' style={{float:'right'}}/>
+            </Grid.Column>
+            <Grid.Column className="chest_box" width='7'>
+              <h4>幸运大抽奖</h4>
+              <div>
+                <Grid columns={2} textAlign='center' style={{paddingTop:'40px'}}>
+                  <Grid.Row>
+                    <Grid.Column className="coin_box">
+                      <img src={require('../img/icon_jackpot.png')} />
+                      <div className='title'>奖池大奖</div>
+                      <div className='coin'>{airDropPot}</div>
+                    </Grid.Column>
+                    <Grid.Column className="coin_box">
+                      <img src={require('../img/icon_countdown.png')} />
+                      <div className='title'>倒计时</div>
+                      <div className='coin'>{this.sec_to_time(timeLeft)}</div>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                <Image src={require('../img/treasure_chest_big.png')} className="chest_img"/>
+                <div style={{display:'inline-block'}}>
+                  <div style={{fontSize:'12px'}}>点击宝箱抽取大奖</div>
+                  <div style={{fontSize:'12px'}}>剩余抽奖次数 0</div>
+                </div>
+                <Button content='抽奖记录记录' basic size='mini'/>
+              </div>
             </Grid.Column>
           </Grid.Row>
         </Grid>
