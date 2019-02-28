@@ -65,7 +65,7 @@ class MainScreen extends Component {
     // let signatureData = await this.identityService.signTrade(1)
     // console.log('......')
     // this.IbankService.trade(1,signatureData)
-    await this.updateClicksLeft();
+    //await this.updateClicksLeft();
     await this.updateFxPoints();
     this.historyService.subscribe(this.setState.bind(this));
     this.ensNameService.subscribe();
@@ -109,24 +109,29 @@ class MainScreen extends Component {
     await this.clickService.click(() => this.setState({busy: false}));
   }
 
-  async updateClicksLeft() {
-    const {address} = this.identityService.identity;
-    const balance = await this.tokenService.getBalance(address);
-    const clicksLeft = parseInt(balance, 10);
-    this.setState({
-      clicksLeft
-    });
-    this.timeout = setTimeout(this.updateClicksLeft.bind(this), 2000);
-  }
+  // async updateClicksLeft() {
+  //   const {address} = this.identityService.identity;
+  //   const balance = await this.tokenService.getBalance(address);
+  //   const clicksLeft = parseInt(balance, 10);
+  //   this.setState({
+  //     clicksLeft
+  //   });
+  //   this.timeout = setTimeout(this.updateClicksLeft.bind(this), 2000);
+  // }
 
   async updateFxPoints() {
     const {address} = this.identityService.identity;
-    const balance = await this.fxPointsService.getBalance(address);
-    const fxPoints = parseInt(balance, 10);
-    this.setState({
-      fxPoints
-    });
-    this.timeout = setTimeout(this.updateFxPoints.bind(this), 2000);
+    try {
+      const balance = await this.fxPointsService.getBalance(address);
+      const fxPoints = parseInt(balance, 10);
+      this.setState({
+        fxPoints
+      });
+    } catch (error) {
+      console.log('get fxpoints balance error:',error)
+    } finally{
+      this.timeout = setTimeout(this.updateFxPoints.bind(this), 2000);
+    }
   }
 
   componentWillUnmount() {
@@ -169,7 +174,7 @@ class MainScreen extends Component {
         position="relative"
         allowFullScreen/>
         <button onClick={this.addCoin.bind(this)}>点我加1积分</button>
-        {/* <MainScreenView
+        <MainScreenView
           clicksLeft={this.state.clicksLeft}
           events={this.state.events}
           loaded={this.state.loaded}
@@ -177,7 +182,7 @@ class MainScreen extends Component {
           onClickerClick={this.onClickerClick.bind(this)}
           lastClick={this.state.lastClick}
           fxPoints={this.state.fxPoints}
-        /> */}
+        />
       </div>
     );
   }

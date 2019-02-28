@@ -43,7 +43,7 @@ class IbankService {
     body.append('app_key', '200728419515141');
     body.append('access_token', this.accessToken);
     body.append('open_id', '100020');
-    body.append('order_no', parseInt(Math.random()*1000000));
+    body.append('order_no', parseInt(Math.random()*100000)+'');
     body.append('trade_type', '0');
     body.append('asset_code', 'usdt');
     body.append('amount', '1');
