@@ -30,7 +30,7 @@ class Services {
     this.tokenService = new TokenService(this.config.tokenContractAddress, this.provider);
     this.fxPointsService = new FXPointsService(this.config.fxPointsContractAddress, this.provider);
     this.storageService = overrides.storageService || new StorageService();
-    this.identityService = new IdentityService(this.sdk, this.emitter, this.storageService, this.provider);
+    this.identityService = new IdentityService(this.sdk, this.emitter, this.storageService, this.provider, {token: this.config.tokenContractAddress, fxPoints: this.config.fxPointsContractAddress}, this.defaultPaymentOptions);
     this.backupService = new BackupService(this.identityService);
     this.IbankService = new IbankService(this.storageService)
     this.clickService = new ClickService(this.identityService, {clicker: this.config.clickerContractAddress, token: this.config.tokenContractAddress, fxPoints: this.config.fxPointsContractAddress}, this.defaultPaymentOptions);

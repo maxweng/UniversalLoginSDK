@@ -31,16 +31,15 @@ class PointsCenterModal extends Component {
   render() {
     let open = this.props.open;
     let close = this.props.close;
-    let { fxPoints, dividends, airDropPot, timeLeft, onWithdraw } = this.props;
+    let { fxPoints, dividends, airDropPot, timeLeft, userName, onWithdraw } = this.props;
 
     return (
-  
       <Modal open={open} onClose={close} size={'fullscreen'}>
         <Modal.Header style={{textAlign:'center'}}>
           <div className="row align-items-center" style={{float:'left'}}>
             <Blockies seed={'0xbF42E6bD8fA05956E28F7DBE274657c262526F3D'} size={8} scale={6} />
             <div>
-              <p className="user-id user-id-header">678.fastx.eth</p>
+              <p className="user-id user-id-header">{userName}</p>
               <p className="wallet-address wallet-address-header">{fxPoints}积分</p>
             </div>
           </div>

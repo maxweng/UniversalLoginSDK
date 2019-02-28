@@ -1,6 +1,6 @@
 import {utils, Wallet, Contract, providers} from 'ethers';
 import Identity from 'universal-login-contracts/build/Identity';
-import {OPERATION_CALL, MANAGEMENT_KEY, ECDSA_TYPE, ACTION_KEY, calculateMessageSignature} from 'universal-login-contracts';
+import {OPERATION_CALL, MANAGEMENT_KEY, ECDSA_TYPE, ACTION_KEY, calculateMessageSignature, calculateMessageHash} from 'universal-login-contracts';
 import {addressToBytes32, waitForContractDeploy, waitForTransactionReceipt} from './utils/utils';
 import {resolveName} from './utils/ethereum';
 import RelayerObserver from './observers/RelayerObserver';
@@ -31,6 +31,22 @@ class EthereumIdentitySDK {
       return [privateKey, contract.address];
     }
     throw new Error(`${responseJson.error}`);
+  }
+
+  async signTrade(message, privateKey) {
+    const finalMessage = {
+      ...this.defaultPaymentOptions,
+      ...message,
+      nonce: message.nonce || parseInt(await this.getNonce(message.from, privateKey), 10),
+    };
+    const signature = await calculateMessageSignature(privateKey, finalMessage);
+    const signatureData = JSON.stringify({...finalMessage, signature});
+  //   const url = `${this.relayerUrl}/identity/execution`;
+  //   const method = 'POST';
+  //   const body = signatureData;
+  //  await fetch(url, {headers, method, body});
+   
+    return signatureData
   }
 
   async addKey(to, publicKey, privateKey, transactionDetails, keyPurpose = MANAGEMENT_KEY) {

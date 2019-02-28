@@ -1,13 +1,31 @@
-import {Wallet} from 'ethers';
+import {Wallet, utils} from 'ethers';
+import DEFAULT_PAYMENT_OPTIONS from '../../config/defaultPaymentOptions';
+import {tokenContractAddress} from '../../config/config';
+import FXPoints from '../../build/FXPoints';
 
 class IdentityService {
-  constructor(sdk, emitter, storageService, provider) {
+  constructor(sdk, emitter, storageService, provider, addresses, defaultPaymentOptions) {
     this.sdk = sdk;
     this.emitter = emitter;
     this.identity = {};
     this.deviceAddress = '';
     this.storageService = storageService;
     this.provider = provider;
+    this.addresses = addresses;
+    this.defaultPaymentOptions = defaultPaymentOptions;
+  }
+
+  async signTrade(amount) {
+    const message = {
+      to: this.addresses.fxPoints,
+      from: this.identity.address,
+      value: 0,
+      data: new utils.Interface(FXPoints.interface).functions.spend.encode([amount]),
+      gasToken: this.addresses.token,
+      ...this.defaultPaymentOptions
+    };
+    const signature = await this.sdk.signTrade(message,this.identity.privateKey);
+    return signature;
   }
 
   async loadIdentity() {

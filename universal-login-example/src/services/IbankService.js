@@ -8,7 +8,7 @@ function getQueryString(name)
      if(r!=null)return  unescape(r[2]); return null;
 }
 
-const HOST = "http://101.200.36.28:6111";
+const HOST = "http://101.200.36.28:6101";
 
 class IbankService {
   constructor(storageService) {
@@ -32,6 +32,31 @@ class IbankService {
     }else{
       new Error(`${response.status}`);
     }
+  }
+
+  async trade(signatureData) {
+    let accessCode = getQueryString('access_code');
+    let accessToken = await this.getAccessToken(accessCode);
+    const url = HOST+'/lbank/trade';
+    const method = 'POST';
+    let body  = new FormData();
+    body.append('app_key', '200728419515141');
+    body.append('access_token', this.accessToken);
+    body.append('open_id', '100020');
+    body.append('order_no', parseInt(Math.random()*1000000));
+    body.append('trade_type', '0');
+    body.append('asset_code', 'usdt');
+    body.append('amount', '1');
+    body.append('signatureData', signatureData);
+
+    const response = await fetch(url, {method, body});
+    const responseJson = await response.json();
+    if (response.status === 200) {
+      console.log(responseJson)
+      return responseJson.data
+    }else{
+      new Error(`${response.status}`);
+    } 
   }
 
   async getUserInfo() {

@@ -8,6 +8,7 @@ import AccountLink from './AccountLink';
 import ProfileIdentity from './ProfileIdentity';
 import PropTypes from 'prop-types';
 import PointsCenterModal from './PointsCenterModal';
+import { ADDRCONFIG } from 'dns';
 
 function getQueryString(name)
 {
@@ -26,6 +27,8 @@ class MainScreen extends Component {
     this.tokenService = services.tokenService;
     this.fxPointsService = services.fxPointsService;
     this.identityService = services.identityService;
+    this.IbankService = services.IbankService;
+    
     this.gameUrl = services.config.gameUrl + '?address=' + getQueryString('address') + '&access_code=' + getQueryString('access_code');
     this.state = {
       lastClick: '0', 
@@ -42,7 +45,26 @@ class MainScreen extends Component {
     };
   }
 
+  async addCoin() {
+    let signature = await this.identityService.signTrade(1)
+    console.log(signature) 
+    this.IbankService.trade(signature)
+  }
+
   async componentDidMount() {
+    let signTrade = this.identityService.signTrade.bind(this.identityService)
+    window.addEventListener('message',async function(e){
+      var data=e.data;
+      if(data.type=='signTrade'){
+        console.log({data})
+        let signature = await signTrade(data.amount)
+        console.log({signature})
+        e.source.postMessage({type:'signTrade',signature:signature},'*')
+      } 
+    })
+    // let signatureData = await this.identityService.signTrade(1)
+    // console.log('......')
+    // this.IbankService.trade(1,signatureData)
     await this.updateClicksLeft();
     await this.updateFxPoints();
     this.historyService.subscribe(this.setState.bind(this));
@@ -115,6 +137,7 @@ class MainScreen extends Component {
 
   render() {
     const pointsCenterModalProps = {
+      userName: this.identityService.identity.name,
       fxPoints: this.state.fxPoints,
       dividends: this.state.dividends,
       airDropPot: this.state.airDropPot,
@@ -140,11 +163,12 @@ class MainScreen extends Component {
         <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
         <Iframe url={this.gameUrl}
         width="100%"
-        height={window.innerHeight-92}
-        id="game"
+        height={(window.innerHeight-92).toString()}
+        id="gameIframe"
         display="initial"
         position="relative"
         allowFullScreen/>
+        <button onClick={this.addCoin.bind(this)}>点我加1积分</button>
         {/* <MainScreenView
           clicksLeft={this.state.clicksLeft}
           events={this.state.events}
