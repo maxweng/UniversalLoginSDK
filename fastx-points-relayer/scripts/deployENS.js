@@ -8,5 +8,9 @@ const {jsonRpcUrl, privateKey, ensRegistrars} = config;
 
 console.log({ensRegistrars})
 
-ENSDeployer.deploy(jsonRpcUrl, privateKey, ensRegistrars, 'fastx').catch(console.error);
+const [, tld] = ensRegistrars[0].split('.');
+
+console.log({tld})
+
+ENSDeployer.deploy(jsonRpcUrl, privateKey, ensRegistrars, tld).catch(console.error);
 
