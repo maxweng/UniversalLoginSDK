@@ -4,7 +4,7 @@ import {EventEmitter} from 'fbemitter';
 class ObserverBase {
   constructor() {
     this.state = 'stop';
-    this.step = 1000;
+    this.step = 30000;
     this.emitters = [];
   }
 

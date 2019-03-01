@@ -130,7 +130,7 @@ class MainScreen extends Component {
     } catch (error) {
       console.log('get fxpoints balance error:',error)
     } finally{
-      this.timeout = setTimeout(this.updateFxPoints.bind(this), 2000);
+      this.timeout = setTimeout(this.updateFxPoints.bind(this), 30000);
     }
   }
 
