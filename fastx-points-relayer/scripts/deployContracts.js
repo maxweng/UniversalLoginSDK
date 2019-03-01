@@ -31,7 +31,7 @@ class ContractsDeployer {
 
   async activate() {
     console.log('activating fxpoints ...')
-    let tx = await this.fxPointsContract.activate(this.playerBookContract.address)
+    let tx = await this.fxPointsContract.activate()
     console.log({tx})
     await tx.wait()
   }
@@ -54,7 +54,8 @@ class ContractsDeployer {
       );
 
     console.log('deploying fxPointsContract ...')
-    this.fxPointsContract = await deployContract(this.deployer, FXPoints);
+    this.fxPointsContract = await deployContract(
+      this.deployer, FXPoints, [this.playerBookContract.address]);
 
     const variables = {};
 
@@ -66,14 +67,14 @@ class ContractsDeployer {
     console.log({variables})
 
     console.log('all deployed!')
-
+    
     try{
       await this.add()
     } catch (err) {
       console.log({err})
       await this.add()
     }
-    
+
     try{
       await this.activate()
     } catch (err) {
