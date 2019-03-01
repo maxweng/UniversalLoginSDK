@@ -29,22 +29,32 @@ class ENSDeployer {
     const builder = new ENSBuilder(this.deployer);
     await builder.bootstrap();
     this.variables.ENS_ADDRESS = builder.ens.address;
+    this.variables.PUBLIC_RESOLVER_ADDRESS = builder.resolver.address;
+    console.log(this.variables)
+
+    console.log('registerTLD')
     await builder.registerTLD(tld);
+
+    console.log('registerReverseRegistrar')
     await builder.registerReverseRegistrar();
+
     for (let count = 0; count < registrars.length; count++) {
       const domain = registrars[count];
       const [label, tld] = domain.split('.');
+
+      console.log('registerDomain')
       await builder.registerDomain(label, tld);
+
       this.count += 1;
     }
   }
 
-  static async deploy(jsonRpcUrl, registrars, tld = 'eth') {
+  static async deploy(jsonRpcUrl, deployKey, registrars, tld = 'eth') {
     const provider = new providers.JsonRpcProvider(jsonRpcUrl);
-    const deployerPrivateKey = defaultAccounts[defaultAccounts.length - 1].secretKey;
+    const deployerPrivateKey = deployKey ? deployKey : defaultAccounts[defaultAccounts.length - 1].secretKey;
     const deployer = new ENSDeployer(provider, deployerPrivateKey);
     await deployer.deployRegistrars(registrars, tld);
-    console.log(deployer.variables.ENS_ADDRESS)
+    console.log(deployer.variables)
     //deployer.save('.env');
   }
 }

@@ -48,7 +48,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "canvas": "^2.2.0",
-    "ens-builder": "^2.0.0",
+    "ens-builder": "git+https://github.com/maxweng/ENSBuilder.git",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
     "eslint": "^4.18.0",

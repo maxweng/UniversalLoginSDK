@@ -4,7 +4,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "dependencies": {
-    "ens-builder": "^2.0.0"
+    "ens-builder": "git+https://github.com/maxweng/ENSBuilder.git"
   },
   "scripts": {
     "prepublishOnly": "rm -rf build dist && yarn build",
@@ -21,7 +21,7 @@
     "@types/mocha": "^5.2.5",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "ethereum-waffle": "^2.0.4",
+    "ethereum-waffle": "git+https://github.com/maxweng/Waffle.git#dist_test",
     "ganache-core": "^2.2.1",
     "mocha": "^5.2.0",
     "openzeppelin-solidity": "^2.1.1",

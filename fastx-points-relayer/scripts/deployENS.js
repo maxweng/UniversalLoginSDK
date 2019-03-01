@@ -1,7 +1,12 @@
+const config = require('../lib/config/relayer');
 import ENSDeployer from '../lib/utils/ensDeployer';
 
-const ensRegistrars = {'fastx.eth': []};
-const jsonRpcUrl = 'http://localhost:18545';
+const {jsonRpcUrl, privateKey, ensRegistrars} = config;
 
-ENSDeployer.deploy(jsonRpcUrl, ensRegistrars, 'eth').catch(console.error);
+// const ensRegistrars = {'fastx.eth': []};
+// const jsonRpcUrl = 'http://localhost:18545';
+
+console.log({ensRegistrars})
+
+ENSDeployer.deploy(jsonRpcUrl, privateKey, ensRegistrars, 'fastx').catch(console.error);
 

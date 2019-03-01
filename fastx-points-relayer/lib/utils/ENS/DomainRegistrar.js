@@ -17,11 +17,15 @@ class DomainRegistrar extends ENSRegistrarBase {
   }
 
   async setAsResolverPublicResolver(label, node, tld) {
-    this.publicResolver = new Contract(this.config.chainSpec.publicResolverAddress, PublicResolver.interface, this.deployer);
-    const transaction = await this.ens.setResolver(node, this.publicResolver.address);
-    await waitToBeMined(this.provider, transaction.hash);
-    this.log(`Resolver for ${label}.${tld} set to ${await this.ens.resolver(node)} (public resolver)`);
-    this.variables.PUBLIC_RESOLVER_ADDRESS = this.config.chainSpec.publicResolverAddress;
+    try {
+      this.publicResolver = new Contract(this.config.chainSpec.publicResolverAddress, PublicResolver.interface, this.deployer);
+      const transaction = await this.ens.setResolver(node, this.publicResolver.address, {gasLimit:400000});
+      await waitToBeMined(this.provider, transaction.hash);
+      this.log(`Resolver for ${label}.${tld} set to ${await this.ens.resolver(node)} (public resolver)`);
+      this.variables.PUBLIC_RESOLVER_ADDRESS = this.config.chainSpec.publicResolverAddress;
+    } catch (err) {
+      console.log({err})
+    }
   }
 
   async deployNewRegistrar(node) {
@@ -33,9 +37,13 @@ class DomainRegistrar extends ENSRegistrarBase {
   }
 
   async setRegistrarAsOwner(label, node, tld) {
-    const transaction = await this.ens.setOwner(node, this.registrarAddress);
-    await waitToBeMined(this.provider, transaction.hash);
-    this.log(`${label}.${tld} owner set to: ${await this.ens.owner(node)} (registrar)`);
+    try {
+      const transaction = await this.ens.setOwner(node, this.registrarAddress, {gasLimit:400000});
+      await waitToBeMined(this.provider, transaction.hash);
+      this.log(`${label}.${tld} owner set to: ${await this.ens.owner(node)} (registrar)`);
+    } catch (err) {
+      console.log({err})
+    }
   }
 
   async start(label, tld) {
