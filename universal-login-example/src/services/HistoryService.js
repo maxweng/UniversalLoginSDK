@@ -4,8 +4,8 @@ import {sleep} from 'universal-login-contracts';
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 
 class HistoryService {
-  constructor(clickerContractAddress, provider) {
-    this.clickerContractAddress = clickerContractAddress;
+  constructor(provider) {
+    //this.clickerContractAddress = clickerContractAddress;
     this.provider = provider;
     this.interface = new utils.Interface(Clicker.interface);
     this.pressButtonTopic = new utils.Interface(Clicker.interface).events.ButtonPress.topic;
@@ -68,12 +68,13 @@ class HistoryService {
   }
 
   async getPressLogs() {
-    const filter = {
-      fromBlock: 0,
-      address: this.clickerContractAddress,
-      topics: [this.pressButtonTopic]
-    };
-    return await this.provider.getLogs(filter);
+    return null
+    // const filter = {
+    //   fromBlock: 0,
+    //   address: this.clickerContractAddress,
+    //   topics: [this.pressButtonTopic]
+    // };
+    // return await this.provider.getLogs(filter);
   }
 
   async getPressEvents() {

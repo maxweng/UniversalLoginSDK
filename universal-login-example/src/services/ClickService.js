@@ -1,5 +1,5 @@
 import {utils} from 'ethers';
-import Clicker from '../../build/Clicker';
+// import Clicker from '../../build/Clicker';
 import FXPoints from '../../build/FXPoints';
 
 class ClickService {
@@ -10,14 +10,14 @@ class ClickService {
   }
 
   async click(callback) {
-    const message = {
-      to: this.addresses.clicker,
-      from: this.identityService.identity.address,
-      value: 0,
-      data: new utils.Interface(Clicker.interface).functions.press.encode([]),
-      gasToken: this.addresses.token,
-      ...this.defaultPaymentOptions
-    };
+    // const message = {
+    //   to: this.addresses.clicker,
+    //   from: this.identityService.identity.address,
+    //   value: 0,
+    //   data: new utils.Interface(Clicker.interface).functions.press.encode([]),
+    //   gasToken: this.addresses.token,
+    //   ...this.defaultPaymentOptions
+    // };
   
     const message2 = {
       to: this.addresses.fxPoints,
@@ -28,7 +28,7 @@ class ClickService {
       ...this.defaultPaymentOptions
     }
 
-    await this.identityService.execute(message);
+    //await this.identityService.execute(message);
     await this.identityService.execute(message2);
 
     callback();

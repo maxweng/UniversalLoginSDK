@@ -14,14 +14,16 @@ class IbankService {
   constructor(storageService) {
     this.storageService = storageService;
     this.appKey = '200728419515141';
+    this.accessCode = getQueryString('access_code');
+    this.getAccessToken();
   }
 
-  async getAccessToken(accessCode) {
+  async getAccessToken() {
     const url = HOST+'/lbank/user/access_token';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', this.appKey);
-    body.append('access_code', accessCode);
+    body.append('access_code', this.accessCode);
     const response = await fetch(url, {method, body});
     const responseJson = await response.json();
     if (response.status === 200) {
@@ -34,9 +36,8 @@ class IbankService {
     }
   }
 
+  //测试用的，正式需要去掉
   async trade(signatureData) {
-    let accessCode = getQueryString('access_code');
-    let accessToken = await this.getAccessToken(accessCode);
     const url = HOST+'/lbank/trade';
     const method = 'POST';
     let body  = new FormData();
@@ -60,6 +61,9 @@ class IbankService {
   }
 
   async getUserInfo() {
+    if(!await this.isValid()){
+      await this.onRefreshToken();
+    }
     const url = HOST+'/lbank/user/info';
     const method = 'POST';
     let body  = new FormData();
@@ -85,7 +89,7 @@ class IbankService {
     const response = await fetch(url, {method, body});
     const responseJson = await response.json();
     if (response.status === 200) {
-      return responseJson.data
+      return responseJson.valid
     }else{
       new Error(`${response.status}`);
     } 
@@ -108,6 +112,9 @@ class IbankService {
   }
 
   async getBalance() {
+    if(!await this.isValid()){
+      await this.onRefreshToken();
+    }
     const url = HOST+'/lbank/user/balance';
     const method = 'POST';
     let body  = new FormData();
@@ -128,16 +135,13 @@ class IbankService {
     if (identity) {
         return null
     } else{
-        let accessCode = getQueryString('access_code');
-        if(accessCode){
-          let accessToken = await this.getAccessToken(accessCode);
+        if(this.accessCode){
           let userInfo = await this.getUserInfo();
           let userName = userInfo.open_id
           return userName
-        }else{
-          //window.location.href=HOST+"/lbank/user/access?app=test"
-          return null
-        }      
+        }
+        
+        return null
     }
   }
 }

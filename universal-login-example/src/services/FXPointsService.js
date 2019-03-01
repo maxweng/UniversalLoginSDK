@@ -3,10 +3,10 @@ import {utils, Contract} from 'ethers';
 import FXPoints from '../../build/FXPoints';
 
 class FXPointsService {
-  constructor(tokenContractAddress, provider) {
-    this.tokenContractAddress = tokenContractAddress;
+  constructor(fxPointsContractAddress, provider) {
+    this.fxPointsContractAddress = fxPointsContractAddress;
     this.provider = provider;
-    this.tokenContract = new Contract(this.tokenContractAddress, FXPoints.interface, this.provider);
+    this.tokenContract = new Contract(this.fxPointsContractAddress, FXPoints.interface, this.provider);
   }
 
   async getBalance(address) {

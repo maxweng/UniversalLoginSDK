@@ -33,8 +33,8 @@ class Services {
     this.identityService = new IdentityService(this.sdk, this.emitter, this.storageService, this.provider, {token: this.config.tokenContractAddress, fxPoints: this.config.fxPointsContractAddress}, this.defaultPaymentOptions);
     this.backupService = new BackupService(this.identityService);
     this.IbankService = new IbankService(this.storageService)
-    this.clickService = new ClickService(this.identityService, {clicker: this.config.clickerContractAddress, token: this.config.tokenContractAddress, fxPoints: this.config.fxPointsContractAddress}, this.defaultPaymentOptions);
-    this.historyService = new HistoryService(this.config.clickerContractAddress, this.provider, this.ensService);
+    this.clickService = new ClickService(this.identityService, {token: this.config.tokenContractAddress, fxPoints: this.config.fxPointsContractAddress}, this.defaultPaymentOptions);
+    this.historyService = new HistoryService(this.provider, this.ensService);
     this.ensNameService = new EnsNameService(this.ensService, this.historyService);
     this.authorisationService = new AuthorisationService(this.sdk, this.emitter);
     this.identitySelectionService = new IdentitySelectionService(this.sdk, config.ensDomains);

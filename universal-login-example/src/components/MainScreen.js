@@ -62,16 +62,16 @@ class MainScreen extends Component {
         e.source.postMessage({type:'signTrade',signature:signature},'*')
       } 
     })
-    // let signatureData = await this.identityService.signTrade(1)
-    // console.log('......')
-    // this.IbankService.trade(1,signatureData)
+    
     //await this.updateClicksLeft();
     await this.updateFxPoints();
     this.historyService.subscribe(this.setState.bind(this));
     this.ensNameService.subscribe();
+    let userInfo = await this.IbankService.getUserInfo();
     let playerInfo = await this.identityService.getPlayerInfo();
     let gamePool = await this.identityService.getFXPInfo();
     this.setState({
+      userName: userInfo.user_name,
       fxPoints: playerInfo.balance,
       dividends: playerInfo.aff+playerInfo.gen+playerInfo.win,
       airDropPot: gamePool.airDropPot,
@@ -142,7 +142,7 @@ class MainScreen extends Component {
 
   render() {
     const pointsCenterModalProps = {
-      userName: this.identityService.identity.name,
+      userName: this.state.userName,
       fxPoints: this.state.fxPoints,
       dividends: this.state.dividends,
       airDropPot: this.state.airDropPot,
