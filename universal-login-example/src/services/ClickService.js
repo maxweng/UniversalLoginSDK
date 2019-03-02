@@ -19,17 +19,17 @@ class ClickService {
     //   ...this.defaultPaymentOptions
     // };
   
-    const message2 = {
-      to: this.addresses.fxPoints,
-      from: this.identityService.identity.address,
-      value: 0,
-      data: new utils.Interface(FXPoints.interface).functions.buyXaddr.encode([1]),
-      gasToken: this.addresses.token,
-      ...this.defaultPaymentOptions
-    }
+    // const message2 = {
+    //   to: this.addresses.fxPoints,
+    //   from: this.identityService.identity.address,
+    //   value: 0,
+    //   data: new utils.Interface(FXPoints.interface).functions.buyXaddr.encode([1]),
+    //   gasToken: this.addresses.token,
+    //   ...this.defaultPaymentOptions
+    // }
 
-    //await this.identityService.execute(message);
-    await this.identityService.execute(message2);
+    // //await this.identityService.execute(message);
+    // await this.identityService.execute(message2);
 
     callback();
   }

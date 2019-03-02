@@ -12,8 +12,7 @@ class FXPointsService {
   async getBalance(address) {
     console.log(address)
     let userInfo = await this.fxPointsContract.getPlayerInfoByAddress(address);
-    console.log(userInfo[2].toNumber())
-    return userInfo[2].toNumber()
+    return utils.formatEther(userInfo[2])
   }
 }
 

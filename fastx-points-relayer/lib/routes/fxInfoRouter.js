@@ -1,4 +1,5 @@
 
+import {utils} from 'ethers';
 import express from 'express';
 import asyncMiddleware from '../middlewares/async_middleware';
 
@@ -11,12 +12,12 @@ export const getInfo = (fxPointsService) => async (req, res) => {
     .type('json')
     .send(JSON.stringify({
         roundId: roundId.toNumber(),
-        currentPot: currentPot.toNumber(),
-        totalKeys: totalKeys.toNumber(),
+        currentPot: utils.formatEther(currentPot.toNumber()),
+        totalKeys: utils.formatEther(totalKeys.toNumber()),
         leaderAddr: leaderAddr.toString(),
         leaderName: leaderName.toString(),
         timeLeft: parseInt(time),
-        airDropPot:airDropPot.toNumber()
+        airDropPot:utils.formatEther(airDropPot.toNumber())
     }));
 };
 

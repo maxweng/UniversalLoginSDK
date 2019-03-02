@@ -16,6 +16,7 @@ class IdentityService {
   }
 
   async signTrade(amount) {
+    amount = utils.parseEther(amount.toString())
     const message = {
       to: this.addresses.fxPoints,
       from: this.identity.address,
