@@ -476,13 +476,14 @@ contract FXPoints is FXEvents {
 
     mapping (address=>uint) memberTokens_;
 
-    // constructor() public {
-    //     rID_ = 1;
-    //     round_[rID_].strt = now;
-    //     round_[rID_].end = now + ROUND_LEN + ICO_ZERO_LEN;
+    constructor(address _book) public {
+        // rID_ = 1;
+        // round_[rID_].strt = now;
+        // round_[rID_].end = now + ROUND_LEN + ICO_ZERO_LEN;
         
-    //     address _owner = msg.sender;
-    // }
+        // address _owner = msg.sender;
+        playerBook_= (PlayerBookInterface)(_book);
+    }
 
     modifier onlyDevs() {
         // require(
@@ -1194,7 +1195,7 @@ contract FXPoints is FXEvents {
      * have time to set things up on the web end                            
      */
     bool public activated_ = false;
-    function activate(address _book)
+    function activate()
         onlyDevs()
         public
     {
@@ -1203,8 +1204,6 @@ contract FXPoints is FXEvents {
         
         // activate the contract 
         activated_ = true;
-
-        playerBook_= (PlayerBookInterface)(_book);
         
         // lets start first round in ICO phase
         rID_ = 1;
