@@ -32,9 +32,8 @@ export const create = (identityService) => async (req, res, next) => {
 
 const executeSigned = async (identityService, body) => {
   for (let i = 1; i<=retyCount; i++){
-    
     try {
-        transaction = await identityService.executeSigned(body);;
+        const transaction = await identityService.executeSigned(body);
         return transaction;
     }catch(err){
         if(i < retyCount) {
