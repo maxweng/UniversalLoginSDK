@@ -166,15 +166,17 @@ class MainScreen extends Component {
         <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'150px'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} />
         
         <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
-        <Iframe url={this.gameUrl}
+        {/* <Iframe url={this.gameUrl}
         width="100%"
         height={(window.innerHeight-92).toString()}
         id="gameIframe"
         display="initial"
         position="relative"
-        allowFullScreen/>
-        <button onClick={this.addCoin.bind(this)}>点我加1积分</button>
-        <MainScreenView
+        allowFullScreen/> */}
+        
+        <h4>当前积分{this.state.fxPoints}</h4>
+        <Button default onClick={this.addCoin.bind(this)}>点我加积分</Button>
+        {/* <MainScreenView
           clicksLeft={this.state.clicksLeft}
           events={this.state.events}
           loaded={this.state.loaded}
@@ -182,7 +184,7 @@ class MainScreen extends Component {
           onClickerClick={this.onClickerClick.bind(this)}
           lastClick={this.state.lastClick}
           fxPoints={this.state.fxPoints}
-        />
+        /> */}
       </div>
     );
   }
