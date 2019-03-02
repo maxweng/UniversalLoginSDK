@@ -47,12 +47,14 @@ class Relayer {
     this.hooks.addListener('created', async (transaction) => {
       const receipt = await waitToBeMined(this.provider, transaction.hash);
       if (receipt.status) {
-        console.log(receipt.contractAddress)
-        console.log({
-          tokenAmount
-        })
-        const tokenTransaction = await this.tokenContract.transfer(receipt.contractAddress, tokenAmount);
-        await waitToBeMined(this.provider, tokenTransaction.hash);
+        try {
+          const tokenTransaction = await this.tokenContract.transfer(receipt.contractAddress, tokenAmount);
+          await waitToBeMined(this.provider, tokenTransaction.hash);
+        } catch (error) {
+          const tokenTransaction = await this.tokenContract.transfer(receipt.contractAddress, tokenAmount);
+          await waitToBeMined(this.provider, tokenTransaction.hash);
+        }
+        
         // const transaction = {
         //   to: receipt.contractAddress,
         //   value: etherAmount
