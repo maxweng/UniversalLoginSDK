@@ -10,10 +10,10 @@ export const getPlayerInfo = (fxPointsService) => async (req, res) => {
   res.status(200)
     .type('json')
     .send(JSON.stringify({
-        balance: utils.formatEther(keys.toNumber()),
-        win: utils.formatEther(win.toNumber()),
-        gen: utils.formatEther(gen.toNumber()),
-        aff: utils.formatEther(aff.toNumber()),
+        balance: utils.formatEther(keys),
+        win: utils.formatEther(win),
+        gen: utils.formatEther(gen),
+        aff: utils.formatEther(aff),
         name: name.toString(),
     }));
 };
