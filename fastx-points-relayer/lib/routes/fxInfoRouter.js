@@ -12,12 +12,12 @@ export const getInfo = (fxPointsService) => async (req, res) => {
     .type('json')
     .send(JSON.stringify({
         roundId: roundId.toNumber(),
-        currentPot: utils.formatEther(currentPot.toNumber()),
-        totalKeys: utils.formatEther(totalKeys.toNumber()),
+        currentPot: utils.formatEther(currentPot),
+        totalKeys: utils.formatEther(totalKeys),
         leaderAddr: leaderAddr.toString(),
         leaderName: leaderName.toString(),
         timeLeft: parseInt(time),
-        airDropPot:utils.formatEther(airDropPot.toNumber())
+        airDropPot:utils.formatEther(airDropPot)
     }));
 };
 
