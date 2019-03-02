@@ -43,7 +43,7 @@ class Relayer {
 
   addHooks() {
     const tokenAmount = utils.parseEther('100');
-    const etherAmount = utils.parseEther('100');
+    //const etherAmount = utils.parseEther('100');
     this.hooks.addListener('created', async (transaction) => {
       const receipt = await waitToBeMined(this.provider, transaction.hash);
       if (receipt.status) {
@@ -53,11 +53,11 @@ class Relayer {
         })
         const tokenTransaction = await this.tokenContract.transfer(receipt.contractAddress, tokenAmount);
         await waitToBeMined(this.provider, tokenTransaction.hash);
-        const transaction = {
-          to: receipt.contractAddress,
-          value: etherAmount
-        };
-        await this.wallet.sendTransaction(transaction);
+        // const transaction = {
+        //   to: receipt.contractAddress,
+        //   value: etherAmount
+        // };
+        // await this.wallet.sendTransaction(transaction);
       }
     });
   }

@@ -1,6 +1,6 @@
 import {utils} from 'ethers';
 // import Clicker from '../../build/Clicker';
-import FXPoints from '../../build/FXPoints';
+import FXPoints from 'fastx-points-relayer/abi/FXPoints.json';
 
 class ClickService {
   constructor(identityService, addresses, defaultPaymentOptions) {
@@ -23,7 +23,7 @@ class ClickService {
       to: this.addresses.fxPoints,
       from: this.identityService.identity.address,
       value: 0,
-      data: new utils.Interface(FXPoints.interface).functions.spend.encode([1]),
+      data: new utils.Interface(FXPoints.interface).functions.buyXaddr.encode([1]),
       gasToken: this.addresses.token,
       ...this.defaultPaymentOptions
     }

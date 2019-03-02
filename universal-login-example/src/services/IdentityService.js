@@ -1,7 +1,7 @@
 import {Wallet, utils} from 'ethers';
 import DEFAULT_PAYMENT_OPTIONS from '../../config/defaultPaymentOptions';
 import {tokenContractAddress} from '../../config/config';
-import FXPoints from '../../build/FXPoints';
+import FXPoints from 'fastx-points-relayer/abi/FXPoints.json';
 
 class IdentityService {
   constructor(sdk, emitter, storageService, provider, addresses, defaultPaymentOptions) {
@@ -20,7 +20,7 @@ class IdentityService {
       to: this.addresses.fxPoints,
       from: this.identity.address,
       value: 0,
-      data: new utils.Interface(FXPoints.interface).functions.spend.encode([amount]),
+      data: new utils.Interface(FXPoints.interface).functions.buyXaddr.encode([amount]),
       gasToken: this.addresses.token,
       ...this.defaultPaymentOptions
     };
