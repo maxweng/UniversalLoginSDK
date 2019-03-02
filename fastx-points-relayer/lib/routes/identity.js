@@ -47,6 +47,7 @@ const executeSigned = async (identityService, body) => {
 
 export const execution = (identityService) => async (req, res, next) => {
   const transaction = await executeSigned(identityService, req.body);
+  console.log({transaction})
   if(transaction instanceof Error){
     next(transaction);
   }else{

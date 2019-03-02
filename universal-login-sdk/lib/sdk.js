@@ -126,7 +126,13 @@ class EthereumIdentitySDK {
   async getNonce(identityAddress, privateKey) {
     const wallet = new Wallet(privateKey, this.provider);
     const contract = new Contract(identityAddress, Identity.interface, wallet);
-    return contract.lastNonce();
+    let nonce
+    try {
+      nonce = contract.lastNonce();
+    } catch (error) {
+      nonce = contract.lastNonce();
+    }
+    return nonce;
   }
 
   async identityExist(identity) {

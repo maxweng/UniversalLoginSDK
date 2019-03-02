@@ -6,11 +6,14 @@ class FXPointsService {
   constructor(fxPointsContractAddress, provider) {
     this.fxPointsContractAddress = fxPointsContractAddress;
     this.provider = provider;
-    this.tokenContract = new Contract(this.fxPointsContractAddress, FXPoints.interface, this.provider);
+    this.fxPointsContract = new Contract(this.fxPointsContractAddress, FXPoints.interface, this.provider);
   }
 
   async getBalance(address) {
-    return await this.tokenContract.balanceOf(address)
+    console.log(address)
+    let userInfo = await this.fxPointsContract.getPlayerInfoByAddress(address);
+    console.log(userInfo[2].toNumber())
+    return userInfo[2].toNumber()
   }
 }
 
