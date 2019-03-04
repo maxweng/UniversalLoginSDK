@@ -113,4 +113,24 @@ const saveVariables = (filename, variables) => {
   });
 };
 
-export {sleep, sendAndWaitForTransaction, saveVariables, getDeployTransaction, addressToBytes32, waitForContractDeploy, messageSignatureForApprovals, withENS, lookupAddress, hasEnoughToken, isAddKeyCall, getKeyFromData, isAddKeysCall};
+const retry = async (callback, retryCount=3, tick=1000) => {
+    if(typeof callback != "function"){
+      throw new Error('Paramers is not a function')
+    }
+
+    for(let i = 1; i <= retryCount; i++){
+      try {
+          const result = await callback();
+          return result;
+      } catch (error) {
+        if(i < retryCount) {
+            await sleep(tick*i);
+            console.error("executeSignedErr:",i,error)
+        }else{
+            return error;
+        }
+      }
+    }
+}
+
+export {sleep, retry, sendAndWaitForTransaction, saveVariables, getDeployTransaction, addressToBytes32, waitForContractDeploy, messageSignatureForApprovals, withENS, lookupAddress, hasEnoughToken, isAddKeyCall, getKeyFromData, isAddKeysCall};
