@@ -53,28 +53,30 @@ class MainScreen extends Component {
 
   async componentDidMount() {
     let signTrade = this.identityService.signTrade.bind(this.identityService)
+    console.log('addEventListener message')
     window.addEventListener('message',async function(e){
       var data=e.data;
+      //console.log(e)
       if(data.type=='signTrade'){
+        console.log('message signTrade')
         console.log({data})
-        let signature = await signTrade(data.amount)
-        console.log({signature})
-        e.source.postMessage({type:'signTrade',signature:signature},'*')
+        let signatureData = await signTrade(data.amount)
+        console.log({signatureData})
+        e.source.postMessage({type:'signTrade',signatureData},'*')
       } 
     })
     
-    //await this.updateClicksLeft();
     await this.updateFxPoints();
-    this.historyService.subscribe(this.setState.bind(this));
+    //this.historyService.subscribe(this.setState.bind(this));
     this.ensNameService.subscribe();
     let userInfo = await this.IbankService.getUserInfo();
     let playerInfo = await this.identityService.getPlayerInfo();
     let gamePool = await this.identityService.getFXPInfo();
     this.setState({
       userName: userInfo.user_name,
-      fxPoints: playerInfo.balance,
-      dividends: playerInfo.aff+playerInfo.gen+playerInfo.win,
-      airDropPot: gamePool.airDropPot,
+      fxPoints: parseFloat(playerInfo.balance).toFixed(2),
+      dividends: parseFloat(playerInfo.aff+playerInfo.gen+playerInfo.win).toFixed(2),
+      airDropPot: parseFloat(gamePool.airDropPot).toFixed(2),
       timeLeft: gamePool.timeLeft,
     })
     let that = this
@@ -123,7 +125,7 @@ class MainScreen extends Component {
     const {address} = this.identityService.identity;
     try {
       const balance = await this.fxPointsService.getBalance(address);
-      const fxPoints = parseInt(balance, 10);
+      const fxPoints = parseFloat(balance, 10).toFixed(2);
       this.setState({
         fxPoints
       });
@@ -154,6 +156,7 @@ class MainScreen extends Component {
       <div>
         <HeaderView>
           <ProfileIdentity
+            userName={this.state.userName}
             type="identityHeader"
             identityService={this.props.services.identityService}
           />
@@ -163,19 +166,19 @@ class MainScreen extends Component {
           />
           <AccountLink setView={this.setView.bind(this)} />
         </HeaderView>
-        <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'150px'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} />
+        <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'125px'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} />
         
         <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
-        {/* <Iframe url={this.gameUrl}
+        <Iframe url={this.gameUrl}
         width="100%"
         height={(window.innerHeight-92).toString()}
         id="gameIframe"
         display="initial"
         position="relative"
-        allowFullScreen/> */}
+        allowFullScreen/>
         
-        <h4>当前积分{this.state.fxPoints}</h4>
-        <Button default onClick={this.addCoin.bind(this)}>点我加积分</Button>
+        {/* <h4>当前积分{this.state.fxPoints}</h4>
+        <Button default onClick={this.addCoin.bind(this)}>点我加积分</Button> */}
         {/* <MainScreenView
           clicksLeft={this.state.clicksLeft}
           events={this.state.events}

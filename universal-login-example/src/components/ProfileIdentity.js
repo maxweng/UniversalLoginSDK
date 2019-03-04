@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 class ProfileIdentity extends Component {
   render() {
-    const {identity} = this.props.identityService;
+    const {identityService: {identity}, userName} = this.props;
     if (!identity.address) {
       return (<div/>);
     }
@@ -15,7 +15,7 @@ class ProfileIdentity extends Component {
         return (
           <ProfileIdentityAccount
             userIco={UserIco}
-            userId={identity.name}
+            userId={userName}
             address={identity.address}
           />
         );
@@ -24,7 +24,7 @@ class ProfileIdentity extends Component {
         return (
           <ProfileIdentityHeader
             userIco={UserIco}
-            userId={identity.name}
+            userId={userName}
             address={identity.address}
           />
         );

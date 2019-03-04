@@ -68,13 +68,12 @@ class HistoryService {
   }
 
   async getPressLogs() {
-    return null
-    // const filter = {
-    //   fromBlock: 0,
-    //   address: this.clickerContractAddress,
-    //   topics: [this.pressButtonTopic]
-    // };
-    // return await this.provider.getLogs(filter);
+    const filter = {
+      fromBlock: 0,
+      address: this.clickerContractAddress,
+      topics: [this.pressButtonTopic]
+    };
+    return await this.provider.getLogs(filter);
   }
 
   async getPressEvents() {
