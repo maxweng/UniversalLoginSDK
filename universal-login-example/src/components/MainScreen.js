@@ -62,7 +62,7 @@ class MainScreen extends Component {
         console.log({data})
         let signatureData = await signTrade(data.amount)
         console.log({signatureData})
-        e.source.postMessage({type:'signTrade',signatureData},'*')
+        e.source.postMessage({type:'signTrade',signatureData,'timestamp': data.timestamp},'*')
       } 
     })
     
