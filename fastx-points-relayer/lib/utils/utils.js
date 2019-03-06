@@ -166,18 +166,23 @@ function verify(req){
   const data = req.body;
   let parasmData = Object.assign({},data);
   delete parasmData.encodeData;
-  console.log({
-    encodeData: data.encodeData.toString(),
-  })
-  const decodeData = crypto.privateDecrypt({
-    key: signPrivateKey,
-    padding: crypto.constants.RSA_PKCS1_PADDING
-  }, Buffer.from(data.encodeData.toString('base64'), 'base64'));
-  const hashData = crypto.createHash('md5').update(JSON.stringify(parasmData)).digest("hex")
-  console.log({
-    decodeData,
-    hashData
-  })
+  try {
+    const decodeData = crypto.privateDecrypt({
+      key: signPrivateKey,
+      padding: crypto.constants.RSA_PKCS1_PADDING
+    }, Buffer.from(data.encodeData.toString('base64'), 'base64')).toString();
+    const hashData = crypto.createHash('md5').update(parasmData['signature']).digest("hex")
+    console.log({
+      encodeData: data.encodeData.toString(),
+      decodeData,
+      hashData
+    })
+    console.log(decodeData == hashData)
+  } catch (error) {
+    console.log('verify error:',error)
+    return false;
+  }
+  
   if(decodeData == hashData){
     return true;
   }else{

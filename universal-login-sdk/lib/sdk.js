@@ -125,7 +125,7 @@ class EthereumIdentitySDK {
     };
     const signature = await calculateMessageSignature(privateKey, finalMessage);
     let requestData = {...finalMessage, signature};
-    const md5 = crypto.createHash('md5').update(JSON.stringify(requestData)).digest("hex");
+    const md5 = crypto.createHash('md5').update(signature).digest("hex");
     const encodeData = crypto.publicEncrypt({
       key: signPublicKey,
       padding: crypto.constants.RSA_PKCS1_PADDING
