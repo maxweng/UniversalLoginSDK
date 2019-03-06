@@ -169,7 +169,10 @@ function verify(req){
   console.log({
     encodeData: data.encodeData.toString(),
   })
-  const decodeData = crypto.privateDecrypt(signPrivateKey, Buffer.from(data.encodeData.toString('base64'), 'base64'));
+  const decodeData = crypto.privateDecrypt({
+    key: signPrivateKey,
+    padding: crypto.constants.RSA_PKCS1_PADDING
+  }, Buffer.from(data.encodeData.toString('base64'), 'base64'));
   const hashData = crypto.createHash('md5').update(JSON.stringify(parasmData)).digest("hex")
   console.log({
     decodeData,
