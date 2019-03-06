@@ -1,4 +1,5 @@
 import {providers, utils, Contract, ContractFactory} from 'ethers';
+import crypto from 'crypto';
 import ENS from 'universal-login-contracts/build/ENS';
 import PublicResolver from 'universal-login-contracts/build/PublicResolver';
 import Identity from 'universal-login-contracts/build/Identity';
@@ -11,6 +12,23 @@ import {sleep} from 'universal-login-contracts';
 const {namehash} = utils;
 
 const ether = '0x0000000000000000000000000000000000000000';
+
+const signPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDCqfobdkCQnztYq/ZUHysDrfzrGoFCzfy9rxJ1tUjmmKApxnOn
+iqsn6MqXfCQCboEd/WGNxHGZlORbwGg6BJrM5sAsszHF8fk665Z1mqBnfNg4rBVG
+x90V/IsucGf2/7iJSwezWF8vPh+S8BOS8MokymBseB4IkvxI/vgIdlhlZQIDAQAB
+AoGAGhXI7BEmibqsqy8v7QnYK8AO2jpNA/SyX4CsSpWmVTAyliZ/rP3J/akWLMJ3
+2NOR/cDMZ8DhMCFhkGHyFYQ0cfCZbcI56xNpmzjAkJxeGVNDEe9XV4QJT5prs3tz
+V2XFEgI5GBrJ791axbufvTsqkPt+6f8xW2JsBYHWXeZBwmkCQQDyfIsEMYTzJDux
+3i9OffwOAKSLsK+dtEagU+CpY1a8cijmfiPBXNwUKlHaaxQFfZ2Rza42KGF1Hb2x
+nOBpMbqnAkEAzYMrV6znWQ/rvhHJCh3wfqFS4CqOUjAqm/WZ8X7b0Gh9NswSp3Li
+mu1LKLzvPSjX91Zbqtyu4I3Mmn34SNx9EwJADpiyoZD9iMlQkpdmT5pD1u/w97uu
+Bpc4fSQvbOLe8L8KeT10l4oocUpO3Q//B4mVN5ai+v2ZSDx/E7b2xz5IFwJBALdq
+2TUP6Q6Q6gqiHvZ7kBfEbY4KDSmHOZAmG/XwDcksaIyOiBuQqnQxUsISFcdU+6MR
+HREakq1xgOllgkGtH6cCQQC+gFC5qLzrlWKiirfMjrAfoOyujA4Pq5fzu1ssxut/
+xegeTBQvXWKukfJZDShL7Ce4AuRIGf3i+TQMTqBs8cYy
+-----END RSA PRIVATE KEY-----
+`
 
 const addressToBytes32 = (address) =>
   utils.padZeros(utils.arrayify(address), 32);
@@ -133,4 +151,36 @@ const retry = async (callback, retryCount=3, tick=1000) => {
     }
 }
 
-export {sleep, retry, sendAndWaitForTransaction, saveVariables, getDeployTransaction, addressToBytes32, waitForContractDeploy, messageSignatureForApprovals, withENS, lookupAddress, hasEnoughToken, isAddKeyCall, getKeyFromData, isAddKeysCall};
+function getClientIp(req){
+  var ipAddress;
+  var headers = req.headers;
+  var forwardedIpsStr = headers['x-real-ip'] || headers['x-forwarded-for'];
+  forwardedIpsStr ? ipAddress = forwardedIpsStr : ipAddress = null;
+  if (!ipAddress) {
+    ipAddress = req.connection.remoteAddress;
+  }
+  return ipAddress;
+};
+
+function verify(req){
+  const data = req.body;
+  let parasmData = Object.assign({},data);
+  delete parasmData.encodeData;
+  console.log({
+    encodeData: data.encodeData.toString(),
+  })
+  const decodeData = crypto.privateDecrypt(signPrivateKey, Buffer.from(data.encodeData.toString('base64'), 'base64'));
+  const hashData = crypto.createHash('md5').update(JSON.stringify(parasmData)).digest("hex")
+  console.log({
+    decodeData,
+    hashData
+  })
+  if(decodeData == hashData){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+
+export {verify, getClientIp, sleep, retry, sendAndWaitForTransaction, saveVariables, getDeployTransaction, addressToBytes32, waitForContractDeploy, messageSignatureForApprovals, withENS, lookupAddress, hasEnoughToken, isAddKeyCall, getKeyFromData, isAddKeysCall};

@@ -91,7 +91,7 @@ class Relayer {
     this.app.use('/getPlayerInfo',PlayerInfoRouter(this.fXPointsService));
     this.app.use('/withdraw',WithdrawRouter(this.fXPointsService));
     this.app.use(errorHandler);
-    this.server = this.app.listen(this.port);
+    this.server = this.app.listen(this.port, '0.0.0.0');
   }
 
   async stop() {

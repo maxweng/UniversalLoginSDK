@@ -1,4 +1,5 @@
 import {utils, Wallet, Contract, providers} from 'ethers';
+import crypto from 'crypto';
 import Identity from 'universal-login-contracts/build/Identity';
 import {OPERATION_CALL, MANAGEMENT_KEY, ECDSA_TYPE, ACTION_KEY, calculateMessageSignature, calculateMessageHash} from 'universal-login-contracts';
 import {addressToBytes32, waitForContractDeploy, waitForTransactionReceipt} from './utils/utils';
@@ -7,6 +8,16 @@ import RelayerObserver from './observers/RelayerObserver';
 import BlockchainObserver from './observers/BlockchainObserver';
 import {headers, fetch} from './utils/http';
 import MESSAGE_DEFAULTS from './config';
+//import rsa_public_key from './rsa_public_key.pem'
+let rsa_public_key = `
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDCqfobdkCQnztYq/ZUHysDrfzr
+GoFCzfy9rxJ1tUjmmKApxnOniqsn6MqXfCQCboEd/WGNxHGZlORbwGg6BJrM5sAs
+szHF8fk665Z1mqBnfNg4rBVGx90V/IsucGf2/7iJSwezWF8vPh+S8BOS8MokymBs
+eB4IkvxI/vgIdlhlZQIDAQAB
+-----END PUBLIC KEY-----
+`
+const signPublicKey = rsa_public_key.toString('ascii');
 
 class EthereumIdentitySDK {
   constructor(relayerUrl, providerOrUrl, paymentOptions) {
@@ -113,7 +124,16 @@ class EthereumIdentitySDK {
       nonce: message.nonce || parseInt(await this.getNonce(message.from, privateKey), 10),
     };
     const signature = await calculateMessageSignature(privateKey, finalMessage);
-    const body = JSON.stringify({...finalMessage, signature});
+    let requestData = {...finalMessage, signature};
+    const md5 = crypto.createHash('md5').update(JSON.stringify(requestData)).digest("hex");
+    const encodeData = crypto.publicEncrypt(signPublicKey, Buffer.from(md5)).toString('base64');
+    requestData['encodeData'] = encodeData;
+    const body = JSON.stringify(requestData);
+    console.log({
+      signPublicKey,
+      encodeData,
+      md5
+    })
     const response = await fetch(url, {headers, method, body});
     const responseJson = await response.json();
     if (response.status === 201) {

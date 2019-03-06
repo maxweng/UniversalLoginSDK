@@ -4,6 +4,7 @@
   "main": "dist/sdk.js",
   "license": "MIT",
   "dependencies": {
+    "crypto": "^1.0.1",
     "deep-equal": "^1.0.1",
     "ethers": "^4.0",
     "fbemitter": "^2.1.1",
@@ -23,6 +24,7 @@
     "@types/mocha": "^5.2.5",
     "chai": "^4.1.2",
     "ethereum-waffle": "git+https://github.com/maxweng/Waffle.git#dist_test",
+    "fastx-points-relayer": "^0.1.6",
     "ganache-core": "^2.2.1",
     "mocha": "^5.2.0",
     "sinon": "^6.3.1",
@@ -30,7 +32,6 @@
     "ts-node": "^8.0.2",
     "tslint": "^5.12.1",
     "typescript": "^3.3.3",
-    "universal-login-relayer": "^0.1.6",
-    "fastx-points-relayer": "^0.1.6"
+    "universal-login-relayer": "^0.1.6"
   }
 }
