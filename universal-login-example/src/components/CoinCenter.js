@@ -2,13 +2,7 @@ import React, {Component} from 'react';
 import HeaderView from '../views/HeaderView';
 import BackToAppBtn from './BackToAppBtn';
 import PropTypes from 'prop-types';
-
-function getQueryString(name)
-{
-     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
-     var r = window.location.search.substr(1).match(reg);
-     if(r!=null)return  unescape(r[2]); return null;
-}
+import { getQueryString } from '../utils/utils';
 
 class CoinCenter extends Component {
   constructor(props) {

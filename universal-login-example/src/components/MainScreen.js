@@ -9,13 +9,7 @@ import ProfileIdentity from './ProfileIdentity';
 import PropTypes from 'prop-types';
 import PointsCenterModal from './PointsCenterModal';
 import { ADDRCONFIG } from 'dns';
-
-function getQueryString(name)
-{
-     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
-     var r = window.location.search.substr(1).match(reg);
-     if(r!=null)return  unescape(r[2]); return null;
-}
+import { getQueryString, sleep } from '../utils/utils';
 
 class MainScreen extends Component {
   constructor(props) {
@@ -28,8 +22,8 @@ class MainScreen extends Component {
     this.fxPointsService = services.fxPointsService;
     this.identityService = services.identityService;
     this.IbankService = services.IbankService;
+    this.gameUrl = services.config.gameUrl + '?access_code=' + getQueryString('access_code');
     
-    this.gameUrl = services.config.gameUrl + '?address=' + getQueryString('address') + '&access_code=' + getQueryString('access_code');
     this.state = {
       lastClick: '0', 
       lastPresser: 'nobody', 
@@ -45,18 +39,16 @@ class MainScreen extends Component {
     };
   }
 
-  async addCoin() {
-    let signature = await this.identityService.signTrade(1)
-    console.log(signature) 
-    this.IbankService.trade(signature)
-  }
+  // async addCoin() {
+  //   let signature = await this.identityService.signTrade(1)
+  //   console.log(signature) 
+  //   this.IbankService.trade(signature)
+  // }
 
   async componentDidMount() {
     let signTrade = this.identityService.signTrade.bind(this.identityService)
-    console.log('addEventListener message')
     window.addEventListener('message',async function(e){
       var data=e.data;
-      //console.log(e)
       if(data.type=='signTrade'){
         console.log('message signTrade')
         console.log({data})
@@ -66,9 +58,11 @@ class MainScreen extends Component {
       } 
     })
     
-    await this.updateFxPoints();
     //this.historyService.subscribe(this.setState.bind(this));
     this.ensNameService.subscribe();
+    //等待identityService.identity数据有了以后才继续往下执行
+    await this.waitAccountLoadFinished();
+    await this.updateFxPoints();
     let userInfo = await this.IbankService.getUserInfo();
     let playerInfo = await this.identityService.getPlayerInfo();
     let gamePool = await this.identityService.getFXPInfo();
@@ -85,6 +79,16 @@ class MainScreen extends Component {
         timeLeft: that.state.timeLeft - 1
       })
     }, 1000)
+
+    window.frames[0].postMessage({type:'userAddress',address:this.identityService.identity.address},'*')
+  }
+
+  async waitAccountLoadFinished() {
+    while(!this.identityService.identity || !this.identityService.identity.address) {
+        await sleep(1000);
+    }
+
+    return true;
   }
 
   show(event) {
@@ -106,10 +110,10 @@ class MainScreen extends Component {
     console.log(result)
   }
 
-  async onClickerClick() {
-    this.setState({busy: true});
-    await this.clickService.click(() => this.setState({busy: false}));
-  }
+  // async onClickerClick() {
+  //   this.setState({busy: true});
+  //   await this.clickService.click(() => this.setState({busy: false}));
+  // }
 
   // async updateClicksLeft() {
   //   const {address} = this.identityService.identity;
@@ -143,6 +147,7 @@ class MainScreen extends Component {
   }
 
   render() {
+
     const pointsCenterModalProps = {
       userName: this.state.userName,
       fxPoints: this.state.fxPoints,

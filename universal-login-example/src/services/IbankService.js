@@ -1,12 +1,6 @@
 
 import {fetch} from '../utils/http';
-
-function getQueryString(name)
-{
-     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
-     var r = window.location.search.substr(1).match(reg);
-     if(r!=null)return  unescape(r[2]); return null;
-}
+import { getQueryString } from '../utils/utils';
 
 const HOST = "http://101.200.36.28:6101";
 

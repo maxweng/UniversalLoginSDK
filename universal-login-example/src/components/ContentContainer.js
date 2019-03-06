@@ -13,32 +13,8 @@ import RecoverAccount from './RecoverAccount';
 import CoinCenter from './CoinCenter';
 import PropTypes from 'prop-types';
 import {scrollTo} from '../utils';
+import {setParam} from '../utils/utils'
 import 'semantic-ui-css/semantic.min.css'
-
-function setParam(param, value) {
-  var query = location.search.substring(1);
-  var p = new RegExp("(^|)" + param + "=([^&]*)(|$)");
-  if (p.test(query)) {
-      var firstParam = query.split(param)[0];
-      var secondParam = query.split(param)[1];
-      if (secondParam.indexOf("&") > -1) {
-          var lastPraam = secondParam.substring(secondParam.indexOf('&')+1);
-          return '?' + firstParam + param + '=' + value + '&' + lastPraam;
-      } else {
-          if (firstParam) {
-              return '?' + firstParam + param + '=' + value;
-          } else {
-              return '?' + param + '=' + value;
-          }
-      }
-  } else {
-      if (query == '') {
-          return '?' + param + '=' + value;
-      } else {
-          return '?' + query + '&' + param + '=' + value;
-      }
-  }
-}
 
 class ContentContainer extends Component {
   constructor(props) {

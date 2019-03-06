@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import IdentitySelector from './IdentitySelector';
 import PropTypes from 'prop-types';
+import {setParam} from '../utils/utils'
 
 class Login extends Component {
   constructor(props) {
@@ -33,10 +34,16 @@ class Login extends Component {
       await this.identityService.connect();
     } else {
       this.identityService.identity.name = identityName;
-      emitter.emit('setView', 'CreatingID');
+      emitter.emit('setView', 'MainScreen');
       try {
         await this.identityService.createIdentity(identityName);
-        emitter.emit('setView', 'Greeting', {greetMode: 'created'});
+
+        var url = window.location.href; //获取当前url          
+        if (url.indexOf("?")>0) {
+            url = url.split("?")[0];
+        }
+        history.pushState(history.state, '', url+setParam("address", this.identityService.identity.address))
+        //emitter.emit('setView', 'Greeting', {greetMode: 'created'});
       } catch (err) {
         emitter.emit('setView', 'Failure', {error: err.message});
       }
