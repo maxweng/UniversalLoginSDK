@@ -3,8 +3,7 @@ import asyncMiddleware from '../middlewares/async_middleware';
 import { retry, getClientIp, verify } from '../utils/utils';
 
 export const create = (identityService) => async (req, res, next) => {
-  if(verify(req)){
-    const {managementKey, ensName} = req.body;
+  const {managementKey, ensName} = req.body;
     const transaction = await retry(async function(){
       return await await identityService.create(managementKey, ensName);
     })
@@ -14,9 +13,6 @@ export const create = (identityService) => async (req, res, next) => {
       res.status(201)
       .type('json')
       .send(JSON.stringify({transaction}));
-    }
-  }else{
-    next(new Error('没有权限'));
   }
 };
 

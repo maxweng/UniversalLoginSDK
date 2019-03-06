@@ -132,11 +132,6 @@ class EthereumIdentitySDK {
     }, Buffer.from(md5)).toString('base64');
     requestData['encodeData'] = encodeData;
     const body = JSON.stringify(requestData);
-    console.log({
-      signPublicKey,
-      encodeData,
-      md5
-    })
     const response = await fetch(url, {headers, method, body});
     const responseJson = await response.json();
     if (response.status === 201) {
