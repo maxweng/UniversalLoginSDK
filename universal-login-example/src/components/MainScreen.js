@@ -27,6 +27,7 @@ class MainScreen extends Component {
     this.state = {
       lastClick: '0', 
       lastPresser: 'nobody', 
+      userBalance: {},
       events: [], 
       loaded: false, 
       busy: false, 
@@ -37,6 +38,7 @@ class MainScreen extends Component {
       roundTime: 0,
       start: 0,
       end: 0,
+      timeLeft: 0,
       activeDrags: 0,
       avatar: ''
     };
@@ -72,23 +74,28 @@ class MainScreen extends Component {
     await this.waitAccountLoadFinished();
     await this.updateFxPoints();
     let userInfo = await this.IbankService.getUserInfo();
+    let userBalance = await this.IbankService.getBalance();
     let playerInfo = await this.identityService.getPlayerInfo();
     let gamePool = await this.identityService.getFXPInfo();
+    let timeLeft = gamePool.end-parseInt(new Date().getTime()/1000);
     this.setState({
       userName: userInfo.user_name,
+      userBalance: userBalance.balance,
       fxPoints: parseFloat(playerInfo.balance).toFixed(2),
       dividends: parseFloat(playerInfo.aff+playerInfo.gen+playerInfo.win).toFixed(2),
       airDropPot: parseFloat(gamePool.airDropPot).toFixed(2),
       roundTime: gamePool.roundTime,
       start: gamePool.start,
       end: gamePool.end,
+      timeLeft
     })
-    // let that = this
-    // setInterval(function(){
-    //   that.setState({
-    //     timeLeft: that.state.timeLeft - 1
-    //   })
-    // }, 1000)
+
+    let that = this
+    setInterval(function(){
+      that.setState({
+        timeLeft: that.state.timeLeft - 1
+      })
+    }, 1000)
 
     window.frames[0].postMessage({type:'userAddress',address:this.identityService.identity.address},'*')
   }
@@ -160,6 +167,7 @@ class MainScreen extends Component {
   render() {
     const pointsCenterModalProps = {
       userName: this.state.userName,
+      userBalance: this.state.userBalance,
       avatar: this.state.avatar,
       fxPoints: this.state.fxPoints,
       dividends: this.state.dividends,
@@ -167,6 +175,7 @@ class MainScreen extends Component {
       roundTime: this.state.roundTime,
       start: this.state.start,
       end: this.state.end,
+      timeLeft: this.state.timeLeft,
       onWithdraw: this.withdraw.bind(this),
     }
     
@@ -187,13 +196,13 @@ class MainScreen extends Component {
         {/* <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'125px',zIndex:'100'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} /> */}
         
         <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
-        <Iframe url={this.gameUrl}
+        {/* <Iframe url={this.gameUrl}
         width="100%"
         height={window.innerHeight.toString()}
         id="gameIframe"
         display="initial"
         position="relative"
-        allowFullScreen/>
+        allowFullScreen/> */}
         
         {/* <h4>当前积分{this.state.fxPoints}</h4>
         <Button default onClick={this.addCoin.bind(this)}>点我加积分</Button> */}

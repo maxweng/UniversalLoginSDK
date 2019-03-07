@@ -5,7 +5,7 @@ import Blockies from 'react-blockies';
 
 class PointsCenterModal extends Component { 
   componentDidMount() {
-      
+    
   }
 
   sec_to_time(s) {
@@ -34,16 +34,16 @@ class PointsCenterModal extends Component {
   render() {
     let open = this.props.open;
     let close = this.props.close;
-    let { roundTime, start, end, avatar, fxPoints, dividends, airDropPot, userName, onWithdraw } = this.props;
+    let { timeLeft, roundTime, start, end, avatar, fxPoints, dividends, airDropPot, userBalance, userName, onWithdraw } = this.props;
 
     return (
       <Modal open={open} onClose={close} size={'fullscreen'}>
         <Modal.Header style={{textAlign:'center'}}>
           <div className="row align-items-center avatar_bar">
-          <img src={avatar} />
-            <div>
+            <img src={'http://39.96.66.202/web-mobile/res/raw-assets/53/53d5b09f-f31c-4d20-8d58-174b76476432.png'} />
+            <div className="coin_bar">
               <p className="user-id user-id-header">{userName}</p>
-              <p className="wallet-address wallet-address-header">{fxPoints}积分</p>
+              <p className="wallet-address wallet-address-header">{userBalance['usdt']}</p>
             </div>
           </div>
           <div className="header_title">
@@ -91,7 +91,7 @@ class PointsCenterModal extends Component {
                 </Grid.Row>
               </Grid>
               <div className="footer">
-                <span style={{fontSize:'12px'}}>点击红包领取分红奖励</span> 
+                <span style={{fontSize:'12px',marginLeft:'-40px'}}>点击红包领取分红奖励</span> 
                 <img src={require('../img/withdraw_btn.jpg')} />
               </div>
             </Grid.Column>
@@ -111,7 +111,10 @@ class PointsCenterModal extends Component {
                   <Grid.Column className="coin_box" style={{maxWidth: '250px'}}>
                     <img className="fx_points_icon" src={require('../img/icon_countdown.png')} />
                     <img className="fx_points_title" src={require('../img/daojishi1.png')} />
-                    <span className="left_time">{this.sec_to_time(end-parseInt(new Date().getTime()/1000))}</span>
+                    <span className="left_time">{this.sec_to_time(timeLeft)}</span>
+                    <div className="progress_bar">
+                      <img className="progress" style={{width:(((roundTime-timeLeft)/roundTime)*100)+'%'}} src={require('../img/progress_bar.png')} />
+                    </div>
                   </Grid.Column>
                 </Grid.Row>
               </Grid>
@@ -147,7 +150,7 @@ class PointsCenterModal extends Component {
                     <img src={require('../img/wdzjl.png')} />
                   </Grid.Column>
                   <Grid.Column>
-                     0%
+                     15%
                   </Grid.Column>
                 </Grid.Row>
               </Grid>
