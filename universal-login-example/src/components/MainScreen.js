@@ -53,7 +53,7 @@ class MainScreen extends Component {
   async componentDidMount() {
     let signTrade = this.identityService.signTrade.bind(this.identityService)
     let showModal = this.show.bind(this)
-    showModal()
+    // showModal()
     window.addEventListener('message',async function(e){
       var data=e.data;
       if(data.type=='signTrade'){
@@ -196,13 +196,13 @@ class MainScreen extends Component {
         {/* <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'125px',zIndex:'100'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} /> */}
         
         <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
-        {/* <Iframe url={this.gameUrl}
+        <Iframe url={this.gameUrl}
         width="100%"
         height={window.innerHeight.toString()}
         id="gameIframe"
         display="initial"
         position="relative"
-        allowFullScreen/> */}
+        allowFullScreen/>
         
         {/* <h4>当前积分{this.state.fxPoints}</h4>
         <Button default onClick={this.addCoin.bind(this)}>点我加积分</Button> */}
