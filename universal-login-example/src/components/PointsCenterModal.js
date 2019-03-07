@@ -47,54 +47,109 @@ class PointsCenterModal extends Component {
           <Button content='返回' basic onClick={close} style={{float:'right',padding: '16px 12px'}} size='mini'/>
         </Modal.Header>
         <Modal.Content>
-        <Grid columns={2} stackable textAlign='center'>
+        <Grid columns={2} stackable textAlign='center' className="chest_box_grid">
           <Grid.Row>
-            <Grid.Column className="chest_box" width='7'>
-              <h4>分红拿到爽</h4>
-              <div>
-                <Grid columns={2} textAlign='center' style={{paddingTop:'40px'}}>
-                  <Grid.Row>
-                    <Grid.Column className="coin_box">
-                      <img src={require('../img/icon_FXPoints.png')} />
-                      <div className='title'>FX 积分</div>
-                      <div className='coin'>{fxPoints}</div>
-                    </Grid.Column>
-                    <Grid.Column className="coin_box">
-                      <img src={require('../img/icon_dividens.png')} />
-                      <div className='title'>我的分红</div>
-                      <div className='coin'>{dividends}</div>
-                    </Grid.Column>
-                  </Grid.Row>
-                </Grid>
-                <Image src={require('../img/treasure_chest_small.png')} className="chest_img" onClick={onWithdraw}/>
-                <span style={{fontSize:'12px'}}>点击宝箱领取分红奖励</span>
+            <Grid.Column className="chest_box" width='8'>
+              <Grid columns={1} textAlign='center'>
+                <Grid.Row>
+                  <Grid.Column>
+                    <div className="title">
+                      <img src={require('../img/dividend_title.png')} />
+                      <img className="btn_help" src={require('../img/btn_help.png')} />
+                    </div>
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+              <Grid columns={2} textAlign='center'>
+                <Grid.Row>
+                  <Grid.Column>
+                    <div className="coin_box">
+                      <img className="fx_points_icon" src={require('../img/icon_FXPoints.png')} />
+                      <img className="fx_points_title" src={require('../img/fxjifen.png')} />
+                      <div className="coin">{fxPoints}</div>
+                    </div>
+                  </Grid.Column>
+                  <Grid.Column className="coin_box">
+                    <div className="coin_box">
+                      <img className="fx_points_icon" src={require('../img/icon_dividens.png')} />
+                      <img className="fx_points_title" src={require('../img/wodefenhong.png')} />
+                      <div className="coin">{dividends}</div>
+                    </div>
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+              <Grid columns={1} textAlign='center' style={{marginTop: '0px'}}>
+                <Grid.Row>
+                  <div className="redenvelope_bg">
+                    <img className="redenvelope_btn" src={require('../img/redenvelopes_close.png')} onClick={onWithdraw} />
+                  </div>
+                </Grid.Row>
+              </Grid>
+              <div className="footer">
+                <span style={{fontSize:'12px'}}>点击红包领取分红奖励</span>
                 <Button content='提现记录' basic size='mini'/>
               </div>
             </Grid.Column>
-            <Grid.Column className="chest_box" width='7'>
-              <h4>幸运大抽奖</h4>
-              <div>
-                <Grid columns={2} textAlign='center' style={{paddingTop:'40px'}}>
-                  <Grid.Row>
-                    <Grid.Column className="coin_box">
-                      <img src={require('../img/icon_jackpot.png')} />
-                      <div className='title'>奖池大奖</div>
-                      <div className='coin'>{airDropPot}</div>
-                    </Grid.Column>
-                    <Grid.Column className="coin_box">
-                      <img src={require('../img/icon_countdown.png')} />
-                      <div className='title'>倒计时</div>
-                      <div className='coin'>{this.sec_to_time(timeLeft)}</div>
-                    </Grid.Column>
-                  </Grid.Row>
-                </Grid>
-                <Image src={require('../img/treasure_chest_big.png')} className="chest_img"/>
-                <div style={{display:'inline-block'}}>
-                  <div style={{fontSize:'12px'}}>点击宝箱抽取大奖</div>
-                  <div style={{fontSize:'12px'}}>剩余抽奖次数 0</div>
-                </div>
+            <Grid.Column className="chest_box" width='8'>
+              <Grid columns={1} textAlign='center'>
+                <Grid.Row>
+                  <Grid.Column>
+                    <div className="title">
+                      <img src={require('../img/lottery_title.png')} />
+                      <img className="btn_help" src={require('../img/btn_help.png')} />
+                    </div>
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+              <Grid columns={1} textAlign='center'>
+                <Grid.Row>
+                  <Grid.Column className="coin_box">
+                    <img className="fx_points_icon" src={require('../img/icon_countdown.png')} />
+                    <img className="fx_points_title" src={require('../img/daojishi1.png')} />
+                    <div className="coin">{this.sec_to_time(timeLeft)}</div>
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+              <Grid columns={3} textAlign='center'>
+                <Grid.Row className='awards_column'>
+                  <Grid.Column>
+                    <img src={require('../img/yidengjiang.png')} />
+                  </Grid.Column>
+                  <Grid.Column>
+                      X1 名
+                  </Grid.Column>
+                  <Grid.Column>
+                      999999
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+              <Grid columns={3} textAlign='center'>
+                <Grid.Row className='awards_column'>
+                  <Grid.Column>
+                    <img src={require('../img/erdengjiang.png')} />
+                  </Grid.Column>
+                  <Grid.Column>
+                      X10 名
+                  </Grid.Column>
+                  <Grid.Column>
+                      999999
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+              <Grid columns={2} textAlign='center'>
+                <Grid.Row className='winning_column'>
+                  <Grid.Column>
+                    <img src={require('../img/wdzjl.png')} />
+                  </Grid.Column>
+                  <Grid.Column>
+                      12.56%
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+              <div className="footer">
                 <Button content='抽奖记录记录' basic size='mini'/>
               </div>
+            
             </Grid.Column>
           </Grid.Row>
         </Grid>

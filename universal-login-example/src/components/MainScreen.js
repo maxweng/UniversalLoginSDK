@@ -47,15 +47,16 @@ class MainScreen extends Component {
 
   async componentDidMount() {
     let signTrade = this.identityService.signTrade.bind(this.identityService)
+    let showModal = this.show.bind(this)
+    // showModal()
     window.addEventListener('message',async function(e){
       var data=e.data;
       if(data.type=='signTrade'){
-        console.log('message signTrade')
-        console.log({data})
         let signatureData = await signTrade(data.amount)
-        console.log({signatureData})
         e.source.postMessage({type:'signTrade',signatureData,'timestamp': data.timestamp},'*')
-      } 
+      }else if(data.type=='openGameCenterModal'){
+        showModal()
+      }
     })
     
     //this.historyService.subscribe(this.setState.bind(this));
@@ -92,6 +93,7 @@ class MainScreen extends Component {
   }
 
   show(event) {
+    if(event)
     event.preventDefault()
     this.setState({ open: true })
   }
@@ -159,7 +161,7 @@ class MainScreen extends Component {
     
     return (
       <div>
-        <HeaderView>
+        {/* <HeaderView>
           <ProfileIdentity
             userName={this.state.userName}
             type="identityHeader"
@@ -170,13 +172,13 @@ class MainScreen extends Component {
             services={this.props.services}
           />
           <AccountLink setView={this.setView.bind(this)} />
-        </HeaderView>
-        <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'125px'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} />
+        </HeaderView> */}
+        {/* <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'125px',zIndex:'100'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} /> */}
         
         <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
         <Iframe url={this.gameUrl}
         width="100%"
-        height={(window.innerHeight-92).toString()}
+        height={window.innerHeight.toString()}
         id="gameIframe"
         display="initial"
         position="relative"

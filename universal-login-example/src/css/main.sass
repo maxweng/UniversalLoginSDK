@@ -41,10 +41,11 @@
     margin: 0
     height: 100%
     border-radius: 0
-    padding-top: 92px
+    padding-top: 72px
 
 .ui.fullscreen.modal .header
-    margin-top: -92px
+    margin-top: -72px
+    height: 72px
 
 .ui.fullscreen.modal .content
     height: 100%
@@ -55,49 +56,90 @@
 
 .ui.fullscreen.modal .content .chest_box
     background: url('../img/frame_detail.png') center no-repeat
-    background-size: 100%
+    background-size: 110%
     background-color: rgb(15,28,53)
-    border-left: 3px solid rgb(103,117,126)
-    border-right: 3px solid rgb(103,117,126)
     padding: 0
     position: relative
-    margin: 0 10px
 
-.ui.fullscreen.modal .content h4
-    background: rgb(25, 68, 92 )
-    padding: 10px
-    text-shadow: 2px 1px 1px black
-    color: rgb(211, 220, 214 )
+.ui.fullscreen.modal .content .chest_box .title
+    background: url('../img/chest_box_title_bg.png') center no-repeat
+    padding: 8px 0 0
+    margin: 0 3%;
+    position: relative
+
+.ui.fullscreen.modal .content .chest_box .title img
+    height: 26px
+
+.ui.fullscreen.modal .content .chest_box .title .btn_help  
+    position: absolute
+    right: 10px
+
+.ui.fullscreen.modal .chest_box_grid
+    margin-right: -1rem !important
+
+.ui.fullscreen.modal .content .chest_box  .awards_column
+    background: linear-gradient(to right, rgba(58,35,83,0), rgba(58,35,83,1), rgba(58,35,83,0))
+    margin: 5px 10%
+    padding: 8px 0
+    font-size: 14px
+
+.ui.fullscreen.modal .content .chest_box  .awards_column .column
+    line-height: 32px
+
+.ui.fullscreen.modal .content .chest_box  .awards_column img
+    margin-top: 6px
+
+.ui.fullscreen.modal .content .chest_box  .winning_column
+    background: linear-gradient(to right, rgba(23,85,143,0), rgba(23,85,143,1), rgba(23,85,143,0))
+    margin: 40px 10%
+    padding: 8px 16px 0   
+
+.ui.fullscreen.modal .content .chest_box  .winning_column img
+    margin-top: 0px
 
 .ui.fullscreen.modal .content .coin_box
     font-size: 12px
     position: relative
     height: 56px
-    
-.ui.fullscreen.modal .content .coin_box img
-    width: 40px
-    position: absolute
-    top: 0
-    left: 40px
-    z-index: 3
+    max-width: 200px
 
 .ui.fullscreen.modal .content .coin_box .coin
     background: url('../img/frame_1.png') center no-repeat
     background-size: 100%
-    position: absolute
-    top: 18px
-    left: 60px
     font-size: 14px
     z-index: 1
     width: 120px
     height: 22px
-
-.ui.fullscreen.modal .content .coin_box .title
-    color: rgb(166,140,70)
-    font-weight: bold
     position: absolute
-    top: 0px
-    left: 90px
+    top: 18px
+    left: 10px
+    
+.ui.fullscreen.modal .content .coin_box .fx_points_icon
+    width: 40px
+    position: absolute
+    top: 0
+    left: 0px
+    z-index: 3
+
+.ui.fullscreen.modal .content .coin_box .fx_points_title
+    position: absolute
+    top: 0
+    left: 50px
+    height: 15px
+
+.ui.fullscreen.modal .content .chest_box .redenvelope_bg
+    background: url('../img/light.png') center no-repeat
+    background-size: 100
+    border-radius: 50%
+    width: 230px
+    height: 230px
+
+.ui.fullscreen.modal .content .chest_box .redenvelope_bg .redenvelope_btn
+    width: 120px
+    margin-top: 35px
+
+.ui.fullscreen.modal .content .chest_box .footer
+    padding: 20px
 
 .ui.fullscreen.modal .content .button
     color: white !important
