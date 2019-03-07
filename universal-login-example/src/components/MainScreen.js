@@ -34,8 +34,11 @@ class MainScreen extends Component {
       fxPoints: 0,
       dividends: 0,
       airDropPot: 0,
-      timeLeft: 0,
-      activeDrags: 0
+      roundTime: 0,
+      start: 0,
+      end: 0,
+      activeDrags: 0,
+      avatar: ''
     };
   }
 
@@ -48,7 +51,7 @@ class MainScreen extends Component {
   async componentDidMount() {
     let signTrade = this.identityService.signTrade.bind(this.identityService)
     let showModal = this.show.bind(this)
-    // showModal()
+    showModal()
     window.addEventListener('message',async function(e){
       var data=e.data;
       if(data.type=='signTrade'){
@@ -56,6 +59,10 @@ class MainScreen extends Component {
         e.source.postMessage({type:'signTrade',signatureData,'timestamp': data.timestamp},'*')
       }else if(data.type=='openGameCenterModal'){
         showModal()
+      }else if(data.type=='avatar'){
+        this.setState({
+          avatar: data.url
+        })
       }
     })
     
@@ -72,14 +79,16 @@ class MainScreen extends Component {
       fxPoints: parseFloat(playerInfo.balance).toFixed(2),
       dividends: parseFloat(playerInfo.aff+playerInfo.gen+playerInfo.win).toFixed(2),
       airDropPot: parseFloat(gamePool.airDropPot).toFixed(2),
-      timeLeft: gamePool.timeLeft,
+      roundTime: gamePool.roundTime,
+      start: gamePool.start,
+      end: gamePool.end,
     })
-    let that = this
-    setInterval(function(){
-      that.setState({
-        timeLeft: that.state.timeLeft - 1
-      })
-    }, 1000)
+    // let that = this
+    // setInterval(function(){
+    //   that.setState({
+    //     timeLeft: that.state.timeLeft - 1
+    //   })
+    // }, 1000)
 
     window.frames[0].postMessage({type:'userAddress',address:this.identityService.identity.address},'*')
   }
@@ -149,13 +158,15 @@ class MainScreen extends Component {
   }
 
   render() {
-
     const pointsCenterModalProps = {
       userName: this.state.userName,
+      avatar: this.state.avatar,
       fxPoints: this.state.fxPoints,
       dividends: this.state.dividends,
       airDropPot: this.state.airDropPot,
-      timeLeft: this.state.timeLeft,
+      roundTime: this.state.roundTime,
+      start: this.state.start,
+      end: this.state.end,
       onWithdraw: this.withdraw.bind(this),
     }
     

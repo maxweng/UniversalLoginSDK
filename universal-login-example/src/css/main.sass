@@ -43,10 +43,6 @@
     border-radius: 0
     padding-top: 72px
 
-.ui.fullscreen.modal .header
-    margin-top: -72px
-    height: 72px
-
 .ui.fullscreen.modal .content
     height: 100%
     overflow-y: auto
@@ -127,9 +123,16 @@
     left: 50px
     height: 15px
 
+.ui.fullscreen.modal .content .coin_box .left_time
+    position: absolute;
+    top: 0;
+    left: 126px;
+    height: 15px;
+    color: white;
+
 .ui.fullscreen.modal .content .chest_box .redenvelope_bg
     background: url('../img/light.png') center no-repeat
-    background-size: 100
+    background-size: 100%
     border-radius: 50%
     width: 230px
     height: 230px
@@ -140,11 +143,39 @@
 
 .ui.fullscreen.modal .content .chest_box .footer
     padding: 20px
+    height: 68px
+    position: relative
+
+.ui.fullscreen.modal .content .chest_box .footer img
+    height: 40px;
+    position: absolute;
+    right: 15px;
+    top: 15px;
 
 .ui.fullscreen.modal .content .button
     color: white !important
     position: absolute
     right: 5px
     font-size: 12px
+
+.ui.fullscreen.modal .header
+    margin-top: -72px
+    height: 72px
+    padding: 0 !important
+    background: url('../img/title_bg.jpg') center
+    background-size: cover
+    color: white
+    border-radius: 0
   
-    
+.ui.fullscreen.modal .header .back_btn
+    position: absolute
+    right: 0px
+    height: 74px
+
+.ui.fullscreen.modal .header .avatar_bar
+    position: absolute
+    left: 20px
+
+.ui.fullscreen.modal .header .header_title
+    height: 72px
+    display: inline-block

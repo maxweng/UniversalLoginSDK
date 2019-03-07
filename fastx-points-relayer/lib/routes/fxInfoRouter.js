@@ -16,7 +16,9 @@ export const getInfo = (fxPointsService) => async (req, res) => {
         totalKeys: utils.formatEther(totalKeys),
         leaderAddr: leaderAddr.toString(),
         leaderName: leaderName.toString(),
-        timeLeft: parseInt(time),
+        roundTime: parseInt(time),
+        start: started.toNumber()*1000,
+        end: ends.toNumber(),
         airDropPot:utils.formatEther(airDropPot)
     }));
 };
