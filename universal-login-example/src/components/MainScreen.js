@@ -9,6 +9,7 @@ import ProfileIdentity from './ProfileIdentity';
 import PropTypes from 'prop-types';
 import PointsCenterModal from './PointsCenterModal';
 import DividendModal from './DividendModal';
+import RecordingModal from './RecordingModal';
 import { ADDRCONFIG } from 'dns';
 import { getQueryString, sleep } from '../utils/utils';
 
@@ -78,6 +79,7 @@ class MainScreen extends Component {
       busy: false, 
       open: false,
       openDividend: false,
+      openRecording: false,
       fxPoints: 0,
       dividends: 0,
       airDropPot: 0,
@@ -100,7 +102,7 @@ class MainScreen extends Component {
     let signTrade = this.identityService.signTrade.bind(this.identityService)
     let showModal = this.show.bind(this)
     let that = this
-    showModal()
+    //showModal()
     window.addEventListener('message',async function(e){
       var data=e.data;
       if(data.type=='signTrade'){
@@ -173,7 +175,17 @@ class MainScreen extends Component {
   closeDividend() {
     this.setState({ openDividend: false })
   }
-  
+
+  showRecording(event) {
+    if(event)
+    event.preventDefault()
+    this.setState({ openRecording: true })
+  }
+
+  closeRecording() {
+    this.setState({ openRecording: false })
+  }
+
   setView(view) {
     const {emitter} = this.props.services;
     emitter.emit('setView', view);
@@ -220,6 +232,7 @@ class MainScreen extends Component {
       timeLeft: this.state.timeLeft,
       onWithdraw: this.withdraw.bind(this),
       onShowDividend: this.showDividend.bind(this),
+      onShowRecording: this.showRecording.bind(this),
     }
     
     return (
@@ -237,7 +250,8 @@ class MainScreen extends Component {
           <AccountLink setView={this.setView.bind(this)} />
         </HeaderView> */}
         {/* <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'125px',zIndex:'100'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} /> */}
-        {/* <DividendModal close={this.closeDividend.bind(this)} open={this.state.openDividend} /> */}
+        <RecordingModal close={this.closeRecording.bind(this)} open={this.state.openRecording}/>
+        <DividendModal close={this.closeDividend.bind(this)} open={this.state.openDividend} />
         <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
         <Iframe url={this.gameUrl}
         width="100%"

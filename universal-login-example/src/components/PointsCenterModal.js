@@ -46,7 +46,8 @@ class PointsCenterModal extends Component {
       userBalance, 
       userName, 
       onWithdraw,
-      onShowDividend
+      onShowDividend,
+      onShowRecording
     } = this.props;
 
     
@@ -108,7 +109,7 @@ class PointsCenterModal extends Component {
               </Grid>
               <div className="footer">
                 <span style={{fontSize:'12px',marginLeft:'-40px'}}>点击红包领取分红奖励</span> 
-                <img src={images.withdrawBtn} />
+                <img src={images.withdrawBtn} onClick={onShowRecording}/>
               </div>
             </Grid.Column>
             <Grid.Column className="chest_box" width='8'>
@@ -117,7 +118,7 @@ class PointsCenterModal extends Component {
                   <Grid.Column>
                     <div className="title">
                       <img src={images.lotteryTitle} />
-                      <img className="btn_help" src={images.helpBtn} />
+                      <img className="btn_help" src={images.helpBtn} onClick={onShowDividend} />
                     </div>
                   </Grid.Column>
                 </Grid.Row>
@@ -171,7 +172,7 @@ class PointsCenterModal extends Component {
                 </Grid.Row>
               </Grid>
               <div className="footer">
-                <img src={images.lotteryBtn} />
+                <img src={images.lotteryBtn} onClick={onShowRecording}/>
               </div>
             </Grid.Column>
           </Grid.Row>
