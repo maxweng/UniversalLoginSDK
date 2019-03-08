@@ -8,8 +8,53 @@ import AccountLink from './AccountLink';
 import ProfileIdentity from './ProfileIdentity';
 import PropTypes from 'prop-types';
 import PointsCenterModal from './PointsCenterModal';
+import DividendModal from './DividendModal';
 import { ADDRCONFIG } from 'dns';
 import { getQueryString, sleep } from '../utils/utils';
+
+let coinIcon = require('../img/coin_icon.png')
+let switchIcon = require('../img/switch.png')
+let gameCenter = require('../img/game_center.png')
+let backBtn = require('../img/btn_back.png')
+let dividendTitle = require('../img/dividend_title.png')
+let helpBtn = require('../img/btn_help.png')
+let fxPoints = require('../img/icon_FXPoints.png')
+let fxjifen = require('../img/fxjifen.png')
+let dividensIcon = require('../img/icon_dividens.png')
+let wodefenhong =  require('../img/wodefenhong.png')
+let redenvelopesCose = require('../img/redenvelopes_close.png')
+let withdrawBtn = require('../img/withdraw_btn.jpg')
+let lotteryTitle = require('../img/lottery_title.png')
+let countdown = require('../img/icon_countdown.png')
+let daojishi = require('../img/daojishi1.png')
+let yidengjiang = require('../img/yidengjiang.png')
+let erdengjiang = require('../img/erdengjiang.png')
+let wdzjl = require('../img/wdzjl.png')
+let lotteryBtn = require('../img/lottery_btn.jpg')
+let progressBar = require('../img/progress_bar.png')
+
+let images = {
+  coinIcon,
+  switchIcon,
+  gameCenter,
+  backBtn,
+  dividendTitle,
+  helpBtn,
+  fxPoints,
+  fxjifen,
+  dividensIcon,
+  wodefenhong,
+  redenvelopesCose,
+  withdrawBtn,
+  lotteryTitle,
+  countdown,
+  daojishi,
+  yidengjiang,
+  erdengjiang,
+  wdzjl,
+  lotteryBtn,
+  progressBar
+}
 
 class MainScreen extends Component {
   constructor(props) {
@@ -32,6 +77,7 @@ class MainScreen extends Component {
       loaded: false, 
       busy: false, 
       open: false,
+      openDividend: false,
       fxPoints: 0,
       dividends: 0,
       airDropPot: 0,
@@ -53,7 +99,8 @@ class MainScreen extends Component {
   async componentDidMount() {
     let signTrade = this.identityService.signTrade.bind(this.identityService)
     let showModal = this.show.bind(this)
-    // showModal()
+    let that = this
+    showModal()
     window.addEventListener('message',async function(e){
       var data=e.data;
       if(data.type=='signTrade'){
@@ -62,7 +109,7 @@ class MainScreen extends Component {
       }else if(data.type=='openGameCenterModal'){
         showModal()
       }else if(data.type=='avatar'){
-        this.setState({
+        that.setState({
           avatar: data.url
         })
       }
@@ -90,7 +137,6 @@ class MainScreen extends Component {
       timeLeft
     })
 
-    let that = this
     setInterval(function(){
       that.setState({
         timeLeft: that.state.timeLeft - 1
@@ -118,6 +164,16 @@ class MainScreen extends Component {
     this.setState({ open: false })
   }
 
+  showDividend(event) {
+    if(event)
+    event.preventDefault()
+    this.setState({ openDividend: true })
+  }
+
+  closeDividend() {
+    this.setState({ openDividend: false })
+  }
+  
   setView(view) {
     const {emitter} = this.props.services;
     emitter.emit('setView', view);
@@ -127,21 +183,6 @@ class MainScreen extends Component {
     const result = await this.identityService.withdraw();
     console.log(result)
   }
-
-  // async onClickerClick() {
-  //   this.setState({busy: true});
-  //   await this.clickService.click(() => this.setState({busy: false}));
-  // }
-
-  // async updateClicksLeft() {
-  //   const {address} = this.identityService.identity;
-  //   const balance = await this.tokenService.getBalance(address);
-  //   const clicksLeft = parseInt(balance, 10);
-  //   this.setState({
-  //     clicksLeft
-  //   });
-  //   this.timeout = setTimeout(this.updateClicksLeft.bind(this), 2000);
-  // }
 
   async updateFxPoints() {
     const {address} = this.identityService.identity;
@@ -166,6 +207,7 @@ class MainScreen extends Component {
 
   render() {
     const pointsCenterModalProps = {
+      images,
       userName: this.state.userName,
       userBalance: this.state.userBalance,
       avatar: this.state.avatar,
@@ -177,6 +219,7 @@ class MainScreen extends Component {
       end: this.state.end,
       timeLeft: this.state.timeLeft,
       onWithdraw: this.withdraw.bind(this),
+      onShowDividend: this.showDividend.bind(this),
     }
     
     return (
@@ -194,7 +237,7 @@ class MainScreen extends Component {
           <AccountLink setView={this.setView.bind(this)} />
         </HeaderView> */}
         {/* <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'125px',zIndex:'100'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} /> */}
-        
+        {/* <DividendModal close={this.closeDividend.bind(this)} open={this.state.openDividend} /> */}
         <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
         <Iframe url={this.gameUrl}
         width="100%"

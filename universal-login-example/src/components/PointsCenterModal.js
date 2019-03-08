@@ -1,7 +1,6 @@
 
 import React, { Component }from 'react'
 import { Button, Header, Image, Modal, Grid } from 'semantic-ui-react'
-import Blockies from 'react-blockies';
 
 class PointsCenterModal extends Component { 
   componentDidMount() {
@@ -34,8 +33,23 @@ class PointsCenterModal extends Component {
   render() {
     let open = this.props.open;
     let close = this.props.close;
-    let { timeLeft, roundTime, start, end, avatar, fxPoints, dividends, airDropPot, userBalance, userName, onWithdraw } = this.props;
+    let { 
+      images,
+      timeLeft, 
+      roundTime, 
+      start, 
+      end, 
+      avatar, 
+      fxPoints, 
+      dividends, 
+      airDropPot, 
+      userBalance, 
+      userName, 
+      onWithdraw,
+      onShowDividend
+    } = this.props;
 
+    
     return (
       <Modal open={open} onClose={close} size={'fullscreen'}>
         <Modal.Header style={{textAlign:'center'}}>
@@ -43,15 +57,15 @@ class PointsCenterModal extends Component {
             <img src={avatar} />
             <div className="coin_bar">
               <p className="user-id user-id-header">{userName}</p>
-              <img className="coin_icon" src={require('../img/coin_icon.png')} />
+              <img className="coin_icon" src={images.coinIcon} />
               <p className="wallet-address wallet-address-header">{userBalance['usdt']}</p>
-              <img className="switch_icon" src={require('../img/switch.png')} />
+              <img className="switch_icon" src={images.switchIcon} />
             </div>
           </div>
           <div className="header_title">
-            <img src={require('../img/game_center.png')} />
+            <img src={images.gameCenter} />
           </div>
-          <img className="back_btn" src={require('../img/btn_back.png')} onClick={close} />
+          <img className="back_btn" src={images.backBtn} onClick={close} />
         </Modal.Header>
         <Modal.Content>
         <Grid columns={2} textAlign='center' className="chest_box_grid">
@@ -61,8 +75,8 @@ class PointsCenterModal extends Component {
                 <Grid.Row>
                   <Grid.Column>
                     <div className="title">
-                      <img src={require('../img/dividend_title.png')} />
-                      <img className="btn_help" src={require('../img/btn_help.png')} />
+                      <img src={images.dividendTitle} />
+                      <img className="btn_help" src={images.helpBtn} onClick={onShowDividend} />
                     </div>
                   </Grid.Column>
                 </Grid.Row>
@@ -71,15 +85,15 @@ class PointsCenterModal extends Component {
                 <Grid.Row>
                   <Grid.Column>
                     <div className="coin_box">
-                      <img className="fx_points_icon" src={require('../img/icon_FXPoints.png')} />
-                      <img className="fx_points_title" src={require('../img/fxjifen.png')} />
+                      <img className="fx_points_icon" src={images.fxPoints} />
+                      <img className="fx_points_title" src={images.fxjifen} />
                       <div className="coin">{fxPoints}</div>
                     </div>
                   </Grid.Column>
                   <Grid.Column className="coin_box">
                     <div className="coin_box">
-                      <img className="fx_points_icon" src={require('../img/icon_dividens.png')} />
-                      <img className="fx_points_title" src={require('../img/wodefenhong.png')} />
+                      <img className="fx_points_icon" src={images.dividensIcon} />
+                      <img className="fx_points_title" src={images.wodefenhong} />
                       <div className="coin">{dividends}</div>
                     </div>
                   </Grid.Column>
@@ -88,13 +102,13 @@ class PointsCenterModal extends Component {
               <Grid columns={1} textAlign='center' style={{marginTop: '0px'}}>
                 <Grid.Row>
                   <div className="redenvelope_bg">
-                    <img className="redenvelope_btn" src={require('../img/redenvelopes_close.png')} onClick={onWithdraw} />
+                    <img className="redenvelope_btn" src={images.redenvelopesCose} onClick={onWithdraw} />
                   </div>
                 </Grid.Row>
               </Grid>
               <div className="footer">
                 <span style={{fontSize:'12px',marginLeft:'-40px'}}>点击红包领取分红奖励</span> 
-                <img src={require('../img/withdraw_btn.jpg')} />
+                <img src={images.withdrawBtn} />
               </div>
             </Grid.Column>
             <Grid.Column className="chest_box" width='8'>
@@ -102,8 +116,8 @@ class PointsCenterModal extends Component {
                 <Grid.Row>
                   <Grid.Column>
                     <div className="title">
-                      <img src={require('../img/lottery_title.png')} />
-                      <img className="btn_help" src={require('../img/btn_help.png')} />
+                      <img src={images.lotteryTitle} />
+                      <img className="btn_help" src={images.helpBtn} />
                     </div>
                   </Grid.Column>
                 </Grid.Row>
@@ -111,11 +125,11 @@ class PointsCenterModal extends Component {
               <Grid columns={1} textAlign='center'>
                 <Grid.Row>
                   <Grid.Column className="coin_box" style={{maxWidth: '250px'}}>
-                    <img className="fx_points_icon" src={require('../img/icon_countdown.png')} />
-                    <img className="fx_points_title" src={require('../img/daojishi1.png')} />
+                    <img className="fx_points_icon" src={images.countdown} />
+                    <img className="fx_points_title" src={images.daojishi} />
                     <span className="left_time">{this.sec_to_time(timeLeft)}</span>
                     <div className="progress_bar">
-                      <img className="progress" style={{width:(((roundTime-timeLeft)/roundTime)*100)+'%'}} src={require('../img/progress_bar.png')} />
+                      <img className="progress" style={{width:(((roundTime-timeLeft)/roundTime)*100)+'%'}} src={images.progressBar} />
                     </div>
                   </Grid.Column>
                 </Grid.Row>
@@ -123,7 +137,7 @@ class PointsCenterModal extends Component {
               <Grid columns={3} textAlign='center'>
                 <Grid.Row className='awards_column'>
                   <Grid.Column>
-                    <img src={require('../img/yidengjiang.png')} />
+                    <img src={images.yidengjiang} />
                   </Grid.Column>
                   <Grid.Column>
                       X1 名
@@ -136,7 +150,7 @@ class PointsCenterModal extends Component {
               <Grid columns={3} textAlign='center'>
                 <Grid.Row className='awards_column'>
                   <Grid.Column>
-                    <img src={require('../img/erdengjiang.png')} />
+                    <img src={images.erdengjiang} />
                   </Grid.Column>
                   <Grid.Column>
                       X10 名
@@ -149,7 +163,7 @@ class PointsCenterModal extends Component {
               <Grid columns={2} textAlign='center'>
                 <Grid.Row className='winning_column'>
                   <Grid.Column>
-                    <img src={require('../img/wdzjl.png')} />
+                    <img src={images.wdzjl} />
                   </Grid.Column>
                   <Grid.Column>
                      15%
@@ -157,7 +171,7 @@ class PointsCenterModal extends Component {
                 </Grid.Row>
               </Grid>
               <div className="footer">
-                <img src={require('../img/lottery_btn.jpg')} />
+                <img src={images.lotteryBtn} />
               </div>
             </Grid.Column>
           </Grid.Row>
