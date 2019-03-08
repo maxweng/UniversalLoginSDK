@@ -58,7 +58,7 @@
     position: relative
 
 .ui.fullscreen.modal .content .chest_box .title
-    background: url('../img/chest_box_title_bg.png') center no-repeat
+    background: linear-gradient(to right, rgba(30,85,106,0), rgba(30,85,106,1), rgba(30,85,106,0))
     padding: 8px 0 0
     margin: 0 3%;
     position: relative
@@ -176,16 +176,36 @@
     position: absolute
     left: 20px
 
+.ui.fullscreen.modal .header .avatar_bar img
+    height: 60px
+    margin-top: 6px
+
+.ui.fullscreen.modal .header .avatar_bar .coin_icon
+    position: absolute
+    width: 20px
+    height: 20px
+    right: 115px
+    top: 30px
+
+.ui.fullscreen.modal .header .avatar_bar .switch_icon
+    position: absolute
+    width: 20px
+    height: 20px
+    right: 5px
+    top: 30px
+
+.ui.fullscreen.modal .header .avatar_bar .wallet-address-header
+    background: url('../img/avatar_bar_bg.png') center no-repeat;
+    background-size: 100%;
+    padding: 0px 40px;
+    height: 30px;
+    line-height: 30px;
+
 .ui.fullscreen.modal .header .coin_bar
     padding-left: 10px
 
 .ui.fullscreen.modal .header .coin_bar p
     color: white !important
-    
-
-.ui.fullscreen.modal .header .avatar_bar img
-    height: 60px
-    margin-top: 6px
 
 .ui.fullscreen.modal .header .header_title
     height: 72px

@@ -40,10 +40,12 @@ class PointsCenterModal extends Component {
       <Modal open={open} onClose={close} size={'fullscreen'}>
         <Modal.Header style={{textAlign:'center'}}>
           <div className="row align-items-center avatar_bar">
-            <img src={'http://39.96.66.202/web-mobile/res/raw-assets/53/53d5b09f-f31c-4d20-8d58-174b76476432.png'} />
+            <img src={avatar} />
             <div className="coin_bar">
               <p className="user-id user-id-header">{userName}</p>
+              <img className="coin_icon" src={require('../img/coin_icon.png')} />
               <p className="wallet-address wallet-address-header">{userBalance['usdt']}</p>
+              <img className="switch_icon" src={require('../img/switch.png')} />
             </div>
           </div>
           <div className="header_title">
@@ -52,7 +54,7 @@ class PointsCenterModal extends Component {
           <img className="back_btn" src={require('../img/btn_back.png')} onClick={close} />
         </Modal.Header>
         <Modal.Content>
-        <Grid columns={2} stackable textAlign='center' className="chest_box_grid">
+        <Grid columns={2} textAlign='center' className="chest_box_grid">
           <Grid.Row>
             <Grid.Column className="chest_box" width='8'>
               <Grid columns={1} textAlign='center'>
