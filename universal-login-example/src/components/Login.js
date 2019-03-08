@@ -64,14 +64,14 @@ class Login extends Component {
     return (
       <div className="login-view">
         <div className="container">
-          <h1 className="main-title">FastX Points Demo</h1>
+          {/* <h1 className="main-title">FastX Points Demo</h1>
           <IdentitySelector
             onNextClick={(identity) => this.onNextClick(identity)}
             onChange={this.onChange.bind(this)}
             onAccountRecoveryClick={this.onAccountRecoveryClick.bind(this)}
             services = {this.props.services}
             identitySelectionService={this.props.services.identitySelectionService}
-          />
+          /> */}
         </div>
       </div>
     );
