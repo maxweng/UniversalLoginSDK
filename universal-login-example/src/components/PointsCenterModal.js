@@ -47,24 +47,28 @@ class PointsCenterModal extends Component {
       dividends, 
       airDropPot, 
       userBalance, 
-      userName, 
+      userName,
+      services,
       onWithdraw,
       onShowDividend,
       onShowRecording,
       onShowAccount
     } = this.props;
 
-    
+    let userAddr, str = services.identityService.identity.address;
+    if(str)
+    userAddr = str.slice(0,6)+'......'+str.slice(str.length-6,str.length)
+
     return (
       <Modal open={open} onClose={close} size={'fullscreen'}>
         <Modal.Header style={{textAlign:'center'}}>
           <div className="row align-items-center avatar_bar">
             <img src={avatar} onClick={onShowAccount}/>
             <div className="coin_bar">
-              <p className="user-id user-id-header">{userName || '玩家'}</p>
-              <img className="coin_icon" src={images.coinIcon} />
-              <p className="wallet-address wallet-address-header">{userBalance['usdt'] || 0}</p>
-              <img className="switch_icon" src={images.switchIcon} />
+              <p className="user-id user-id-header" style={{textAlign: 'left',paddingLeft:'5px'}}>{userName || '玩家'}</p>
+              {/* <img className="coin_icon" src={images.coinIcon} /> */}
+              <p className="wallet-address wallet-address-header">{userAddr}</p>
+              {/* <img className="switch_icon" src={images.switchIcon} /> */}
             </div>
           </div>
           <div style={{position: 'absolute',left: '60px'}}>
