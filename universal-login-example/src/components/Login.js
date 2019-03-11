@@ -62,7 +62,7 @@ class Login extends Component {
 
   render() {
     return (
-      <div className="login-view">
+      <div className="login-view back-bg">
         <div className="container">
           {/* <h1 className="main-title">FastX Points Demo</h1>
           <IdentitySelector

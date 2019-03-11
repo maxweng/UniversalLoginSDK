@@ -19,9 +19,7 @@ class App extends Component {
 
   render() {
     return (
-      <div>
-        <ContentContainer services={this.services} />
-      </div>
+      <ContentContainer services={this.services} />
     );
   }
 }

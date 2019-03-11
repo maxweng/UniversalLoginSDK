@@ -53,11 +53,11 @@ class ContentContainer extends Component {
         greetingService={services.greetingService}
         viewParameters={this.state.viewParameters} />;
     } else if (this.state.view === 'MainScreen') {
-      var url = window.location.href; //获取当前url          
-      if (url.indexOf("?")>0) {
-          url = url.split("?")[0];
-      }
-      history.pushState(history.state, '', url+setParam("address", services.identityService.identity.address))
+      // var url = window.location.href; //获取当前url          
+      // if (url.indexOf("?")>0) {
+      //     url = url.split("?")[0];
+      // }
+      // history.pushState(history.state, '', url+setParam("address", services.identityService.identity.address))
       return <MainScreen services={services}/>;      
     } else if (this.state.view === 'Account') {
       return (<Account identityService={services.identityService}/>);

@@ -64,7 +64,7 @@ class Backup extends Component {
     const message = 'You have NOT saved your backup keys! Proceeding will cancel and render these codes useless';
     if (confirm(message)) {
       // TODO: Remove beforeUnload warning if one was added
-      emitter.emit('setView', 'Account');
+      emitter.emit('setView', 'MainScreen');
     }
   }
 

@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import PointsCenterModal from './PointsCenterModal';
 import DividendModal from './DividendModal';
 import RecordingModal from './RecordingModal';
+import AccountModal from './AccountModal';
 import { ADDRCONFIG } from 'dns';
 import { getQueryString, sleep } from '../utils/utils';
 
@@ -68,6 +69,8 @@ class MainScreen extends Component {
     this.fxPointsService = services.fxPointsService;
     this.identityService = services.identityService;
     this.IbankService = services.IbankService;
+    this.authorisationService = services.authorisationService;
+    this.nativeNotificationService = services.nativeNotificationService;
     this.gameUrl = services.config.gameUrl + '?access_code=' + getQueryString('access_code');
     
     this.state = {
@@ -80,6 +83,7 @@ class MainScreen extends Component {
       open: false,
       openDividend: false,
       openRecording: false,
+      openAccountModal: false,
       fxPoints: 0,
       dividends: 0,
       airDropPot: 0,
@@ -88,7 +92,7 @@ class MainScreen extends Component {
       end: 0,
       timeLeft: 0,
       activeDrags: 0,
-      avatar: ''
+      avatar: 'http://39.96.66.202/web-mobile/res/raw-assets/19/1970f338-a192-4520-a705-48cb60af2a87.png'
     };
   }
 
@@ -116,6 +120,12 @@ class MainScreen extends Component {
         })
       }
     })
+
+    const {address} = this.identityService.identity;
+    this.subscription = this.authorisationService.subscribe(
+      address,
+      this.onAuthorisationChanged.bind(this)
+    );
     
     //this.historyService.subscribe(this.setState.bind(this));
     this.ensNameService.subscribe();
@@ -148,6 +158,19 @@ class MainScreen extends Component {
     window.frames[0].postMessage({type:'userAddress',address:this.identityService.identity.address},'*')
   }
 
+  componentWillUnmount() {
+    this.subscription.remove();
+  }
+
+  onAuthorisationChanged(authorisations) {
+    this.setState({requests: authorisations.length});
+    if (authorisations.length > 0) {
+      console.log({type:'requests',count:authorisations.length})
+      //this.nativeNotificationService.notifyLoginRequest(authorisations[0].deviceInfo);
+      window.frames[0].postMessage({type:'requests',count:authorisations.length},'*')
+    }
+  }
+
   async waitAccountLoadFinished() {
     while(!this.identityService.identity || !this.identityService.identity.address) {
         await sleep(1000);
@@ -174,6 +197,16 @@ class MainScreen extends Component {
 
   closeDividend() {
     this.setState({ openDividend: false })
+  }
+
+  showAccount(event) {
+    if(event)
+    event.preventDefault()
+    this.setState({ openAccountModal: true })
+  }
+
+  closeAccount() {
+    this.setState({ openAccountModal: false })
   }
 
   showRecording(event) {
@@ -230,13 +263,15 @@ class MainScreen extends Component {
       start: this.state.start,
       end: this.state.end,
       timeLeft: this.state.timeLeft,
+      services: this.props.services,
       onWithdraw: this.withdraw.bind(this),
       onShowDividend: this.showDividend.bind(this),
       onShowRecording: this.showRecording.bind(this),
+      onShowAccount: this.showAccount.bind(this),
     }
     
     return (
-      <div>
+      <div className="back-bg">
         {/* <HeaderView>
           <ProfileIdentity
             userName={this.state.userName}
@@ -250,6 +285,8 @@ class MainScreen extends Component {
           <AccountLink setView={this.setView.bind(this)} />
         </HeaderView> */}
         {/* <img style={{cursor:'pointer',width:'50px',position:'absolute',top:'16px',right:'125px',zIndex:'100'}} onClick={this.show.bind(this)} src={require('../img/icon_FXPoints.png')} /> */}
+        {/* <Account identityService={services.identityService}/> */}
+        <AccountModal close={this.closeAccount.bind(this)} open={this.state.openAccountModal} identityService={this.props.services.identityService}/>
         <RecordingModal close={this.closeRecording.bind(this)} open={this.state.openRecording}/>
         <DividendModal close={this.closeDividend.bind(this)} open={this.state.openDividend} />
         <PointsCenterModal close={this.close.bind(this)} open={this.state.open} {...pointsCenterModalProps}/>
@@ -270,8 +307,7 @@ class MainScreen extends Component {
           busy={this.state.busy}
           onClickerClick={this.onClickerClick.bind(this)}
           lastClick={this.state.lastClick}
-          fxPoints={this.state.fxPoints}
-        /> */}
+          fxPoints={this.state.fxPoints}/> */}
       </div>
     );
   }

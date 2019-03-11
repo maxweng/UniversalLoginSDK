@@ -2,9 +2,12 @@
 import React, { Component }from 'react'
 import { Button, Header, Image, Modal, Grid } from 'semantic-ui-react'
 
+import RequestsBadge from './RequestsBadge';
+
 class PointsCenterModal extends Component { 
-  componentDidMount() {
-    
+  setView(view) {
+    const {emitter} = this.props.services;
+    emitter.emit('setView', view);
   }
 
   sec_to_time(s) {
@@ -47,7 +50,8 @@ class PointsCenterModal extends Component {
       userName, 
       onWithdraw,
       onShowDividend,
-      onShowRecording
+      onShowRecording,
+      onShowAccount
     } = this.props;
 
     
@@ -55,13 +59,19 @@ class PointsCenterModal extends Component {
       <Modal open={open} onClose={close} size={'fullscreen'}>
         <Modal.Header style={{textAlign:'center'}}>
           <div className="row align-items-center avatar_bar">
-            <img src={avatar} />
+            <img src={avatar} onClick={onShowAccount}/>
             <div className="coin_bar">
-              <p className="user-id user-id-header">{userName}</p>
+              <p className="user-id user-id-header">{userName || '玩家'}</p>
               <img className="coin_icon" src={images.coinIcon} />
-              <p className="wallet-address wallet-address-header">{userBalance['usdt']}</p>
+              <p className="wallet-address wallet-address-header">{userBalance['usdt'] || 0}</p>
               <img className="switch_icon" src={images.switchIcon} />
             </div>
+          </div>
+          <div style={{position: 'absolute',left: '60px'}}>
+            <RequestsBadge
+              setView={this.setView.bind(this)}
+              services={this.props.services}
+            />
           </div>
           <div className="header_title">
             <img src={images.gameCenter} />

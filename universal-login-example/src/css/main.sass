@@ -36,8 +36,12 @@
 @import layout/print
 @import layout/chest
 
-body
+#app
+    height: 100%
+
+.back-bg
     background-color: rgb(16,16,16)
+    height: 100%
 
 .ui.fullscreen.modal
     width: 100%!important
@@ -198,11 +202,12 @@ body
     top: 30px
 
 .ui.fullscreen.modal .header .avatar_bar .wallet-address-header
-    background: url('../img/avatar_bar_bg.png') center no-repeat;
-    background-size: 100%;
-    padding: 0px 40px;
-    height: 30px;
-    line-height: 30px;
+    background: url('../img/avatar_bar_bg.png') center no-repeat
+    background-size: 100%
+    padding: 0px 40px
+    height: 30px
+    width: 145px
+    line-height: 30px
 
 .ui.fullscreen.modal .header .coin_bar
     padding-left: 10px
