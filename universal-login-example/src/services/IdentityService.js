@@ -3,6 +3,8 @@ import DEFAULT_PAYMENT_OPTIONS from '../../config/defaultPaymentOptions';
 import {tokenContractAddress} from '../../config/config';
 import FXPoints from 'fastx-points-relayer/abi/FXPoints.json';
 
+const affiliate = '0x0000000000000000000000000000000000000000'
+
 class IdentityService {
   constructor(sdk, emitter, storageService, provider, addresses, defaultPaymentOptions) {
     this.sdk = sdk;
@@ -21,7 +23,7 @@ class IdentityService {
       to: this.addresses.fxPoints,
       from: this.identity.address,
       value: 0,
-      data: new utils.Interface(FXPoints.interface).functions.buyXaddr.encode([amount]),
+      data: new utils.Interface(FXPoints.interface).functions.buyKeysByManager.encode([this.identity.address,amount,affiliate]),
       gasToken: this.addresses.token,
       ...this.defaultPaymentOptions
     };

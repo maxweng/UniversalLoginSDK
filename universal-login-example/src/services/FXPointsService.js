@@ -1,6 +1,6 @@
 
 import {utils, Contract} from 'ethers';
-import FXPoints from '../../build/FXPoints';
+import FXPoints from 'fastx-points-relayer/abi/FXPoints.json';
 
 class FXPointsService {
   constructor(fxPointsContractAddress, provider) {
@@ -10,8 +10,8 @@ class FXPointsService {
   }
 
   async getBalance(address) {
-    let userInfo = await this.fxPointsContract.getPlayerInfoByAddress(address);
-    return utils.formatEther(userInfo[2])
+    let keys = await this.fxPointsContract.queryKeys(address);
+    return utils.formatEther(keys)
   }
 }
 

@@ -106,7 +106,7 @@ class MainScreen extends Component {
     let signTrade = this.identityService.signTrade.bind(this.identityService)
     let showModal = this.show.bind(this)
     let that = this
-    //showModal()
+    showModal()
     window.addEventListener('message',async function(e){
       var data=e.data;
       if(data.type=='signTrade'){
@@ -140,8 +140,8 @@ class MainScreen extends Component {
     this.setState({
       userName: userInfo.user_name,
       userBalance: userBalance.balance,
-      fxPoints: parseFloat(playerInfo.balance).toFixed(2),
-      dividends: parseFloat(playerInfo.aff+playerInfo.gen+playerInfo.win).toFixed(2),
+      fxPoints: parseFloat(playerInfo.keys).toFixed(2),
+      dividends: parseFloat(playerInfo.balance).toFixed(2),
       airDropPot: parseFloat(gamePool.airDropPot).toFixed(2),
       roundTime: gamePool.roundTime,
       start: gamePool.start,

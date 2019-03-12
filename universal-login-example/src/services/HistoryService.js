@@ -1,5 +1,5 @@
 import {utils} from 'ethers';
-import Clicker from '../../build/Clicker';
+// import Clicker from '../../build/Clicker';
 import {sleep} from 'universal-login-contracts';
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 
@@ -7,8 +7,8 @@ class HistoryService {
   constructor(provider) {
     //this.clickerContractAddress = clickerContractAddress;
     this.provider = provider;
-    this.interface = new utils.Interface(Clicker.interface);
-    this.pressButtonTopic = new utils.Interface(Clicker.interface).events.ButtonPress.topic;
+    //this.interface = new utils.Interface(Clicker.interface);
+    //this.pressButtonTopic = new utils.Interface(Clicker.interface).events.ButtonPress.topic;
     this.running = false;
     this.pressers = [];
   }
@@ -49,16 +49,16 @@ class HistoryService {
   }
 
   getEventFormLogs(event) {
-    const eventArguments = this.interface.parseLog(event).values;
-    return {
-      address: eventArguments.presser,
-      name: eventArguments.presser,
-      pressTime: this.getTimeDistanceInWords(
-        parseInt(eventArguments.pressTime, 10)
-      ),
-      score: parseInt(eventArguments.score, 10),
-      key: event.data
-    };
+    // const eventArguments = this.interface.parseLog(event).values;
+    // return {
+    //   address: eventArguments.presser,
+    //   name: eventArguments.presser,
+    //   pressTime: this.getTimeDistanceInWords(
+    //     parseInt(eventArguments.pressTime, 10)
+    //   ),
+    //   score: parseInt(eventArguments.score, 10),
+    //   key: event.data
+    // };
   }
 
   async getEventsFromLogs(events) {
@@ -68,12 +68,12 @@ class HistoryService {
   }
 
   async getPressLogs() {
-    const filter = {
-      fromBlock: 0,
-      address: this.clickerContractAddress,
-      topics: [this.pressButtonTopic]
-    };
-    return await this.provider.getLogs(filter);
+    // const filter = {
+    //   fromBlock: 0,
+    //   address: this.clickerContractAddress,
+    //   topics: [this.pressButtonTopic]
+    // };
+    // return await this.provider.getLogs(filter);
   }
 
   async getPressEvents() {

@@ -1,775 +1,657 @@
+//====================================================================================================================//
+//  ,---..-.   .-.,---.   .---.  ,-..-. .-. _______  .---.
+//  | .-' ) \_/ / | .-.\ / .-. ) |(||  \| ||__   __|( .-._)
+//  | `-.(_)   /  | |-' )| | |(_)(_)|   | |  )| |  (_) \
+//  | .-'  / _ \  | |--' | | | | | || |\  | (_) |  _  \ \
+//  | |   / / ) \ | |    \ `-' / | || | |)|   | | ( `-'  )
+//  )\|  `-' (_)-'/(      )---'  `-'/(  (_)   `-'  `----'
+// (__)          (__)    (_)       (__)
+//
+//   _, _, ,  , ___,_  _    _,___,
+//  /  / \,|\ |' | |_)'|\  / ' |
+// '\_'\_/ |'\|  |'| \ |-\'\_  |
+//    `'   '  `  ' '  `'  `  ` '
+//
+// 2019.3
+
 pragma solidity ^0.5.0;
 
-import "./libraries/SafeMath.sol";
-import "./libraries/NameFilter.sol";
-import "./libraries/FXKeyCalc.sol";
-import "./libraries/FXDatasets.sol";
-import "./libraries/FXEvents.sol";
+import "./SafeMath.sol";
+import "./KeyCalc.sol";
 
-import "./interfaces/PlayerBookInterface.sol";
-
-
-contract FXPoints is FXEvents {
-
+/**
+ * @dev The main contract
+ */
+contract FXPoints {
     using SafeMath for uint256;
-    using NameFilter for string;
-    using FXKeyCalc for uint256;
+    using KeyCalc for uint256;
 
-    uint256 constant private ICO_ZERO_LEN = 60 minutes;
-    uint256 constant private ROUND_GAP_LEN = 12 hours; 
-    uint256 constant private ROUND_LEN = 24 hours;         // round timer starts at this
-    uint256 constant private ROUND_LEN_MAX = ROUND_LEN;     // max length a round timer can be
-    uint256 constant private TIME_INCREASE = 1 minutes;     // every full key purchased adds this much to the timer
+    // ___
+    //  |    ._   _   _
+    //  | \/ |_) (/_ _>
+    //    /  |
 
-    PlayerBookInterface private playerBook_;
-    uint256 private _roundGap = ICO_ZERO_LEN;                       // length of ICO phase, set to 1 year for EOS.
-
-    
-    mapping (uint256 => FXDatasets.Player) public plyr_;   // (pID => data) player data
-    mapping (address => uint256) public pIDxAddr_;          // (addr => pID) returns player id by address
-    mapping (bytes32 => uint256) public pIDxName_;          // (name => pID) returns player id by name
-    mapping (uint256 => mapping (bytes32 => bool)) public plyrNames_; // (pID => name => bool) list of names a player owns.  (used so you can change your display name amongst any name you own)
-
-    uint256 public airDropPot_;             // person who gets the airdrop wins part of this pot
-
-    uint256 public rID_;    // round id number / total rounds that have happened
-    mapping (uint256 => FXDatasets.Round) public round_;   // (rID => data) round data
-    mapping (uint256 => mapping (uint256 => FXDatasets.PlayerRounds)) public plyrRnds_;    // (pID => rID => data) player round data by player id & round id
-
-    mapping (address=>uint) memberTokens_;
-
-    constructor(address _book) public {
-        // rID_ = 1;
-        // round_[rID_].strt = now;
-        // round_[rID_].end = now + ROUND_LEN + ICO_ZERO_LEN;
-        
-        // address _owner = msg.sender;
-        playerBook_= (PlayerBookInterface)(_book);
+    struct TeamMember {
+        uint256 percentOfTeamDividends; // Percent from team dividends
+        uint256 withdrawnEth;           // The amount have already withdrawn by the team member
     }
 
-    modifier onlyDevs() {
-        // require(
-        //     msg.sender == _owner ||
-        //     msg.sender == 0xF38fd8319aFf0d37B41F912F8BD8f38779ec2071 ||
-        //     msg.sender == 0x3f84C8504DB819791528FeaA6199069c521738F0,
-        //     "dev team only"
-        // );
+    struct Player {
+        address addr;
+        address aff;
+
+        uint256 ico;
+        uint256 keys;
+        uint256 deadEth;
+        bool jackpotWithdrawn;
+
+        uint256 firstJSID;
+        uint256 lastJSID;
+    }
+
+    struct JackpotShare {
+        uint256 pos;
+        uint256 eth;
+        uint256 nextJSID;
+    }
+
+    struct Jackpot {
+        uint256 magicNum;
+        uint256 deadline;
+        uint256 eth;
+        bool withdrawn;
+        uint256 nextJSID;
+        uint256 blockOfLastBuy;
+        mapping (uint256 => JackpotShare) jackpotShares;
+    }
+
+    struct Game {
+        uint256 startTime;
+        bool active;
+
+        bool icoPhase;
+        uint256 ico;
+
+        uint256 keys;
+        uint256 profitPerKey;
+
+        uint256 teamEth;
+        uint256 dividendsEth;
+
+        mapping (address => Player) players;
+
+        uint256 jackpotID;
+        mapping (uint256 => Jackpot) jackpots;
+    }
+
+    // |\/|  _  ._ _  |_   _  ._ _
+    // |  | (/_ | | | |_) (/_ | _>
+
+    address payable private owner;
+    address private manager;
+
+    mapping (address => TeamMember) teamMembers;
+    uint256 totalTeamEth;
+    uint256 totalTeamDividendsPercent;
+
+    Game game;
+
+    //  _
+    // |_   _ .__|_ _
+    // |_\/(/_| ||__>
+    //
+
+    /**
+     * @dev Emit on a team member is added
+     * @param memb Address of new member
+     * @param percent How many profit can be withdrawn by this team member
+     */
+    event TeamMemberIsAdded(address memb, uint256 percent);
+
+    /**
+     * @dev Emit on the game is activated
+     */
+    event GameIsActivated();
+
+    /**
+     * @dev Emit on a new payment received during ICO phase
+     * @param player Address of the player
+     * @param eth Amount to buy
+     * @param aff Address of the affiliate
+     * @param teamEth Amount of team dividends
+     * @param jackpotEth Amount are added to jackpot
+     * @param dividendsEth Amount are added to dividends
+     */
+    event BuyOnICOPhase(
+        address player, uint256 eth, address aff, uint256 teamEth, uint256 jackpotEth, uint256 dividendsEth);
+
+    /**
+     * @dev Emit on keys are purchased
+     * @param player Address of the player
+     * @param eth Amount of eth are transferred to contract
+     * @param keys Amount of keys are bought
+     */
+    event KeysAreBought(address player, uint256 eth, uint256 keys);
+
+    /**
+     * @dev Emit on a team member withdrawal is applied.
+     * @param memberAddr Address of member
+     * @param eth Amount are withdrew
+     */
+    event TeamMemberWithdrawEvent(address memberAddr, uint256 eth);
+
+    /**
+     * @dev Emit on a withdrawal is processed successfully
+     * @param playerAddr Address of player
+     * @param eth Amount are withdrew
+     */
+    event WithdrawEvent(address playerAddr, uint256 eth);
+
+    /**
+     * @dev Emit on a player withdraw the jackpot successfully
+     * @param playerAddr The player address
+     * @param eth Amount of the jackpot are withdrawn
+     */
+    event withdrawJackpotEvent(address playerAddr, uint256 eth);
+
+    //              _
+    // |\/| _  _|o_|_o _ ._
+    // |  |(_)(_|| | |(/_|
+    //
+
+    modifier isOwner() {
+        require(msg.sender == owner, "Only owner!");
         _;
     }
 
-    function spend(uint256 _amount) public {
-        // issue the tokens to the player
-        address _member = msg.sender;
-        if (_member == address(0))
-        {
-            _member == msg.sender;
-        }
-        uint256 _pID = pIDxAddr_[_member];
-
-        plyrRnds_[_pID][rID_].keys += _amount;
-        
-        round_[rID_].keys += _amount;
+    modifier isManager() {
+        require(msg.sender == manager, "Only manager!");
+        _;
     }
 
-    function balanceOf(address _member) 
-        public view
-        returns (uint256)
-    {
-        if (_member == address(0))
-        {
-            _member == msg.sender;
-        }
-        uint256 _pID = pIDxAddr_[_member];
-        
-        return plyrRnds_[_pID][rID_].keys;
+    modifier isICOPhase() {
+        require(game.icoPhase, "No more ICO!");
+        _;
     }
-    
+
+    modifier isTeamMember(address _teamMemberAddr) {
+        require(teamMembers[_teamMemberAddr].percentOfTeamDividends > 0, "Team member is required!");
+        _;
+    }
+
+//   __
+//==/=============================/================/====/============|================================================//
+// ( __  ___  ___  ___  ___  ___ (       _ _  ___ (___ (___  ___  ___| ___
+// |   )|___)|   )|___)|   )|   )|      | | )|___)|    |   )|   )|   )|___
+// |__/ |__  |  / |__  |    |__/||      |  / |__  |__  |  / |__/ |__/  __/
+
     /**
-     * @dev returns player earnings per vaults 
-     * @return winnings vault
-     * @return general vault
-     * @return affiliate vault
+     * @dev Constructor of the contract
      */
-    function getPlayerVaults(uint256 _pID)
-        public
-        view
-        returns(uint256 win, uint256 gen, uint256 aff)
-    {
-        return (
-            plyr_[_pID].win,
-            (plyr_[_pID].gen).add(calcUnMaskedEarnings(_pID, plyr_[_pID].lrnd)),
-            plyr_[_pID].aff
+    constructor() public {
+        owner = msg.sender;
+        manager = msg.sender;
+    }
+
+    /**
+     * @dev Destroy current contract and returns all funds to owner
+     */
+    function kill() public isOwner {
+        selfdestruct(owner);
+    }
+
+    /**
+     * @dev Assign manager account
+     */
+    function setManager(address _manager) public isOwner {
+        manager = _manager;
+    }
+
+    /**
+     * @dev Set current game active status to `active`
+     */
+    function activateGame() public isManager {
+        require(game.active == false, "Game is already activated!");
+        require(totalTeamDividendsPercent == 100, "Wrong percent value of team dividends!");
+
+        game.active = true;
+        game.icoPhase = true;
+
+        emit GameIsActivated();
+    }
+
+    /**
+     * @dev Read the active status of current game
+     * @return Returns true if current game is active
+     */
+    function getActive() public view returns (bool) {
+        return game.active;
+    }
+
+    /**
+     * @dev After the game is activated, the ICO phase is started automatically, use this function to stop ICO phase
+     */
+    function stopICOPhase() public isManager isICOPhase {
+        game.icoPhase = false;
+    }
+
+    /**
+     * @dev Get ICO phase status
+     * @return Returns true if it is during ICO phase
+     */
+    function getICOPhase() public view returns (bool) {
+        return game.icoPhase;
+    }
+
+//   __
+//==/|================================/====/============|=============================================================//
+// ( |  ___  ___  _ _       _ _  ___ (___ (___  ___  ___| ___
+//   | |___)|   )| | )     | | )|___)|    |   )|   )|   )|___
+//   | |__  |__/||  /      |  / |__  |__  |  / |__/ |__/  __/
+
+    /**
+     * @dev Add a team member to split the dividends
+     * @param _memberAddr The team member address
+     * @param _percent The percent to split
+     */
+    function addTeamMember(address _memberAddr, uint256 _percent) public isManager {
+        require(
+            _percent > 0 && totalTeamDividendsPercent <= 100 && _percent <= 100 - totalTeamDividendsPercent,
+            "Invalid dividends percent!"
         );
-    }
-    
-    /**
-     * @dev returns player info based on address.  if no address is given, it will 
-     * use msg.sender 
-     * @param _addr address of the player you want to lookup 
-     * @return player ID 
-     * @return player name
-     * @return keys owned (current round)
-     * @return winnings vault
-     * @return general vault 
-     * @return affiliate vault 
-	 * @return player ico eth
-     */
-    function getPlayerInfoByAddress(address _addr)
-        public 
-        view 
-        returns(uint256, bytes32, uint256, uint256, uint256, uint256, uint256)
-    {
-        if (_addr == address(0))
-        {
-            _addr == msg.sender;
-        }
-        uint256 _pID = pIDxAddr_[_addr];
-        
-        return (
-            _pID,                               //0
-            plyr_[_pID].name,                   //1
-            plyrRnds_[_pID][rID_].keys, //2
-            plyr_[_pID].win,                    //3
-            (plyr_[_pID].gen),       //4
-            plyr_[_pID].aff,                    //5
-			plyrRnds_[_pID][rID_].ico           //6
-        );
+
+        TeamMember storage _teamMember = teamMembers[_memberAddr];
+        require(_teamMember.percentOfTeamDividends == 0, "Team member is already added!");
+
+        _teamMember.percentOfTeamDividends = _percent;
+        totalTeamDividendsPercent += _percent;
+
+        emit TeamMemberIsAdded(_memberAddr, _percent);
     }
 
     /**
-     * @dev returns all current round info needed for front end
-     * @return eth invested during ICO phase
-     * @return round id 
-     * @return total keys for round 
-     * @return time round ends
-     * @return time round started
-     * @return current pot 
-     * @return current player in leads address 
-     * @return current player in leads name
-     * @return airdrop tracker # & airdrop pot
+     * @dev Returns the total percent of team dividends
+     * @return Percent value
      */
-    function getCurrentRoundInfo() 
-        public
-        view
-        returns(uint256, uint256, uint256, uint256, uint256, uint256, uint256, address, bytes32, uint256)
-    {
-        return
-            (
-                round_[rID_].ico,               //0
-                rID_,                           //1
-                round_[rID_].keys,              //2
-                round_[rID_].end,               //3
-                round_[rID_].strt,              //4
-                round_[rID_].pot,               //5
-                round_[rID_].plyr,              //6
-                plyr_[round_[rID_].plyr].addr,  //7
-                plyr_[round_[rID_].plyr].name,  //8
-                airDropPot_                     //9
-            );
+    function getTotalTeamDividendsPercent() public view returns (uint256) {
+        return totalTeamDividendsPercent;
     }
 
     /**
-	 * @dev receives name/player info from names contract 
+     * @dev Calculate available dividends of a team member
+     * @param _teamMemberAddr Team member address
+     * @return Dividends can be withdrawn
      */
-    function receivePlayerInfo(uint256 _pID, address _addr, bytes32 _name, uint256 _laff)
-        external
-    {
-        require (msg.sender == address(playerBook_), "Not PlayerBook contract... hmmm..");
-        if (pIDxAddr_[_addr] != _pID)
-            pIDxAddr_[_addr] = _pID;
-        if (pIDxName_[_name] != _pID)
-            pIDxName_[_name] = _pID;
-        if (plyr_[_pID].addr != _addr)
-            plyr_[_pID].addr = _addr;
-        if (plyr_[_pID].name != _name)
-            plyr_[_pID].name = _name;
-        if (plyr_[_pID].laff != _laff)
-            plyr_[_pID].laff = _laff;
-        if (plyrNames_[_pID][_name] == false)
-            plyrNames_[_pID][_name] = true;
+    function calcAvailableTeamEth(address _teamMemberAddr) public isTeamMember(_teamMemberAddr) view returns(uint256) {
+        TeamMember storage _teamMember = teamMembers[_teamMemberAddr];
+        return (totalTeamEth.mul(_teamMember.percentOfTeamDividends) / 100).sub(_teamMember.withdrawnEth);
     }
 
     /**
-     * @dev receives entire player name list 
+     * @dev Withdraw team dividends of team member.
+     * @param _eth How many funds need to be withdrawn
      */
-    function receivePlayerNameList(uint256 _pID, bytes32 _name)
-        external
-    {
-        require (msg.sender == address(playerBook_), "Mot PlayerBook contract... hmmm..");
-        if(plyrNames_[_pID][_name] == false)
-            plyrNames_[_pID][_name] = true;
+    function withdrawTeamDividends(uint256 _eth) public isTeamMember(msg.sender) {
+        TeamMember storage _teamMember = teamMembers[msg.sender];
+
+        uint256 _availableEth = calcAvailableTeamEth(msg.sender);
+        require(_eth <= _availableEth, "Exceeded the amount!");
+
+        msg.sender.transfer(_eth);
+        _teamMember.withdrawnEth = _teamMember.withdrawnEth.add(_eth);
+
+        emit TeamMemberWithdrawEvent(msg.sender, _eth);
     }
 
-    function buyXaddr(uint256 _amount)
-        // isActivated()
-        // isHuman()
-        // isWithinLimits(msg.value)
-        public
-        payable
-    {
-        // set up our tx event data and determine if player is new or not
-        FXDatasets.EventReturns memory _eventData_;
-        _eventData_ = determinePID(_eventData_);
-        
-        // fetch player id
-        uint256 _pID = pIDxAddr_[msg.sender];
-        
-        // buy core 
-        buyCore(_pID, _amount, _eventData_);
-    }
-  
+//====|===========/==============/===================/====/============|==============================================//
+//    | ___  ___ (     ___  ___ (___       _ _  ___ (___ (___  ___  ___| ___
+//    )|   )|    |___)|   )|   )|         | | )|___)|    |   )|   )|   )|___
+//  _/ |__/||__  | \  |__/ |__/ |__       |  / |__  |__  |  / |__/ |__/  __/
+
     /**
-     * @dev gets existing or registers new pID.  use this when a player may be new
-     * @return pID 
+     * @dev Kernel function to process jackpot
+     * @param _game Game object
+     * @param _player Player object
+     * @param _jackpotEth Amount of jackpot share
+     * @return Returns the total amount of jackpot
      */
-    function determinePID(FXDatasets.EventReturns memory _eventData_)
-        private
-        returns (FXDatasets.EventReturns memory)
-    {
-        uint256 _pID = pIDxAddr_[msg.sender];
-        // if player is new 
-        if (_pID == 0)
-        {
-            // grab their player ID, name and last aff ID, from player names contract 
-            _pID = playerBook_.getPlayerID(msg.sender);
-            bytes32 _name = playerBook_.getPlayerName(_pID);
-            uint256 _laff = playerBook_.getPlayerLAff(_pID);
-            
-            // set up player account 
-            pIDxAddr_[msg.sender] = _pID;
-            plyr_[_pID].addr = msg.sender;
-            
-            if (_name != "")
-            {
-                pIDxName_[_name] = _pID;
-                plyr_[_pID].name = _name;
-                plyrNames_[_pID][_name] = true;
+    function jackpotProc(Game storage _game, Player storage _player, uint256 _jackpotEth) private returns (uint256) {
+        // We need to deal with the jackpot here
+        uint256 _jackpotID = _game.jackpotID;
+        Jackpot storage _jackpot = _game.jackpots[_jackpotID];
+
+        if (_jackpotID > 0 && _jackpot.magicNum != 0 && _jackpot.deadline > now) {
+            uint256 _jsID = _jackpot.nextJSID;
+            _jackpot.nextJSID = _jsID.add(1);
+
+            // Initialize jackpot share data
+            JackpotShare storage _js = _jackpot.jackpotShares[_jsID];
+            _js.pos = _jackpot.eth;
+            _js.eth = _jackpotEth;
+            _jackpot.eth = _jackpot.eth.add(_jackpotEth);
+
+            // First share for current player?
+            if (_player.firstJSID == 0) {
+                _player.firstJSID = _jsID;
+                _player.lastJSID = _jsID;
+            } else {
+                JackpotShare storage _lastJs = _jackpot.jackpotShares[_player.lastJSID];
+                _lastJs.nextJSID = _jsID;
+                _player.lastJSID = _jsID;
             }
-            
-            if (_laff != 0 && _laff != _pID)
-                plyr_[_pID].laff = _laff;
-            
-            // set the new player bool to true
-            _eventData_.compressedData = _eventData_.compressedData + 1;
-        } 
-        return (_eventData_);
+            _jackpot.blockOfLastBuy = block.number;
+            return _jackpot.eth;
+        } else {
+            return 0;
+        }
     }
 
     /**
-     * @dev logic runs whenever a buy order is executed.  determines how to handle 
-     * incoming eth depending on if we are in ICO phase or not 
+     * @dev Start a new round of jackpot
+     * @param _magicNum The hash value of the random number, this number will be used for reveal the jackpot result
+     * @param _periodSecs How many seconds during the jackpot period
      */
-    function buyCore(uint256 _pID, uint256 _amount, FXDatasets.EventReturns memory _eventData_)
-        private
-    {
-        // check to see if round has ended.  and if player is new to round
-        _eventData_ = manageRoundAndPlayer(_pID, _eventData_);
-        
-        // are we in ICO phase?
-        // if (now <= round_[rID_].strt + _roundGap) 
-        // {
-        //     // let event data know this is a ICO phase buy order
-        //     _eventData_.compressedData = _eventData_.compressedData + 2000000000000000000000000000000;
-        
-        //     // ICO phase core
-        //     icoPhaseCore(_pID, msg.value, _team, _affID, _eventData_);
-        
-        // // round is live
-        // } else {
-        // let event data know this is a buy order
-        _eventData_.compressedData = _eventData_.compressedData + 1000000000000000000000000000000;
-        
-        // call core
-        core(_pID, _amount, _eventData_);
-        // }
+    function startNewJackpot(uint256 _magicNum, uint256 _periodSecs) public isManager {
+        require(game.active, "The game status is not active!");
+        uint256 _jackpotID = game.jackpotID;
+
+        if (game.jackpotID > 0) {
+            // Need to ensure that current jackpot is revealed
+            Jackpot storage _jackpot = game.jackpots[_jackpotID];
+            require(_jackpot.deadline < now, "It is not finished!");
+            require(_jackpot.withdrawn, "Not withdrawn!");
+        }
+
+        // Increase jackpotID to start a new round of jackpot
+        ++_jackpotID;
+        game.jackpotID = _jackpotID;
+
+        Jackpot storage _jackpot = game.jackpots[_jackpotID];
+        _jackpot.magicNum = _magicNum;
+        _jackpot.deadline = now + _periodSecs;
+        _jackpot.nextJSID = 1; // Initialize jackpot share ID to 1
     }
 
     /**
-     * @dev decides if round end needs to be run & new round started.  and if 
-     * player unmasked earnings from previously played rounds need to be moved.
+     * @dev Returns the amount of eth in jackpot
+     * @return Amount of eth
      */
-    function manageRoundAndPlayer(uint256 _pID, FXDatasets.EventReturns memory _eventData_)
-        private
-        returns (FXDatasets.EventReturns memory)
-    {
-        // setup local rID
-        uint256 _rID = rID_;
-        
-        // grab time
-        uint256 currTick = now;
-        
-        // check to see if round has ended.  we use > instead of >= so that LAST
-        // second snipe tx can extend the round.
-        if (currTick > round_[_rID].end)
-        {
-            // check to see if round end has been run yet.  (distributes pot)
-            if (round_[_rID].ended == false)
-            {
-                _eventData_ = endRound(_eventData_);
-                round_[_rID].ended = true;
+    function getJackpotEth() public view returns (uint256) {
+        require(game.jackpotID > 0, "No valid jackpot!");
+        Jackpot storage _jackpot = game.jackpots[game.jackpotID];
+        return _jackpot.eth;
+    }
+
+    /**
+     * @dev Calculate jackpot result with random number
+     * @param _randNum Random number
+     * @return Returns the result
+     */
+    function calcJackpotResult(uint256 _randNum) public view returns (uint256) {
+        Jackpot storage _jackpot = game.jackpots[game.jackpotID];
+
+        uint256 _blockOfLastBuy = _jackpot.blockOfLastBuy;
+        require(block.number > _blockOfLastBuy, "Too early to withdraw, wait until next block is generated!");
+
+        uint256 _magicNum = uint256(keccak256(abi.encodePacked(_randNum)));
+        require(_magicNum == _jackpot.magicNum, "Invalid random number!");
+
+        // Calculate result number
+        uint256 _resultHash = uint256(keccak256(abi.encodePacked(_randNum, blockhash(_blockOfLastBuy))));
+        uint256 _result = _resultHash % _jackpot.eth;
+
+        return _result;
+    }
+
+    /**
+     * @dev Withdraw jackpot profit
+     * @param _randNum Use this random number to verify and withdraw the eth
+     */
+    function withdrawJackpot(uint256 _randNum) public {
+        address payable _playerAddr = msg.sender;
+        Player storage _player = game.players[_playerAddr];
+        require(_player.addr != address(0), "You are not a valid player!");
+
+        uint256 _jackpotID = game.jackpotID;
+        require(_jackpotID > 0, "Invalid jackpot!");
+
+        Jackpot storage _jackpot = game.jackpots[_jackpotID];
+        require(_jackpot.deadline < now, "Jackpot is not finished!");
+        require(!_jackpot.withdrawn, "Jackpot has already been withdrawn!");
+
+        uint256 _jackpotEth = _jackpot.eth;
+        require(_jackpotEth > 0, "No eth in jackpot!");
+
+        uint256 _blockOfLastBuy = _jackpot.blockOfLastBuy;
+        require(block.number > _blockOfLastBuy, "Too early to withdraw, wait until next block is generated!");
+
+        uint256 _magicNum = uint256(keccak256(abi.encodePacked(_randNum)));
+        require(_magicNum == _jackpot.magicNum, "Invalid random number!");
+
+        // Calculate result number
+        uint256 _resultHash = uint256(keccak256(abi.encodePacked(_randNum, blockhash(_blockOfLastBuy))));
+        uint256 _result = _resultHash % _jackpotEth;
+
+        // Is current player a winner?
+        bool _hit = false;
+        uint256 _currJSID = _player.firstJSID;
+        JackpotShare storage _js = _jackpot.jackpotShares[_currJSID];
+        while (_currJSID > 0) {
+            if (_result >= _js.pos && _result < _js.pos.add(_js.eth)) {
+                _hit = true;
+                break;
             }
-            
-            // start next round in ICO phase
-            if (rID_ == 1) {
-                _roundGap = ROUND_GAP_LEN;
-            }
-            rID_++;
-            _rID = rID_;
-            round_[_rID].strt = currTick;
-            round_[_rID].end = currTick.add(ROUND_LEN).add(_roundGap);
+            // Next share
+            _currJSID = _js.nextJSID;
+            _js = _jackpot.jackpotShares[_currJSID];
         }
-        
-        // is player new to round?
-        if (plyr_[_pID].lrnd != _rID)
-        {
-            // if player has played a previous round, move their unmasked earnings
-            // from that round to gen vault.
-            if (plyr_[_pID].lrnd != 0)
-                updateGenVault(_pID, plyr_[_pID].lrnd);
-            
-            // update player's last round played
-            plyr_[_pID].lrnd = _rID;
-            
-            // set the joined round bool to true
-            _eventData_.compressedData = _eventData_.compressedData + 10;
-        }
-        
-        return(_eventData_);
+
+        require(_hit, "You are not the winner!");
+
+        // Withdraw
+        _playerAddr.transfer(_jackpotEth);
+        _jackpot.withdrawn = true;
+
+        emit withdrawJackpotEvent(_playerAddr, _jackpotEth);
     }
-    
+
+//     __   __
+//==/=/====/==|================/====/============|====================================================================//
+// ( (    (   |      _ _  ___ (___ (___  ___  ___| ___
+// | |   )|   )     | | )|___)|    |   )|   )|   )|___
+// | |__/ |__/      |  / |__  |__  |  / |__/ |__/  __/
+
     /**
-     * @dev ends the round. manages paying out winner/splitting up pot
+     * @dev The core function to buy keys during ICO phase
+     * @param _playerAddr Address of the player
+     * @param _eth Funds
+     * @param _aff Address of affiliate
      */
-    function endRound(FXDatasets.EventReturns memory _eventData_)
-        private
-        returns (FXDatasets.EventReturns memory)
-    {
-        // setup local rID
-        uint256 _rID = rID_;
-        
-        // check to round ended with ONLY ico phase transactions
-        if (round_[_rID].eth == 0 && round_[_rID].ico > 0)
-            roundClaimICOKeys(_rID);
-        
-        // grab our winning player
-        uint256 _winPID = round_[_rID].plyr;
-        
-        // grab our pot amount
-        uint256 _pot = round_[_rID].pot;
-        
-        // calculate our winner share, community rewards, gen share, and amount reserved for next pot 
-        uint256 _win = _pot.mul(48) / 100;
-        uint256 _com = _pot.mul(5) / 100;
-        uint256 _gen = _pot.mul(37) / 100;
-        uint256 _res = (((_pot.sub(_win)).sub(_com)).sub(_gen));
-        
-        // calculate ppt for round mask
-        uint256 _ppt = (_gen.mul(1000000000000000000)) / (round_[_rID].keys);
-        uint256 _dust = _gen.sub((_ppt.mul(round_[_rID].keys)) / 1000000000000000000);
-        if (_dust > 0)
-        {
-            _gen = _gen.sub(_dust);
-            _res = _res.add(_dust);
+    function buyICOCore(address _playerAddr, uint256 _eth, address payable _aff) private isICOPhase {
+        require(_playerAddr != _aff, "Affiliate and sender are identical!");
+
+        require(game.active, "The game status is not active!");
+
+        Player storage _player = game.players[msg.sender];
+        _player.addr = _playerAddr;
+        _player.ico = _player.ico.add(_eth);
+
+        game.ico = game.ico.add(_eth);
+
+        uint256 _jackpotEth = _eth.mul(30) / 100;
+        uint256 _teamEth = _eth.mul(20) / 100;
+        uint256 _dividendsEth = _eth.sub(_jackpotEth).sub(_teamEth);
+
+        if (_player.aff == address(0) && _aff != address(0) && _aff != msg.sender) {
+            Player storage _affPlayer = game.players[_aff];
+
+            require(_affPlayer.addr != address(0), "Invalid affiliate address!");
+            _player.aff = _aff;
+
+            // Transferring affiliate commission.
+            uint256 _affCommEth = _eth.mul(10) / 100;
+            _aff.transfer(_affCommEth);
+
+            // Adjust the payment for developer.
+            _teamEth = _eth.mul(10) / 100;
         }
-        
-        // pay our winner
-        plyr_[_winPID].win = _win.add(plyr_[_winPID].win);
-        
-        // dev rewards
-        // plyr_[DEV_ID].addr.transfer(_com);
 
-        // distribute gen portion to key holders
-        round_[_rID].mask = _ppt.add(round_[_rID].mask);
+        game.teamEth = game.teamEth.add(_teamEth);
+        game.dividendsEth = game.dividendsEth.add(_dividendsEth);
 
-        // fill next round pot with its share
-        round_[_rID + 1].pot += _res;
-        
-        // prepare event data
-        _eventData_.compressedData = _eventData_.compressedData + (round_[_rID].end * 1000000);
-        _eventData_.compressedIDs = _eventData_.compressedIDs + (_winPID * 100000000000000000000000000);
-        _eventData_.winnerAddr = plyr_[_winPID].addr;
-        _eventData_.winnerName = plyr_[_winPID].name;
-        _eventData_.amountWon = _win;
-        _eventData_.genAmount = _gen;
-        _eventData_.newPot = _res;
-        
-        return(_eventData_);
+        totalTeamEth = totalTeamEth.add(_teamEth);
+
+        // We need to deal with the jackpot here
+        uint256 _jackpotRemainsEth = jackpotProc(game, _player, _jackpotEth);
+
+        emit BuyOnICOPhase(msg.sender, _eth, _aff, game.teamEth, _jackpotRemainsEth, game.dividendsEth);
     }
 
     /**
-     * @dev moves any unmasked earnings to gen vault.  updates earnings mask
+     * @dev Buy keys during ICO phase
+     * @param _aff Affiliate address, address(0) means no affiliate
      */
-    function updateGenVault(uint256 _pID, uint256 _rIDlast)
-        private 
-    {
-        uint256 _earnings = calcUnMaskedEarnings(_pID, _rIDlast);
-        if (_earnings > 0)
-        {
-            // put in gen vault
-            plyr_[_pID].gen = _earnings.add(plyr_[_pID].gen);
-            // zero out their earnings by updating mask
-            plyrRnds_[_pID][_rIDlast].mask = _earnings.add(plyrRnds_[_pID][_rIDlast].mask);
-        }
+    function buyICO(address payable _aff) public payable {
+        buyICOCore(msg.sender, msg.value, _aff);
     }
 
     /**
-     * @dev calculates unmasked earnings (just calculates, does not update mask)
-     * @return earnings in wei format
+    * @dev Buy keys during ICO phase for manager
+    * @param _playerAddr Address of the player
+    * @param _eth Funds
+    * @param _aff Address of affiliate
+    */
+    function buyICOByManager(address _playerAddr, uint256 _eth, address payable _aff) public isManager {
+        buyICOCore(_playerAddr, _eth, _aff);
+    }
+
+//==/==|===============================/====/============|============================================================//
+// (___| ___       ___       _ _  ___ (___ (___  ___  ___| ___
+// |\   |___)\   )|___      | | )|___)|    |   )|   )|   )|___
+// | \  |__   \_/  __/      |  / |__  |__  |  / |__/ |__/  __/
+//             /
+
+    /**
+     * @dev Calculate the price of keys to be bought
+     * @param _keys How many keys you want to buy
+     * @return The total amount of eth are required
      */
-    function calcUnMaskedEarnings(uint256 _pID, uint256 _rIDlast)
-        private
-        view
-        returns(uint256)
-    {
-        // if player does not have unclaimed keys bought in ICO phase
-        // return their earnings based on keys held only.
-        if (plyrRnds_[_pID][_rIDlast].ico == 0)
-            return(  (((round_[_rIDlast].mask).mul(plyrRnds_[_pID][_rIDlast].keys)) / (1000000000000000000)).sub(plyrRnds_[_pID][_rIDlast].mask)  );
-        else
-            if (now > round_[_rIDlast].strt + _roundGap && round_[_rIDlast].eth == 0)
-                return(  (((((round_[_rIDlast].icoGen).mul(1000000000000000000)) / (round_[_rIDlast].ico).keys()).mul(calcPlayerICOPhaseKeys(_pID, _rIDlast))) / (1000000000000000000)).sub(plyrRnds_[_pID][_rIDlast].mask)  );
-            else
-                return(  (((round_[_rIDlast].mask).mul(calcPlayerICOPhaseKeys(_pID, _rIDlast))) / (1000000000000000000)).sub(plyrRnds_[_pID][_rIDlast].mask)  );
-        // otherwise return earnings based on keys owed from ICO phase
-        // (this would be a scenario where they only buy during ICO phase, and never 
-        // buy/reload during round)
+    function calcEthForKeys(uint256 _keys) public view returns (uint256) {
+        return game.keys.add(game.ico.keys()).add(_keys).ethRec(_keys);
     }
 
     /**
-     * @dev this is the core logic for any buy/reload that happens while a round 
-     * is live.
+     * @dev Core function to buy keys
+     * @param _playerAddr Address of the player
+     * @param _eth Funds
+     * @param _aff Address of the affiliate
      */
-    function core(uint256 _pID, uint256 _eth, 
-        FXDatasets.EventReturns memory _eventData_)
-        private
-    {
-        // setup local rID
-        uint256 _rID = rID_;
-        
-        // check to see if its a new round (past ICO phase) && keys were bought in ICO phase
-        if (round_[_rID].eth == 0 && round_[_rID].ico > 0)
-            roundClaimICOKeys(_rID);
-        
-        // if player is new to round and is owed keys from ICO phase 
-        if (plyrRnds_[_pID][_rID].keys == 0 && plyrRnds_[_pID][_rID].ico > 0)
-        {
-            // assign player their keys from ICO phase
-            plyrRnds_[_pID][_rID].keys = calcPlayerICOPhaseKeys(_pID, _rID);
-            // zero out ICO phase investment
-            plyrRnds_[_pID][_rID].ico = 0;
-        }
-            
-        // mint the new keys
-        uint256 _keys = (round_[_rID].eth).keysRec(_eth);
-        
-        // if they bought at least 1 whole key
-        if (_keys >= 1e18)
-        {
-            updateTimer(_keys, _rID);
+    function buyKeysCore(address _playerAddr, uint256 _eth, address payable _aff) private {
+        require(game.active, "The game status is not active!");
 
-            // set new leaders
-            if (round_[_rID].plyr != _pID)
-                round_[_rID].plyr = _pID;  
-            
-            // set the new leader bool to true
-            _eventData_.compressedData = _eventData_.compressedData + 100;
-        }
-        
-        /*
-        // Get a chance to win airdrop if >= 0.1ETH
-        if (_eth >= 1e17)
-        {
-            airDropTracker_++;
-            if (airdrop() == true)
-            {
-                // gib muni
-                uint256 _prize;
-                if (_eth >= 10000000000000000000) 
-                {
-                    // calculate prize and give it to winner
-                    _prize = ((airDropPot_).mul(75)) / 100;
-                    plyr_[_pID].win = (plyr_[_pID].win).add(_prize);
-                    
-                    // adjust airDropPot 
-                    airDropPot_ = (airDropPot_).sub(_prize);
-                    
-                    // let event know a tier 3 prize was won 
-                    _eventData_.compressedData += 300000000000000000000000000000000;
-                } else if (_eth >= 1000000000000000000 && _eth < 10000000000000000000) {
-                    // calculate prize and give it to winner
-                    _prize = ((airDropPot_).mul(50)) / 100;
-                    plyr_[_pID].win = (plyr_[_pID].win).add(_prize);
-                    
-                    // adjust airDropPot 
-                    airDropPot_ = (airDropPot_).sub(_prize);
-                    
-                    // let event know a tier 2 prize was won 
-                    _eventData_.compressedData += 200000000000000000000000000000000;
-                } else if (_eth >= 100000000000000000 && _eth < 1000000000000000000) {
-                    // calculate prize and give it to winner
-                    _prize = ((airDropPot_).mul(25)) / 100;
-                    plyr_[_pID].win = (plyr_[_pID].win).add(_prize);
-                    
-                    // adjust airDropPot 
-                    airDropPot_ = (airDropPot_).sub(_prize);
-                    
-                    // let event know a tier 1 prize was won 
-                    _eventData_.compressedData += 100000000000000000000000000000000;
-                }
-                // set airdrop happened bool to true
-                _eventData_.compressedData += 10000000000000000000000000000000;
-                // let event know how much was won 
-                _eventData_.compressedData += _prize * 1000000000000000000000000000000000;
-                
-                // reset air drop tracker
-                airDropTracker_ = 0;
+        require(game.icoPhase == false, "Cannot buy keys during ICO phase!");
+        require(_playerAddr != _aff, "Affiliate and sender are identical!");
+
+        uint256 _jackpotEth = _eth.mul(30) / 100;
+        uint256 _teamEth = _eth.mul(20) / 100;
+        uint256 _dividendsEth = _eth.sub(_jackpotEth).sub(_teamEth);
+
+        Player storage _player = game.players[_playerAddr];
+        if (_player.addr == address(0)) {
+            // A new player is coming.
+            _player.addr = msg.sender;
+
+            if (_aff != address(0)) {
+                _player.aff = _aff;
+
+                // 10% for affiliate commission.
+                uint256 _affCom = _eth.mul(10) / 100;
+                _aff.transfer(_affCom);
+
+                _teamEth = _affCom;
             }
         }
-        */
 
-        // store the air drop tracker number (number of buys since last airdrop)
-        // _eventData_.compressedData = _eventData_.compressedData + (airDropTracker_ * 1000);
+        // Player deduction update based on the keys.
+        uint256 _keys = game.dividendsEth.keysRec(_eth);
 
-        // Give 10% bonus keys if the player is got referred
-        // if (_affID != _pID && plyr_[_affID].name != "")
-        //     _keys = _keys.add(_keys/10);
-        
-        // update player 
-        plyrRnds_[_pID][_rID].keys = _keys.add(plyrRnds_[_pID][_rID].keys);
-        
-        // update round
-        round_[_rID].keys = _keys.add(round_[_rID].keys);
-        round_[_rID].eth = _eth.add(round_[_rID].eth);
-        // rndTmEth_[_rID][_team] = _eth.add(rndTmEth_[_rID][_team]);
+        game.teamEth = game.teamEth.add(_teamEth);
+        game.dividendsEth = game.dividendsEth.add(_dividendsEth);
 
-        // distribute eth
-        // _eventData_ = distributeExternal(_rID, _pID, _eth, _affID, _eventData_);
-        _eventData_ = distributeInternal(_rID, _pID, _eth, _keys, _eventData_);
-        
-        // call end tx function to fire end tx event.
-        endTx(_rID, _pID, _eth, _keys, _eventData_);
-    }
-    
-    /**
-     * @dev takes keys bought during ICO phase, and adds them to round.  pays 
-     * out gen rewards that accumulated during ICO phase 
-     */
-    function roundClaimICOKeys(uint256 _rID)
-        private
-    {
-        // update round eth to account for ICO phase eth investment 
-        round_[_rID].eth = round_[_rID].ico;
-                
-        // add keys to round that were bought during ICO phase
-        round_[_rID].keys = (round_[_rID].ico).keys();
-        
-        // store average ICO key price 
-        round_[_rID].icoAvg = calcAverageICOPhaseKeyPrice(_rID);
-                
-        // set round mask from ICO phase
-        uint256 _ppt = ((round_[_rID].icoGen).mul(1000000000000000000)) / (round_[_rID].keys);
-        uint256 _dust = (round_[_rID].icoGen).sub((_ppt.mul(round_[_rID].keys)) / (1000000000000000000));
-        if (_dust > 0)
-            round_[_rID].pot = (_dust).add(round_[_rID].pot);   // <<< your adding to pot and havent updated event data
-                
-        // distribute gen portion to key holders
-        round_[_rID].mask = _ppt.add(round_[_rID].mask);
+        totalTeamEth = totalTeamEth.add(_teamEth);
+
+        _player.deadEth = _player.deadEth.add(_keys.profit(game.profitPerKey));
+        _player.keys = _player.keys.add(_keys);
+
+        // New keys are mint.
+        game.keys = game.keys.add(_keys);
+
+        // Update game profit per key.
+        uint256 _totalKeys = game.keys.add(game.ico.keys());
+        uint256 _newProfitPerKey = _totalKeys.average(_dividendsEth);
+        game.profitPerKey = game.profitPerKey.add(_newProfitPerKey);
+
+        // We need to deal with the jackpot here
+        jackpotProc(game, _player, _jackpotEth);
+
+        emit KeysAreBought(msg.sender, _eth, _keys);
     }
 
     /**
-     * @dev at end of ICO phase, each player is entitled to X keys based on final 
-     * average ICO phase key price, and the amount of eth they put in during ICO.
-     * if a player participates in the round post ICO, these will be "claimed" and 
-     * added to their rounds total keys.  if not, this will be used to calculate 
-     * their gen earnings throughout round and on round end.
-     * @return players keys bought during ICO phase 
+     * @dev Buy keys by the eth amount
+     * @param _aff Affiliate address
      */
-    function calcPlayerICOPhaseKeys(uint256 _pID, uint256 _rID)
-        public 
-        view
-        returns(uint256)
-    {
-        if (round_[_rID].icoAvg != 0 || round_[_rID].ico == 0 )
-            return(  ((plyrRnds_[_pID][_rID].ico).mul(1000000000000000000)) / round_[_rID].icoAvg  );
-        else
-            return(  ((plyrRnds_[_pID][_rID].ico).mul(1000000000000000000)) / calcAverageICOPhaseKeyPrice(_rID)  );
+    function buyKeys(address payable _aff) public payable {
+        buyKeysCore(msg.sender, msg.value, _aff);
     }
 
     /**
-     * @dev average ico phase key price is total eth put in, during ICO phase, 
-     * divided by the number of keys that were bought with that eth.
-     * @return average key price 
-     */
-    function calcAverageICOPhaseKeyPrice(uint256 _rID)
-        public 
-        view 
-        returns(uint256)
-    {
-        return(  (round_[_rID].ico).mul(1000000000000000000) / (round_[_rID].ico).keys()  );
+    * @dev Buy keys by manager
+    * @param _playerAddr Address of the player
+    * @param _eth Funds
+    * @param _aff Address of affiliate
+    */
+    function buyKeysByManager(address _playerAddr, uint256 _eth, address payable _aff) public isManager {
+        buyKeysCore(_playerAddr, _eth, _aff);
     }
 
     /**
-     * @dev updates round timer based on number of whole keys bought.
+     * @dev Query key amount of a player
+     * @param _playerAddr Address of the player
+     * @return Amount value of keys
      */
-    function updateTimer(uint256 keys, uint256 rID)
-        private
-    {
-        // calculate time based on number of keys bought
-        uint256 newTimer = (((keys) / (1000000000000000000)).mul(TIME_INCREASE)).add(round_[rID].end);
-        
-        // grab the current time
-        uint256 currTick = now;
-        
-        // compare to max and set new end time
-        if (newTimer >= (ROUND_LEN_MAX).add(currTick))
-            newTimer = ROUND_LEN_MAX.add(currTick);
-        round_[rID].end = newTimer;
-    }
-
-    // /**
-    //  * @dev distributes eth based on fees to com, aff, and pot swap
-    //  */
-    // function distributeExternal(
-    //     uint256 _rID, uint256 _pID, uint256 _eth, uint256 _affID, 
-    //     FXDatasets.EventReturns memory _eventData_)
-    //     private
-    //     returns(FXDatasets.EventReturns memory)
-    // {        
-    //     // pay 1% out to next round
-    //     uint256 nextSeed = _eth / 100;
-    //     uint256 nextRoundId = _rID+1;
-    //     round_[nextRoundId].pot += nextSeed;
-
-    //     // pay 5% out to community rewards
-    //     uint256 _com = _eth / 20;
-    //     plyr_[DEV_ID].addr.transfer(_com);
-
-    //     uint256 _affTop = calcReferrals(_rID, _pID, _eth, _affID);
-
-    //     if (_affTop > 0) {
-    //         plyr_[CMO_ID].addr.transfer(_affTop);
-    //     }
-
-    //     return(_eventData_);
-    // }
-
-    /**
-     * @dev distributes eth based on fees to gen and pot
-     */
-    function distributeInternal(uint256 _rID, uint256 _pID, uint256 _eth, 
-        uint256 _keys, 
-        FXDatasets.EventReturns memory _eventData_)
-        private
-        returns(FXDatasets.EventReturns memory)
-    {
-        // calculate gen share
-        uint256 dividends = (_eth.mul(63)) / 100;
-        
-        // toss 2% into airdrop pot 
-        uint256 _air = (_eth / (100 / 2));
-        airDropPot_ = airDropPot_.add(_air);
-        
-        // update eth balance (eth = eth - (dev share + aff share + airdrop pot share))
-        _eth = _eth.sub((_eth.mul(5 + 10 + 2)) / 100);
-        
-        // calculate pot
-        uint256 pot = _eth.sub(dividends);
-        
-        // distribute gen share (thats what updateMasks() does) and adjust
-        // balances for dust.
-        uint256 dust = updateMasks(_rID, _pID, dividends, _keys);
-        if (dust > 0)
-            dividends = dividends.sub(dust);
-        
-        // add eth to pot
-        round_[_rID].pot = pot.add(dust).add(round_[_rID].pot);
-        
-        // set up event data
-        _eventData_.genAmount = dividends.add(_eventData_.genAmount);
-        _eventData_.potAmount = pot;
-        
-        return(_eventData_);
+    function queryKeys(address _playerAddr) public view returns (uint256) {
+        Player storage _player = game.players[_playerAddr];
+        return _player.keys;
     }
 
     /**
-     * @dev prepares compression data and fires event for buy or reload tx's
+     * @dev Calculate balance of a player
+     * @param _playerAddr Address of the player
+     * @return Amount can be withdrawn
      */
-    function endTx(
-        uint256 _rID, uint256 _pID, uint256 _eth, uint256 _keys, 
-        FXDatasets.EventReturns memory _eventData_)
-        private
-    {
-        _eventData_.compressedData = _eventData_.compressedData + (now * 1000000000000000000);
-        _eventData_.compressedIDs = _eventData_.compressedIDs + _pID + (_rID * 10000000000000000000000000000000000000000000000000000);
-        
-        emit FXEvents.onEndTx
-        (
-            _eventData_.compressedData,
-            _eventData_.compressedIDs,
-            plyr_[_pID].name,
-            msg.sender,
-            _eth,
-            _keys,
-            _eventData_.winnerAddr,
-            _eventData_.winnerName,
-            _eventData_.amountWon,
-            _eventData_.newPot,
-            _eventData_.genAmount,
-            _eventData_.potAmount,
-            airDropPot_
-        );
+    function calcBalance(address _playerAddr) public view returns (uint256) {
+        Player storage _player = game.players[_playerAddr];
+        uint256 _totalProfit = _player.keys.profit(game.profitPerKey);
+        uint256 _profit = _totalProfit.sub(_player.deadEth);
+        return _profit;
     }
 
     /**
-     * @dev updates masks for round and player when keys are bought
-     * @return dust left over 
+     * @dev Withdraw player amount
+     * @param _eth How much you want to withdraw
      */
-    function updateMasks(uint256 _rID, uint256 _pID, uint256 _gen, uint256 _keys)
-        private
-        returns(uint256)
-    {
-        /* MASKING NOTES
-            earnings masks are a tricky thing for people to wrap their minds around.
-            the basic thing to understand here.  is were going to have a global
-            tracker based on profit per share for each round, that increases in
-            relevant proportion to the increase in share supply.
-            
-            the player will have an additional mask that basically says "based
-            on the rounds mask, my shares, and how much i've already withdrawn,
-            how much is still owed to me?"
-        */
-        
-        // calc profit per key & round mask based on this buy:  (dust goes to pot)
-        uint256 _ppt = (_gen.mul(1000000000000000000)) / (round_[_rID].keys);
-        round_[_rID].mask = _ppt.add(round_[_rID].mask);
-            
-        // calculate player earning from their own buy (only based on the keys
-        // they just bought).  & update player earnings mask
-        uint256 _pearn = (_ppt.mul(_keys)) / (1000000000000000000);
-        plyrRnds_[_pID][_rID].mask = (((round_[_rID].mask.mul(_keys)) / (1000000000000000000)).sub(_pearn)).add(plyrRnds_[_pID][_rID].mask);
-        
-        // calculate & return dust
-        return(_gen.sub((_ppt.mul(round_[_rID].keys)) / (1000000000000000000)));
-    }
+    function withdraw(uint256 _eth) public {
+        address payable _playerAddr = msg.sender;
+        Player storage _player = game.players[_playerAddr];
+        require(_player.addr != address(0), "Invalid player address!");
 
-    /** upon contract deploy, it will be deactivated.  this is a one time
-     * use function that will activate the contract.  we do this so devs 
-     * have time to set things up on the web end                            
-     */
-    bool public activated_ = false;
-    function activate()
-        onlyDevs()
-        public
-    {
-        // can only be ran once
-        require(activated_ == false, "System already activated");
-        
-        // activate the contract 
-        activated_ = true;
-        
-        // lets start first round in ICO phase
-        rID_ = 1;
-        round_[1].strt = now;
-        round_[1].end = now + ROUND_LEN + ICO_ZERO_LEN;
+        uint256 _balanceEth = calcBalance(_playerAddr);
+        require(_balanceEth >= _eth, "Insufficient balance!");
+
+        _playerAddr.transfer(_eth);
+        _player.deadEth = _player.deadEth.add(_eth);
+
+        emit WithdrawEvent(_playerAddr, _eth);
     }
 }
