@@ -141,7 +141,7 @@ class MainScreen extends Component {
       userName: userInfo.user_name,
       userBalance: userBalance.balance,
       fxPoints: parseFloat(playerInfo.keys).toFixed(2),
-      dividends: parseFloat(playerInfo.balance).toFixed(2),
+      dividends: parseFloat(playerInfo.balance),
       airDropPot: parseFloat(gamePool.airDropPot).toFixed(2),
       roundTime: gamePool.roundTime,
       start: gamePool.start,
@@ -225,8 +225,7 @@ class MainScreen extends Component {
   }
 
   async withdraw() {
-    const result = await this.identityService.withdraw();
-    console.log(result)
+    await this.identityService.withdraw(this.state.dividends);
   }
 
   async updateFxPoints() {

@@ -6,13 +6,12 @@ import asyncMiddleware from '../middlewares/async_middleware';
 export const getInfo = (fxPointsService) => async (req, res) => {
   const result = await fxPointsService.getCurrentRoundInfo();
   const {start,roundTime,airDropPot} = result;
-  let start = '';
   res.status(200)
     .type('json')
     .send(JSON.stringify({
-        roundTime: roundTime,
+        roundTime: roundTime.toNumber(),
         start: start.toNumber(),
-        end: ends.toNumber(),
+        end: start.toNumber()+roundTime.toNumber(),
         airDropPot:utils.formatEther(airDropPot)
     }));
 };

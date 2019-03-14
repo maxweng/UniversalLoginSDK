@@ -40,6 +40,7 @@ contract FXPoints {
         address addr;
         address aff;
 
+        uint256 eth;
         uint256 ico;
         uint256 keys;
         uint256 deadEth;
@@ -57,19 +58,24 @@ contract FXPoints {
 
     struct Jackpot {
         uint256 magicNum;
-        uint256 deadline;
+        uint256 startTime;
+        uint256 periodSecs;
         uint256 eth;
-        bool withdrawn;
+        mapping (uint256 => address) awardPlayers;
         uint256 nextJSID;
         uint256 blockOfLastBuy;
         mapping (uint256 => JackpotShare) jackpotShares;
+    }
+
+    struct JackpotWinner {
+        uint256 eth;
     }
 
     struct Game {
         uint256 startTime;
         bool active;
 
-        bool icoPhase;
+        uint256 periodSecsOfICOPhase;
         uint256 ico;
 
         uint256 keys;
@@ -148,6 +154,15 @@ contract FXPoints {
     event WithdrawEvent(address playerAddr, uint256 eth);
 
     /**
+     * @dev Emit on a new jackpot is running
+     * @param magicNum Hash value of the random number
+     * @param periodSecs Total time are used during the jackpot period
+     * @param startTime The time of the block
+     * @param jackpotID The ID value of the jackpot
+     */
+    event NewJackpotEvent(uint256 magicNum, uint256 periodSecs, uint256 startTime, uint256 jackpotID);
+
+    /**
      * @dev Emit on a player withdraw the jackpot successfully
      * @param playerAddr The player address
      * @param eth Amount of the jackpot are withdrawn
@@ -166,11 +181,6 @@ contract FXPoints {
 
     modifier isManager() {
         require(msg.sender == manager, "Only manager!");
-        _;
-    }
-
-    modifier isICOPhase() {
-        require(game.icoPhase, "No more ICO!");
         _;
     }
 
@@ -194,6 +204,13 @@ contract FXPoints {
     }
 
     /**
+     * @dev This function will allow transaction of funds
+     */
+    function () external payable {
+        require(msg.data.length == 0, "Prevent invalid calls!");
+    }
+
+    /**
      * @dev Destroy current contract and returns all funds to owner
      */
     function kill() public isOwner {
@@ -210,12 +227,13 @@ contract FXPoints {
     /**
      * @dev Set current game active status to `active`
      */
-    function activateGame() public isManager {
+    function activateGame(uint256 _periodSecsOfICOPhase) public isManager {
         require(game.active == false, "Game is already activated!");
         require(totalTeamDividendsPercent == 100, "Wrong percent value of team dividends!");
 
+        game.startTime = now;
+        game.periodSecsOfICOPhase = _periodSecsOfICOPhase;
         game.active = true;
-        game.icoPhase = true;
 
         emit GameIsActivated();
     }
@@ -226,21 +244,6 @@ contract FXPoints {
      */
     function getActive() public view returns (bool) {
         return game.active;
-    }
-
-    /**
-     * @dev After the game is activated, the ICO phase is started automatically, use this function to stop ICO phase
-     */
-    function stopICOPhase() public isManager isICOPhase {
-        game.icoPhase = false;
-    }
-
-    /**
-     * @dev Get ICO phase status
-     * @return Returns true if it is during ICO phase
-     */
-    function getICOPhase() public view returns (bool) {
-        return game.icoPhase;
     }
 
 //   __
@@ -261,7 +264,7 @@ contract FXPoints {
         );
 
         TeamMember storage _teamMember = teamMembers[_memberAddr];
-        require(_teamMember.percentOfTeamDividends == 0, "Team member is already added!");
+        require(_teamMember.percentOfTeamDividends == 0, "Team member has already been added!");
 
         _teamMember.percentOfTeamDividends = _percent;
         totalTeamDividendsPercent += _percent;
@@ -320,7 +323,7 @@ contract FXPoints {
         uint256 _jackpotID = _game.jackpotID;
         Jackpot storage _jackpot = _game.jackpots[_jackpotID];
 
-        if (_jackpotID > 0 && _jackpot.magicNum != 0 && _jackpot.deadline > now) {
+        if (_jackpotID > 0 && _jackpot.magicNum != 0 && _jackpot.startTime.add(_jackpot.periodSecs) > now) {
             uint256 _jsID = _jackpot.nextJSID;
             _jackpot.nextJSID = _jsID.add(1);
 
@@ -347,6 +350,22 @@ contract FXPoints {
     }
 
     /**
+     * @dev Return the status of current jackpot
+     * @return True if jackpot is running
+     */
+    function getJackpotIsRunning() public view returns (bool) {
+        require(game.active, "The game status is not active!");
+        uint256 _jackpotID = game.jackpotID;
+
+        if (_jackpotID == 0) {
+            return false;
+        }
+
+        Jackpot storage _jackpot = game.jackpots[_jackpotID];
+        return _jackpot.startTime.add(_jackpot.periodSecs) > now;
+    }
+
+    /**
      * @dev Start a new round of jackpot
      * @param _magicNum The hash value of the random number, this number will be used for reveal the jackpot result
      * @param _periodSecs How many seconds during the jackpot period
@@ -355,11 +374,12 @@ contract FXPoints {
         require(game.active, "The game status is not active!");
         uint256 _jackpotID = game.jackpotID;
 
+        uint256 _remainsEth = 0;
         if (game.jackpotID > 0) {
-            // Need to ensure that current jackpot is revealed
+            // Need to ensure that no jackpot is running
             Jackpot storage _jackpot = game.jackpots[_jackpotID];
-            require(_jackpot.deadline < now, "It is not finished!");
-            require(_jackpot.withdrawn, "Not withdrawn!");
+            require(_jackpot.startTime.add(_jackpot.periodSecs) < now, "Jackpot is not finished!");
+            _remainsEth = _jackpot.eth.mul(10) / 100; // 10% go to next round
         }
 
         // Increase jackpotID to start a new round of jackpot
@@ -367,9 +387,27 @@ contract FXPoints {
         game.jackpotID = _jackpotID;
 
         Jackpot storage _jackpot = game.jackpots[_jackpotID];
+        _jackpot.eth = _remainsEth;
         _jackpot.magicNum = _magicNum;
-        _jackpot.deadline = now + _periodSecs;
+        _jackpot.startTime = now;
+        _jackpot.periodSecs = _periodSecs;
         _jackpot.nextJSID = 1; // Initialize jackpot share ID to 1
+
+        emit NewJackpotEvent(_magicNum, _periodSecs, now, game.jackpotID);
+    }
+
+    /**
+     * @dev Get jackpot details
+     * @return _retJackpotID Current jackpot ID
+     * @return _retStartTime When the jackpot starts up
+     * @return _retPeriodSecs The seconds of the jackpot period
+     */
+    function getJackpotInfo() public view
+        returns (uint256 _retJackpotID, uint256 _retStartTime, uint256 _retPeriodSecs) {
+        _retJackpotID = game.jackpotID;
+        Jackpot storage _jackpot = game.jackpots[_retJackpotID];
+        _retStartTime = _jackpot.startTime;
+        _retPeriodSecs = _jackpot.periodSecs;
     }
 
     /**
@@ -409,6 +447,7 @@ contract FXPoints {
      */
     function withdrawJackpot(uint256 _randNum) public {
         address payable _playerAddr = msg.sender;
+
         Player storage _player = game.players[_playerAddr];
         require(_player.addr != address(0), "You are not a valid player!");
 
@@ -416,8 +455,7 @@ contract FXPoints {
         require(_jackpotID > 0, "Invalid jackpot!");
 
         Jackpot storage _jackpot = game.jackpots[_jackpotID];
-        require(_jackpot.deadline < now, "Jackpot is not finished!");
-        require(!_jackpot.withdrawn, "Jackpot has already been withdrawn!");
+        require(_jackpot.startTime.add(_jackpot.periodSecs) < now, "Jackpot is not finished!");
 
         uint256 _jackpotEth = _jackpot.eth;
         require(_jackpotEth > 0, "No eth in jackpot!");
@@ -428,31 +466,40 @@ contract FXPoints {
         uint256 _magicNum = uint256(keccak256(abi.encodePacked(_randNum)));
         require(_magicNum == _jackpot.magicNum, "Invalid random number!");
 
-        // Calculate result number
+        // Calculate the first result number
         uint256 _resultHash = uint256(keccak256(abi.encodePacked(_randNum, blockhash(_blockOfLastBuy))));
         uint256 _result = _resultHash % _jackpotEth;
 
         // Is current player a winner?
-        bool _hit = false;
-        uint256 _currJSID = _player.firstJSID;
-        JackpotShare storage _js = _jackpot.jackpotShares[_currJSID];
-        while (_currJSID > 0) {
-            if (_result >= _js.pos && _result < _js.pos.add(_js.eth)) {
-                _hit = true;
-                break;
+        uint256 _awardIdx = 0;
+        mapping (uint256 => address) storage _awardPlayers = _jackpot.awardPlayers;
+        while (_awardIdx <= 10) {
+            if (_awardPlayers[_awardIdx] == address(0)) {
+                uint256 _currJSID = _player.firstJSID;
+                JackpotShare storage _js = _jackpot.jackpotShares[_currJSID];
+                while (_currJSID > 0) {
+                    if (_result >= _js.pos && _result < _js.pos.add(_js.eth)) {
+                        uint256 _awardEth;
+                        if (_awardIdx == 0) {
+                            _awardEth = _jackpotEth.mul(45) / 100;
+                        } else {
+                            _awardEth = _jackpotEth.mul(45) / 1000;
+                        }
+                        _playerAddr.transfer(_awardEth);
+                        _awardPlayers[_awardIdx] = _playerAddr; // Record it.
+                        emit withdrawJackpotEvent(_playerAddr, _awardEth);
+                        break;
+                    }
+                    // Next share
+                    _currJSID = _js.nextJSID;
+                    _js = _jackpot.jackpotShares[_currJSID];
+                }
             }
-            // Next share
-            _currJSID = _js.nextJSID;
-            _js = _jackpot.jackpotShares[_currJSID];
+            // Next
+            ++_awardIdx;
+            _resultHash = uint256(keccak256(abi.encodePacked(_resultHash)));
+            _result = _resultHash % _jackpotEth;
         }
-
-        require(_hit, "You are not the winner!");
-
-        // Withdraw
-        _playerAddr.transfer(_jackpotEth);
-        _jackpot.withdrawn = true;
-
-        emit withdrawJackpotEvent(_playerAddr, _jackpotEth);
     }
 
 //     __   __
@@ -462,19 +509,28 @@ contract FXPoints {
 // | |__/ |__/      |  / |__  |__  |  / |__/ |__/  __/
 
     /**
+     * @dev Get ICO phase status
+     * @return Returns true if it is during ICO phase
+     */
+    function isICOPhase() public view returns (bool) {
+        return game.startTime.add(game.periodSecsOfICOPhase) > now;
+    }
+
+    /**
      * @dev The core function to buy keys during ICO phase
      * @param _playerAddr Address of the player
      * @param _eth Funds
      * @param _aff Address of affiliate
      */
-    function buyICOCore(address _playerAddr, uint256 _eth, address payable _aff) private isICOPhase {
+    function buyICOCore(address _playerAddr, uint256 _eth, address payable _aff) private {
         require(_playerAddr != _aff, "Affiliate and sender are identical!");
-
         require(game.active, "The game status is not active!");
+        require(isICOPhase(), "Currently not in the ICO phase!");
 
         Player storage _player = game.players[msg.sender];
         _player.addr = _playerAddr;
         _player.ico = _player.ico.add(_eth);
+        _player.eth = _player.eth.add(_eth);
 
         game.ico = game.ico.add(_eth);
 
@@ -549,7 +605,7 @@ contract FXPoints {
     function buyKeysCore(address _playerAddr, uint256 _eth, address payable _aff) private {
         require(game.active, "The game status is not active!");
 
-        require(game.icoPhase == false, "Cannot buy keys during ICO phase!");
+        require(!isICOPhase(), "Cannot buy keys during ICO phase!");
         require(_playerAddr != _aff, "Affiliate and sender are identical!");
 
         uint256 _jackpotEth = _eth.mul(30) / 100;
@@ -580,6 +636,7 @@ contract FXPoints {
 
         totalTeamEth = totalTeamEth.add(_teamEth);
 
+        _player.eth = _player.eth.add(_eth);
         _player.deadEth = _player.deadEth.add(_keys.profit(game.profitPerKey));
         _player.keys = _player.keys.add(_keys);
 
@@ -626,13 +683,26 @@ contract FXPoints {
     }
 
     /**
+     * @dev Get the amount value are total bought by the player
+     * @param _playerAddr Address of the player
+     */
+    function queryPlayerTotalEth(address _playerAddr) public view returns (uint256) {
+        Player storage _player = game.players[_playerAddr];
+        return _player.eth;
+    }
+
+    /**
      * @dev Calculate balance of a player
      * @param _playerAddr Address of the player
      * @return Amount can be withdrawn
      */
     function calcBalance(address _playerAddr) public view returns (uint256) {
         Player storage _player = game.players[_playerAddr];
-        uint256 _totalProfit = _player.keys.profit(game.profitPerKey);
+        uint256 _icoKeys = 0;
+        if (_player.ico > 0) {
+            _icoKeys = _player.ico.keys();
+        }
+        uint256 _totalProfit = _player.keys.add(_icoKeys).profit(game.profitPerKey);
         uint256 _profit = _totalProfit.sub(_player.deadEth);
         return _profit;
     }

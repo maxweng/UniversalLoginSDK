@@ -89,7 +89,6 @@ class Relayer {
     this.app.use('/fastxPoints',FastxPointsRouter(this.fXPointsService));
     this.app.use('/getFXPInfo', FXInfoRouter(this.fXPointsService));
     this.app.use('/getPlayerInfo',PlayerInfoRouter(this.fXPointsService));
-    this.app.use('/withdraw',WithdrawRouter(this.fXPointsService));
     this.app.use(errorHandler);
     this.server = this.app.listen(this.port, '0.0.0.0');
   }

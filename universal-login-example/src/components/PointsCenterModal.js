@@ -109,7 +109,7 @@ class PointsCenterModal extends Component {
                     <div className="coin_box">
                       <img className="fx_points_icon" src={images.dividensIcon} />
                       <img className="fx_points_title" src={images.wodefenhong} />
-                      <div className="coin">{dividends}</div>
+                      <div className="coin">{dividends.toFixed(4)}</div>
                     </div>
                   </Grid.Column>
                 </Grid.Row>

@@ -14,9 +14,8 @@ class FXPointsService {
   }
 
   async getPlayerInfoByAddress(address) {
-    const keys = await this.tokenContract.queryKeys(address)
-    const balance = await this.tokenContract.calcBalance(address)
-
+    let keys = await this.tokenContract.queryKeys(address);
+    let balance = await this.tokenContract.calcBalance(address);
     return {
       keys,
       balance
@@ -24,18 +23,15 @@ class FXPointsService {
   }
 
   async getCurrentRoundInfo() {
-    let start,roundTime
+    let jackpotInfo = await this.tokenContract.getJackpotInfo();
     let airDropPot = await this.tokenContract.getJackpotEth();
+    let [, start, roundTime] = jackpotInfo
 
     return {
       roundTime,
       start,
       airDropPot,
     }
-  }
-
-  async withdraw(address) {
-    return await this.tokenContract.withdraw.sendTransaction({from: address})
   }
 }
 

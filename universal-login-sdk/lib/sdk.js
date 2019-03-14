@@ -216,20 +216,6 @@ class EthereumIdentitySDK {
     throw new Error(`${response.status}`);
   }
 
-  async withdraw(identityAddress) {
-    const url = `${this.relayerUrl}/withdraw`;
-    const method = 'POST';
-    const body = JSON.stringify({
-      address: identityAddress
-    });
-    const response = await fetch(url, {headers, method, body});
-    const responseJson = await response.json();
-    if (response.status === 200) {
-      return responseJson;
-    }
-    throw new Error(`${response.status}`);
-  }
-
   async fetchPendingAuthorisations(identityAddress) {
     return this.relayerObserver.fetchPendingAuthorisations(identityAddress);
   }

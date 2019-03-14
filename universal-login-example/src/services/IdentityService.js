@@ -123,10 +123,18 @@ class IdentityService {
     return data;
   }
 
-  async withdraw() {
-    
-    const data = await this.sdk.withdraw(this.identity.address);
-    return data;
+  async withdraw(amount) {
+    amount = utils.parseEther(amount.toFixed(4).toString())
+    const message = {
+      to: this.addresses.fxPoints,
+      from: this.identity.address,
+      value: 0,
+      data: new utils.Interface(FXPoints.interface).functions.withdraw.encode([amount]),
+      gasToken: this.addresses.token,
+      ...this.defaultPaymentOptions
+    }
+
+    await this.execute(message);
   }
 }
 
