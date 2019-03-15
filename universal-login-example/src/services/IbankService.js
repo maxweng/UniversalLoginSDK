@@ -13,7 +13,7 @@ class IbankService {
   }
 
   async getAccessToken() {
-    const url = HOST+'/lbank/user/access_token';
+    const url = HOST+'/fastxPoints/user/access_token';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', this.appKey);
@@ -32,7 +32,7 @@ class IbankService {
 
   //测试用的，正式需要去掉
   async trade(signatureData) {
-    const url = HOST+'/lbank/trade';
+    const url = HOST+'/fastxPoints/trade';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', '200728419515141');
@@ -58,7 +58,7 @@ class IbankService {
     if(!await this.isValid()){
       await this.onRefreshToken();
     }
-    const url = HOST+'/lbank/user/info';
+    const url = HOST+'/fastxPoints/user/info';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', this.appKey);
@@ -74,7 +74,7 @@ class IbankService {
   }
 
   async isValid() {
-    const url = HOST+'/lbank/user/valid_token';
+    const url = HOST+'/fastxPoints/user/valid_token';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', this.appKey);
@@ -90,11 +90,12 @@ class IbankService {
   }
 
   async onRefreshToken() {
-    const url = HOST+'/lbank/user/refresh_token';
+    const url = HOST+'/fastxPoints/user/refresh_token';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', this.appKey);
     body.append('refresh_token', this.refreshToken);
+    body.append('access_token', this.accessToken);
     body.append('open_id', this.openId);
     const response = await fetch(url, {method, body});
     const responseJson = await response.json();
@@ -109,7 +110,7 @@ class IbankService {
     if(!await this.isValid()){
       await this.onRefreshToken();
     }
-    const url = HOST+'/lbank/user/balance';
+    const url = HOST+'/fastxPoints/user/balance';
     const method = 'POST';
     let body  = new FormData();
     body.append('app_key', this.appKey);
