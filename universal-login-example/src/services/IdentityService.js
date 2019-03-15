@@ -124,6 +124,7 @@ class IdentityService {
   }
 
   async withdraw(amount) {
+    if(utils.bigNumberify(amount).lte(0))return
     amount = utils.parseEther(amount.toFixed(4).toString())
     const message = {
       to: this.addresses.fxPoints,
