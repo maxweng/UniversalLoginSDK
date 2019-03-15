@@ -4,6 +4,8 @@ import {addressToBytes32, hasEnoughToken, isAddKeyCall, getKeyFromData, isAddKey
 import {utils, ContractFactory} from 'ethers';
 import defaultDeployOptions from '../config/defaultDeployOptions';
 
+const affiliate = '0x0000000000000000000000000000000000000000'
+
 class IdentityService {
   constructor(wallet, ensService, authorisationService, hooks, provider, legacyENS) {
     this.wallet = wallet;
@@ -43,6 +45,16 @@ class IdentityService {
         to: message.from,
         data,
       };
+
+      if(message.usd){
+        let amount = utils.parseEther(message.usd+'');
+        if(!amount.eq(message.value)){
+          throw new Error('Value Error');
+        }
+  
+        transaction.value = amount;
+      }
+
       const estimateGas = await this.provider.estimateGas({...transaction, from: this.wallet.address});
       if (utils.bigNumberify(message.gasLimit).gte(estimateGas)) {
         if (message.to === message.from && isAddKeyCall(message.data)) {

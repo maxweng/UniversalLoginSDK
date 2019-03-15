@@ -22,8 +22,8 @@ class IdentityService {
     const message = {
       to: this.addresses.fxPoints,
       from: this.identity.address,
-      value: 0,
-      data: new utils.Interface(FXPoints.interface).functions.buyKeysByManager.encode([this.identity.address,amount,affiliate]),
+      value: amount,
+      data: new utils.Interface(FXPoints.interface).functions.buyKeys.encode([affiliate]),
       gasToken: this.addresses.token,
       ...this.defaultPaymentOptions
     };
