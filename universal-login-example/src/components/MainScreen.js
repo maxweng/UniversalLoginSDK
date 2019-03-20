@@ -92,7 +92,12 @@ class MainScreen extends Component {
       end: 0,
       timeLeft: 0,
       activeDrags: 0,
-      avatar: 'http://39.96.66.202/web-mobile/res/raw-assets/19/1970f338-a192-4520-a705-48cb60af2a87.png'
+      avatar: '../img/user.svg',
+      amount: 0,
+      locked: false,
+      to: '',
+      gasPrice: 10,
+      balance: 0,
     };
   }
 
@@ -155,6 +160,8 @@ class MainScreen extends Component {
       })
     }, 1000)
 
+    console.log('userAddress:',this.identityService.identity.address.toLowerCase())
+    if(window.frames[0])
     window.frames[0].postMessage({type:'userAddress',address:this.identityService.identity.address},'*')
   }
 
@@ -231,13 +238,16 @@ class MainScreen extends Component {
   async updateFxPoints() {
     const {address} = this.identityService.identity;
     try {
-      const balance = await this.fxPointsService.getBalance(address);
-      const fxPoints = parseFloat(balance, 10).toFixed(2);
+      let fxPoints = await this.fxPointsService.getBalance(address);
+      fxPoints = parseFloat(fxPoints, 10).toFixed(2);
+      let balance = await this.identityService.getBalance(address);
+      balance = parseFloat(balance, 10).toFixed(4);
       this.setState({
-        fxPoints
+        fxPoints,
+        balance
       });
     } catch (error) {
-      console.log('get fxpoints balance error:',error)
+      console.log(error)
     } finally{
       this.timeout = setTimeout(this.updateFxPoints.bind(this), 10000);
     }
@@ -247,6 +257,28 @@ class MainScreen extends Component {
     this.ensNameService.unsubscribeAll();
     this.historyService.unsubscribeAll();
     clearTimeout(this.timeout);
+  }
+
+  onChangeGasPrice(e, target) {
+    this.setState({
+      gasPrice: parseFloat(target.value)
+    })
+  }
+
+  onChangeAmount(e, target) {
+    this.setState({
+      amount: parseFloat(target.value)
+    })
+  }
+
+  onChangeTo(e, target) {
+    this.setState({
+      to: target.value
+    })
+  }
+
+  onConfirmSendTransaction() {
+    
   }
 
   render() {
@@ -267,6 +299,19 @@ class MainScreen extends Component {
       onShowDividend: this.showDividend.bind(this),
       onShowRecording: this.showRecording.bind(this),
       onShowAccount: this.showAccount.bind(this),
+    }
+
+    const AccountModalProps = {
+      amount: this.state.amount,
+      locked: this.state.locked,
+      to: this.state.to,
+      gasPrice: this.state.gasPrice,
+      balance: this.state.balance,
+      identityService: this.props.services.identityService,
+      onChangeGasPrice: this.onChangeGasPrice.bind(this),
+      onChangeAmount: this.onChangeAmount.bind(this),
+      onChangeTo: this.onChangeTo.bind(this),
+      onConfirmSendTransaction: this.onConfirmSendTransaction.bind(this),
     }
     
     return (

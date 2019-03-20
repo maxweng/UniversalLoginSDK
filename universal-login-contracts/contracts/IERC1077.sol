@@ -28,5 +28,5 @@ contract IERC1077 {
         address gasToken,
         uint gasLimit,
         OperationType operationType,
-        bytes memory signatures) public returns (bytes32);
+        bytes memory signatures) public payable returns (bytes32);
 }

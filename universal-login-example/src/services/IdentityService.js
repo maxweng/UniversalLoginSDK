@@ -1,7 +1,9 @@
-import {Wallet, utils} from 'ethers';
+import {Wallet, utils, Contract} from 'ethers';
+import Tx from 'ethereumjs-tx';
 import DEFAULT_PAYMENT_OPTIONS from '../../config/defaultPaymentOptions';
 import {tokenContractAddress} from '../../config/config';
 import FXPoints from 'fastx-points-relayer/abi/FXPoints.json';
+import Identity from 'universal-login-contracts/build/Identity.json';
 
 const affiliate = '0x0000000000000000000000000000000000000000'
 
@@ -17,6 +19,11 @@ class IdentityService {
     this.defaultPaymentOptions = defaultPaymentOptions;
   }
 
+  async getBalance(address) {
+    if(!address)return 0;
+    let balance = await this.provider.getBalance(address)
+    return utils.formatEther(balance);
+  }
   async signTrade(amount) {
     amount = utils.parseEther(amount.toString())
     const message = {

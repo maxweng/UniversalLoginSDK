@@ -33,12 +33,6 @@ class Account extends Component {
 
     return (
       <div className="account">
-        <HeaderView>
-          {/* <BackToAppBtn setView={this.setView.bind(this)} /> */}
-          <button onClick={close} className="btn header-btn">
-            BACK
-          </button>
-        </HeaderView>
         <div className="container">
           <ProfileIdentity
             type="identityAccount"
