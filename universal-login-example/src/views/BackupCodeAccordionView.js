@@ -4,16 +4,15 @@ import PropTypes from 'prop-types';
 
 const BackupCodeAccordionView = (props) => (
   <Collapsible
-    title="Backup code"
-    subtitle="Back up your account"
+    title="备份代码"
+    subtitle="备份您的帐户"
     icon="icon-printer"
   >
     <p className="advice-text">
-      If you lose all your devices you may not have other ways to recover your
-      account. Generate a recovery code and keep it safe
+    如果您丢失了所有设备，则可能没有其他方法可以恢复您的帐户。 生成恢复代码并确保安全
     </p>
     <button onClick={() => props.setView('Backup')} className="btn fullwidth">
-      Generate new codes
+    生成新代码
     </button>
   </Collapsible>
 );

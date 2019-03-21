@@ -15,10 +15,10 @@ class AccountModal extends Component {
         let identityService = this.props.identityService;
 
         const panes = [
-            { menuItem: 'balance', render: () => <Tab.Pane attached={false}>
+            { menuItem: '余额', render: () => <Tab.Pane attached={false} style={{marginTop:'0',padding:'0'}}>
                 <Balance {...this.props} />
             </Tab.Pane> },
-            { menuItem: 'account', render: () => <Tab.Pane attached={false}>
+            { menuItem: '账户', render: () => <Tab.Pane attached={false}>
                 <Account identityService={identityService} close={close}/>
             </Tab.Pane> }
         ]
@@ -32,7 +32,7 @@ class AccountModal extends Component {
                         </button>
                     </HeaderView> */}
                     <button onClick={close} className="btn header-btn back-btn">
-                        BACK
+                        返回
                     </button>
                     <Tab menu={{ secondary: true, pointing: true }} panes={panes} className="no-border" />
                 </Modal.Content>

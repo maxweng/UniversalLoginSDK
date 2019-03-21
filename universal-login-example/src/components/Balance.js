@@ -35,8 +35,8 @@ class Balance extends Component {
                 <Transition visible={!visible} animation='fade right' duration={{ hide: 0, show: 500 }}>
                     <div>
                         <h4> {balance} ETH</h4>
-                        <Button color='red' fluid style={{marginTop: '40px'}} onClick={this.show.bind(this)}>
-                            Send
+                        <Button color='blue' fluid style={{marginTop: '40px'}} onClick={this.show.bind(this)}>
+                            发送
                         </Button>
                     </div>
                 </Transition>
@@ -50,7 +50,7 @@ class Balance extends Component {
                             </span>
                         </div>
                         <div style={{marginTop:'16px'}}>
-                            <Input style={{ width: '340px' }} placeholder="Send to address" type='text' onChange={onChangeTo} value={to}  disabled={locked} />
+                            <Input style={{ width: '340px' }} placeholder="发送地址" type='text' onChange={onChangeTo} value={to}  disabled={locked} />
                         </div>
                         <div style={{marginTop:'16px'}}>
                             <p>Gas price (Gwei):</p>
@@ -59,11 +59,11 @@ class Balance extends Component {
                                 <Input type='number' min={0.5} max={100} step={0.1} value={gasPrice} onChange={onChangeGasPrice} style={{marginLeft:'16px'}} />
                             </div>
                         </div>
-                        <Button style={{marginTop:'16px'}} basic onClick={onConfirmSendTransaction} disabled={locked} >
-                            Create transaction
+                        <Button style={{marginTop:'16px'}} color='blue' onClick={onConfirmSendTransaction} disabled={locked} >
+                            发送交易
                         </Button>
-                        <Button color='red' style={{marginTop: '40px'}} onClick={this.hide.bind(this)}>
-                            close
+                        <Button style={{marginTop:'16px'}} basic onClick={this.hide.bind(this)}>
+                            关闭
                         </Button>   
                     </div>  
                 </Transition>

@@ -19,8 +19,8 @@ class ManageDevicesAccordionView extends Component {
     return (
       <ul className="devices-list">
         <li key="this" className="device">
-          <p className="device-name">The current device</p>
-          <p className="device-status">Click to remove the key permanently</p>
+          <p className="device-name">目前的设备</p>
+          <p className="device-status">单击以永久删除密钥</p>
           <button
             onClick={() => this.props.onDisconnectClick()}
             className="device-btn icon-minus-circle"

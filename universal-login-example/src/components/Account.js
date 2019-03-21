@@ -20,7 +20,7 @@ class Account extends Component {
   onDisconnectClick() {
     if (
       confirm(
-        'ATTENTION: disconnecting this device without other backups will result in making your account permanently unacessible! Are you sure you want to proceed?'
+        '注意：断开此设备而不进行其他备份将导致您的帐户永久无法访问！ 你确定要继续吗？'
       )
     ) {
       this.props.identityService.disconnect();

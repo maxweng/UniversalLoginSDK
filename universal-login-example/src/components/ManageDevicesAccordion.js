@@ -22,7 +22,7 @@ class ManageDevices extends Component {
   removeDevice() {
     if (
       confirm(
-        'If you don\'t have other working devices or recovery options, you will lose access to this account permanently. Costs 1 click'
+        '如果您没有其他工作设备或恢复选项，您将永久失去对此帐户的访问权限. 花费 1 click'
       )
     ) {
       // TODO: actually key from the contract
@@ -32,8 +32,8 @@ class ManageDevices extends Component {
   render() {
     return (
       <Collapsible
-        title="Manage devices"
-        subtitle="You currently have 3 authorized devices"
+        title="管理设备"
+        subtitle="您目前有3个授权设备"
         icon="icon-smartphone"
       >
         <ManageDevicesAccordionView

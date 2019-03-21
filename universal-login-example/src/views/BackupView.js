@@ -35,9 +35,7 @@ class BackupView extends Component {
         <div className="container">
           <h1 className="main-title">BACKUP CODES</h1>
           <p className="backup-text">
-            Print these, cut them apart and keep them safe locations apart from
-            each other. Keep them away from computers until you want to use
-            them.
+          打印这些，将它们分开并保持它们彼此分开的安全位置。 远离计算机，直到您想要使用它们。
           </p>
           <hr className="separator-s" />
           {this.props.backupCodes.map((code) =>
@@ -50,7 +48,7 @@ class BackupView extends Component {
                   <div className="circle-loader" />
                   <p className="backup-code">
                     {this.props.identity.name} <br />
-                    <em>generating...</em>
+                    <em>生成中...</em>
                   </p>
                   <br />
                 </div>
@@ -62,13 +60,13 @@ class BackupView extends Component {
                         className="generate-code-btn secondary-btn"
                         onClick={this.props.onGenerateClick.bind(this)}
                       >
-                        Create more codes
+                        创建更多备份码
                       </button>
                       <button
                         className="print-btn secondary-btn"
                         onClick={this.props.onPrintClick.bind(this)}
                       >
-                        Print codes
+                        打印备份码
                       </button>
                       <button
                         className={
@@ -78,10 +76,10 @@ class BackupView extends Component {
                         }
                         onClick={this.props.onSetBackupClick.bind(this)}
                       >
-                        Set As Backup Codes
+                        设置为备份码
                       </button>
                       <p className="click-cost">
-                        <i>Costs 2 kliks</i>
+                        <i>花费 2 kliks</i>
                       </p>
                     </div>
                   ) : (
@@ -94,10 +92,10 @@ class BackupView extends Component {
                         }
                         onClick={this.props.onSetBackupClick.bind(this)}
                       >
-                        Set As Backup Codes
+                        设置为备份码
                       </button>
                       <p className="click-cost">
-                        <i>Costs 2 kliks</i>
+                        <i>花费 2 kliks</i>
                       </p>
                     </div>
                   )}
@@ -111,7 +109,7 @@ class BackupView extends Component {
               onClick={this.props.onCancelClick.bind(this)}
               className="secondary-btn"
             >
-              Cancel backup code
+              取消备份码
             </button>
           </div>
         </div>

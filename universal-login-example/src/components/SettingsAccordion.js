@@ -6,8 +6,8 @@ class SettingsAccordion extends Component {
   render() {
     return (
       <Collapsible
-        title="More settings"
-        subtitle="Amount of devices nedeed to make changes"
+        title="更多设置"
+        subtitle="进行更改所需的设备数量"
         icon="icon-settings"
       >
         <SettingsAccordionView />
