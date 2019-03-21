@@ -33,6 +33,11 @@ class PointsCenterModal extends Component {
     return t;
   }
 
+  getProgressWidth(roundTime, timeLeft) {
+    if(timeLeft<0)timeLeft = 0;
+    return ((roundTime-timeLeft)/roundTime)*100;
+  }
+
   render() {
     let open = this.props.open;
     let close = this.props.close;
@@ -52,7 +57,8 @@ class PointsCenterModal extends Component {
       onWithdraw,
       onShowDividend,
       onShowRecording,
-      onShowAccount
+      onShowAccount,
+      onBonusWithdraw
     } = this.props;
 
     let userAddr, str = services.identityService.identity.address;
@@ -82,115 +88,116 @@ class PointsCenterModal extends Component {
           </div>
           <img className="back_btn" src={images.backBtn} onClick={close} />
         </Modal.Header>
-        <Modal.Content>
-        <Grid columns={2} textAlign='center' className="chest_box_grid">
-          <Grid.Row>
-            <Grid.Column className="chest_box" width='8'>
-              <Grid columns={1} textAlign='center'>
-                <Grid.Row>
-                  <Grid.Column>
-                    <div className="title">
-                      <img src={images.dividendTitle} />
-                      <img className="btn_help" src={images.helpBtn} onClick={onShowDividend} />
+        <Modal.Content style={{padding: '10px'}}>
+          <Grid columns={2} textAlign='center' className="chest_box_grid" style={{margin:'0'}}>
+            <Grid.Row style={{padding: '0'}}>
+              <Grid.Column className="chest_box" width='8'>
+                <Grid columns={1} textAlign='center'>
+                  <Grid.Row>
+                    <Grid.Column>
+                      <div className="title">
+                        <img src={images.dividendTitle} />
+                        <img className="btn_help" src={images.helpBtn} onClick={onShowDividend} />
+                      </div>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                <Grid columns={2} textAlign='center' style={{ marginTop: '0'}}>
+                  <Grid.Row>
+                    <Grid.Column>
+                      <div className="coin_box">
+                        <img className="fx_points_icon" src={images.fxPoints} />
+                        <img className="fx_points_title" src={images.fxjifen} />
+                        <div className="coin">{fxPoints}</div>
+                      </div>
+                    </Grid.Column>
+                    <Grid.Column className="coin_box">
+                      <div className="coin_box">
+                        <img className="fx_points_icon" src={images.dividensIcon} />
+                        <img className="fx_points_title" src={images.wodefenhong} />
+                        <div className="coin">{dividends.toFixed(4)}</div>
+                      </div>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                <Grid columns={1} textAlign='center' style={{marginTop: '0px'}}>
+                  <Grid.Row style={{paddingTop: '0px'}}>
+                    <div className="redenvelope_bg">
+                      <img className="redenvelope_btn" src={images.redenvelopesCose} onClick={onWithdraw} />
                     </div>
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-              <Grid columns={2} textAlign='center'>
-                <Grid.Row>
-                  <Grid.Column>
-                    <div className="coin_box">
-                      <img className="fx_points_icon" src={images.fxPoints} />
-                      <img className="fx_points_title" src={images.fxjifen} />
-                      <div className="coin">{fxPoints}</div>
-                    </div>
-                  </Grid.Column>
-                  <Grid.Column className="coin_box">
-                    <div className="coin_box">
-                      <img className="fx_points_icon" src={images.dividensIcon} />
-                      <img className="fx_points_title" src={images.wodefenhong} />
-                      <div className="coin">{dividends.toFixed(4)}</div>
-                    </div>
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-              <Grid columns={1} textAlign='center' style={{marginTop: '0px'}}>
-                <Grid.Row>
-                  <div className="redenvelope_bg">
-                    <img className="redenvelope_btn" src={images.redenvelopesCose} onClick={onWithdraw} />
-                  </div>
-                </Grid.Row>
-              </Grid>
-              <div className="footer">
-                <span style={{fontSize:'12px',marginLeft:'-40px'}}>点击红包领取分红奖励</span> 
-                <img src={images.withdrawBtn} onClick={onShowRecording}/>
-              </div>
-            </Grid.Column>
-            <Grid.Column className="chest_box" width='8'>
-              <Grid columns={1} textAlign='center'>
-                <Grid.Row>
-                  <Grid.Column>
-                    <div className="title">
-                      <img src={images.lotteryTitle} />
-                      <img className="btn_help" src={images.helpBtn} onClick={onShowDividend} />
-                    </div>
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-              <Grid columns={1} textAlign='center'>
-                <Grid.Row>
-                  <Grid.Column className="coin_box" style={{maxWidth: '250px'}}>
-                    <img className="fx_points_icon" src={images.countdown} />
-                    <img className="fx_points_title" src={images.daojishi} />
-                    <span className="left_time">{this.sec_to_time(timeLeft)}</span>
-                    <div className="progress_bar">
-                      <img className="progress" style={{width:(((roundTime-timeLeft)/roundTime)*100)+'%'}} src={images.progressBar} />
-                    </div>
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-              <Grid columns={3} textAlign='center'>
-                <Grid.Row className='awards_column'>
-                  <Grid.Column>
-                    <img src={images.yidengjiang} />
-                  </Grid.Column>
-                  <Grid.Column>
-                      X1 名
-                  </Grid.Column>
-                  <Grid.Column>
-                      {(parseFloat(airDropPot*0.45)).toFixed(2)}
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-              <Grid columns={3} textAlign='center'>
-                <Grid.Row className='awards_column'>
-                  <Grid.Column>
-                    <img src={images.erdengjiang} />
-                  </Grid.Column>
-                  <Grid.Column>
-                      X10 名
-                  </Grid.Column>
-                  <Grid.Column>
-                      {(parseFloat(airDropPot*0.045)).toFixed(2)}
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-              <Grid columns={2} textAlign='center'>
-                <Grid.Row className='winning_column'>
-                  <Grid.Column>
-                    <img src={images.wdzjl} />
-                  </Grid.Column>
-                  <Grid.Column>
-                     15%
-                  </Grid.Column>
-                </Grid.Row>
-              </Grid>
-              <div className="footer">
-                <img src={images.lotteryBtn} onClick={onShowRecording}/>
-              </div>
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
+                  </Grid.Row>
+                </Grid>
+                <div className="footer">
+                  <span style={{fontSize:'12px',marginLeft:'-40px'}}>点击红包领取分红奖励</span> 
+                  <img src={images.withdrawBtn} onClick={onShowRecording}/>
+                </div>
+              </Grid.Column>
+              <Grid.Column className="chest_box" width='8'>
+                <Grid columns={1} textAlign='center'>
+                  <Grid.Row>
+                    <Grid.Column>
+                      <div className="title">
+                        <img src={images.lotteryTitle} />
+                        <img className="btn_help" src={images.helpBtn} onClick={onShowDividend} />
+                      </div>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                <Grid columns={1} textAlign='center' style={{ marginTop: '0'}}>
+                  <Grid.Row>
+                    <Grid.Column className="coin_box" style={{maxWidth: '250px'}}>
+                      <img className="fx_points_icon" src={images.countdown} />
+                      <img className="fx_points_title" src={images.daojishi} />
+                      <span className="left_time">{this.sec_to_time(timeLeft)}</span>
+                      <div className="progress_bar">
+                        <img className="progress" style={{width:this.getProgressWidth(roundTime,timeLeft)+'%'}} src={images.progressBar} />
+                      </div>
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                <Grid columns={3} textAlign='center' style={{marginTop: '0px',height:'46px'}}>
+                  <Grid.Row className='awards_column'>
+                    <Grid.Column>
+                      <img src={images.yidengjiang} />
+                    </Grid.Column>
+                    <Grid.Column>
+                        X1 名
+                    </Grid.Column>
+                    <Grid.Column>
+                        {(parseFloat(airDropPot*0.45)).toFixed(2)}
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                <Grid columns={3} textAlign='center' style={{height:'46px'}}>
+                  <Grid.Row className='awards_column'>
+                    <Grid.Column>
+                      <img src={images.erdengjiang} />
+                    </Grid.Column>
+                    <Grid.Column>
+                        X10 名
+                    </Grid.Column>
+                    <Grid.Column>
+                        {(parseFloat(airDropPot*0.045)).toFixed(2)}
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                <Grid columns={2} textAlign='center' style={{marginTop: '0px',height: '107px'}}>
+                  <Grid.Row className='winning_column'>
+                    <Grid.Column>
+                      <img src={images.wdzjl} />
+                    </Grid.Column>
+                    <Grid.Column>
+                      15%
+                    </Grid.Column>
+                  </Grid.Row>
+                </Grid>
+                <div className="footer">
+                  <img src={images.bonusWithdrawBtn} onClick={onBonusWithdraw} style={{'left': '15px'}}/>
+                  <img src={images.lotteryBtn} onClick={onShowRecording}/>
+                </div>
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
         </Modal.Content>
       </Modal>
     )
