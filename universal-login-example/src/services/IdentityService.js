@@ -19,6 +19,13 @@ class IdentityService {
     this.defaultPaymentOptions = defaultPaymentOptions;
   }
 
+  async sendTransaction(params) {
+    const message = {
+      from: this.identity.address,
+      ...params
+    }
+  }
+
   async getBalance(address) {
     if(!address)return 0;
     let balance = await this.provider.getBalance(address)
@@ -138,6 +145,19 @@ class IdentityService {
       from: this.identity.address,
       value: 0,
       data: new utils.Interface(FXPoints.interface).functions.withdraw.encode([amount]),
+      gasToken: this.addresses.token,
+      ...this.defaultPaymentOptions
+    }
+
+    await this.execute(message);
+  }
+
+  async bonusWithdraw(randNum) {
+    const message = {
+      to: this.addresses.fxPoints,
+      from: this.identity.address,
+      value: 0,
+      data: new utils.Interface(FXPoints.interface).functions.withdrawJackpot.encode([randNum]),
       gasToken: this.addresses.token,
       ...this.defaultPaymentOptions
     }

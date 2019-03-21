@@ -1,3 +1,5 @@
+import {utils} from 'ethers';
+
 function setParam(param, value) {
     var query = location.search.substring(1);
     var p = new RegExp("(^|)" + param + "=([^&]*)(|$)");
@@ -34,4 +36,13 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export {sleep, setParam,getQueryString};
+function isAddress(addr) {
+    try {
+        utils.getAddress(addr)
+        return true
+    } catch (error) {
+        return false
+    }
+}
+
+export { sleep, setParam, getQueryString, isAddress };

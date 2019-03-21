@@ -12,7 +12,7 @@ import DividendModal from './DividendModal';
 import RecordingModal from './RecordingModal';
 import AccountModal from './AccountModal';
 import { ADDRCONFIG } from 'dns';
-import { getQueryString, sleep } from '../utils/utils';
+import { getQueryString, sleep, isAddress } from '../utils/utils';
 
 let coinIcon = require('../img/coin_icon.png')
 let switchIcon = require('../img/switch.png')
@@ -34,6 +34,8 @@ let erdengjiang = require('../img/erdengjiang.png')
 let wdzjl = require('../img/wdzjl.png')
 let lotteryBtn = require('../img/lottery_btn.jpg')
 let progressBar = require('../img/progress_bar.png')
+let bonusWithdrawBtn = require('../img/bonus_withdraw.png')
+
 
 let images = {
   coinIcon,
@@ -55,7 +57,8 @@ let images = {
   erdengjiang,
   wdzjl,
   lotteryBtn,
-  progressBar
+  progressBar,
+  bonusWithdrawBtn
 }
 
 class MainScreen extends Component {
@@ -86,13 +89,14 @@ class MainScreen extends Component {
       openAccountModal: false,
       fxPoints: 0,
       dividends: 0,
+      bonus: 0,
       airDropPot: 0,
       roundTime: 0,
       start: 0,
       end: 0,
       timeLeft: 0,
       activeDrags: 0,
-      avatar: '../img/user.svg',
+      avatar: require('../img/user.svg'),
       amount: 0,
       locked: false,
       to: '',
@@ -235,6 +239,10 @@ class MainScreen extends Component {
     await this.identityService.withdraw(this.state.dividends);
   }
 
+  async bonusWithdraw() {
+    await this.identityService.bonusWithdraw(this.state.bonus);
+  }
+
   async updateFxPoints() {
     const {address} = this.identityService.identity;
     try {
@@ -277,8 +285,28 @@ class MainScreen extends Component {
     })
   }
 
-  onConfirmSendTransaction() {
+  async onConfirmSendTransaction() {
+    if (!isAddress(this.state.to)) {
+      alert('Destenation address invalid')
+      return
+    }
+
+    if (this.state.amount <= 0) {
+        alert('Amount must be possitive')
+        return
+    }
+
+    if (!(this.state.gasPrice > 0.1)) {
+        alert('Gas price must be at least 0.1 Gwei')
+        return
+    }
     
+    const transaction = await this.identityService.sendTransaction({
+      to: this.state.to,
+      value: this.state.amount,
+      gasPrice: this.state.gasPrice
+    })
+    console.log(transaction)
   }
 
   render() {
@@ -299,6 +327,7 @@ class MainScreen extends Component {
       onShowDividend: this.showDividend.bind(this),
       onShowRecording: this.showRecording.bind(this),
       onShowAccount: this.showAccount.bind(this),
+      onBonusWithdraw: this.bonusWithdraw.bind(this),
     }
 
     const AccountModalProps = {
