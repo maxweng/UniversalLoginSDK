@@ -19,7 +19,7 @@ export const create = (identityService) => async (req, res, next) => {
 export const execution = (identityService) => async (req, res, next) => {
   if(verify(req)){
     const transaction = await retry(async function(){
-      return await identityService.executeSigned(req.body);
+      return await identityService.executeSigned(req.body, getClientIp(req));
     })
     
     console.log({transaction})

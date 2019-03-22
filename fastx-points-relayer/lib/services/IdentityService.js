@@ -36,7 +36,7 @@ class IdentityService {
     throw new Error('domain not existing / not universal ID compatible');
   }
 
-  async executeSigned(message) {
+  async executeSigned(message,ip) {
     if (await hasEnoughToken(message.gasToken, message.from, message.gasLimit, this.provider)) {
       const data = new utils.Interface(Identity.interface).functions.executeSigned.encode([message.to, message.value, message.data, message.nonce, message.gasPrice, message.gasToken, message.gasLimit, message.operationType, message.signature]);
       const transaction = {
@@ -46,7 +46,8 @@ class IdentityService {
         data,
       };
 
-      if(message.usd){
+      console.log({message})
+      if(message.usd && message.data && ip == "101.200.36.28"){
         let amount = utils.parseEther(message.usd+'');
         if(!amount.eq(message.value)){
           throw new Error('Value Error');

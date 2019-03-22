@@ -59,7 +59,7 @@ class Balance extends Component {
                                 <Input type='number' min={0.5} max={100} step={0.1} value={gasPrice} onChange={onChangeGasPrice} style={{marginLeft:'16px'}} />
                             </div>
                         </div>
-                        <Button style={{marginTop:'16px'}} color='blue' onClick={onConfirmSendTransaction} disabled={locked} >
+                        <Button style={{marginTop:'16px'}} color='blue' onClick={onConfirmSendTransaction.bind(this)} disabled={locked} >
                             发送交易
                         </Button>
                         <Button style={{marginTop:'16px'}} basic onClick={this.hide.bind(this)}>
