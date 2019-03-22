@@ -11,29 +11,29 @@ class PendingAuthorisationView extends Component {
           className="pending-authorizations-text"
           key={this.props.authorisation.key}
         >
-          Someone requested to log into this app from a{' '}
+          有人请求登录此应用程序从{' '}
           <span className="bold">{this.props.authorisation.deviceInfo.browser}</span>{' '}
-          browser in{' '}
+          浏览器 {' '}
           <span className="bold">{this.props.authorisation.deviceInfo.name}</span>,
-          from the IP{' '}
+          来自 IP{' '}
           <span className="bold">
             {filterIP(this.props.authorisation.deviceInfo.ipAddress)} (
             {this.props.authorisation.deviceInfo.city})
           </span>{' '}
-          at <span className="bold">{this.props.authorisation.deviceInfo.time}</span>
+          于 <span className="bold">{this.props.authorisation.deviceInfo.time}</span>
         </p>
         <button
           className="btn-alt fullwidth"
           onClick={() => this.props.onAcceptClick(this.props.authorisation.key)}
         >
-          ACCEPT REQUEST <br />
-          <span className="click-cost">costs 1 click</span>
+          接受请求 <br />
+          <span className="click-cost">花费 1 click</span>
         </button>
         <button
           className="btn fullwidth"
           onClick={() => this.props.onDenyClick(this.props.authorisation.key)}
         >
-          Deny request
+          拒绝请求
         </button>{' '}
       </div>
     );

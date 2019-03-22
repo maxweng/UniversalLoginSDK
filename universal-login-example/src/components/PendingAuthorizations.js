@@ -71,10 +71,10 @@ class PendingAuthorizations extends Component {
             type="identityHeader"
             identityService={this.props.services.identityService}
           />
-          <RequestsBadge
+          {/* <RequestsBadge
             setView={this.props.setView}
             services={this.props.services}
-          />
+          /> */}
           <BackBtn setView={this.props.setView} />
         </HeaderView>
         <PendingAuthorizationsView

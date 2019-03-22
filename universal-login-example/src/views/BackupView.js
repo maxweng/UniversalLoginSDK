@@ -33,7 +33,7 @@ class BackupView extends Component {
     return (
       <div className="subview">
         <div className="container">
-          <h1 className="main-title">BACKUP CODES</h1>
+          <h1 className="main-title">备份码</h1>
           <p className="backup-text">
           打印这些，将它们分开并保持它们彼此分开的安全位置。 远离计算机，直到您想要使用它们。
           </p>

@@ -26,11 +26,6 @@ class AccountModal extends Component {
         return (
             <Modal open={open} onClose={close} className="account-modal">
                 <Modal.Content>
-                    {/* <HeaderView>
-                        <button onClick={close} className="btn header-btn">
-                            BACK
-                        </button>
-                    </HeaderView> */}
                     <button onClick={close} className="btn header-btn back-btn">
                         返回
                     </button>

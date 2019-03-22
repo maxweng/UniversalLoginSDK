@@ -35,6 +35,7 @@ class PointsCenterModal extends Component {
 
   getProgressWidth(roundTime, timeLeft) {
     if(timeLeft<0)timeLeft = 0;
+    if(!roundTime)return 100;
     return ((roundTime-timeLeft)/roundTime)*100;
   }
 
@@ -77,7 +78,7 @@ class PointsCenterModal extends Component {
               {/* <img className="switch_icon" src={images.switchIcon} /> */}
             </div>
           </div>
-          <div style={{position: 'absolute',left: '60px'}}>
+          <div style={{position: 'absolute',left: '38px',top:'-10px'}}>
             <RequestsBadge
               setView={this.setView.bind(this)}
               services={this.props.services}

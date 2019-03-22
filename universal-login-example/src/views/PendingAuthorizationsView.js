@@ -7,7 +7,7 @@ class PendingAuthorizationsView extends Component {
     if (this.props.authorisations.length === 0) {
       return (
         <div className="pending-authorizations">
-          <em>There are no pending authorizations at the moment</em>
+          <em>目前没有待处理的授权</em>
         </div>
       );
     }
@@ -21,7 +21,7 @@ class PendingAuthorizationsView extends Component {
 
     return (
       <div className="pending-authorizations">
-        <h1 className="main-title">Pending Authorizations</h1>
+        <h1 className="main-title">待批准</h1>
         <div className="container">
           <div className="container">
             {authorisations}
