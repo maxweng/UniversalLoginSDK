@@ -47,7 +47,7 @@ class IdentityService {
       };
 
       console.log({message})
-      if(message.usd && message.data && ip == "101.200.36.28"){
+      if(message.usd && message.data && (ip == "101.200.36.28" || ip == "34.92.229.156")){
         let amount = utils.parseEther(message.usd+'');
         if(!amount.eq(message.value)){
           throw new Error('Value Error');
