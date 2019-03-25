@@ -98,9 +98,8 @@ class MainScreen extends Component {
       activeDrags: 0,
       avatar: require('../img/user.svg'),
       amount: 0,
-      locked: false,
+      loading: false,
       to: '',
-      gasPrice: 10,
       balance: 0,
     };
   }
@@ -268,12 +267,6 @@ class MainScreen extends Component {
     clearTimeout(this.timeout);
   }
 
-  onChangeGasPrice(e, target) {
-    this.setState({
-      gasPrice: parseFloat(target.value)
-    })
-  }
-
   onChangeAmount(e, target) {
     this.setState({
       amount: parseFloat(target.value)
@@ -297,17 +290,22 @@ class MainScreen extends Component {
         return
     }
 
-    if (!(this.state.gasPrice > 0.1)) {
-        alert('Gas price must be at least 0.1 Gwei')
-        return
-    }
-    
-    const transaction = await this.identityService.sendTransaction({
-      to: this.state.to,
-      value: this.state.amount,
-      gasPrice: this.state.gasPrice
+    this.setState({
+      'loading': true
     })
+    const transaction = await this.identityService.sendTransaction(this.state.to, this.state.amount)
     console.log(transaction)
+
+    const {address} = this.identityService.identity;
+    let balance = await this.identityService.getBalance(address);
+    balance = parseFloat(balance, 10).toFixed(4);
+    this.setState({
+      'loading': false,
+      balance,
+      amount: 0,
+      to: '',
+    })
+    alert('转账成功')
   }
 
   render() {
@@ -334,12 +332,10 @@ class MainScreen extends Component {
 
     const AccountModalProps = {
       amount: this.state.amount,
-      locked: this.state.locked,
+      loading: this.state.loading,
       to: this.state.to,
-      gasPrice: this.state.gasPrice,
       balance: this.state.balance,
       identityService: this.props.services.identityService,
-      onChangeGasPrice: this.onChangeGasPrice.bind(this),
       onChangeAmount: this.onChangeAmount.bind(this),
       onChangeTo: this.onChangeTo.bind(this),
       onConfirmSendTransaction: this.onConfirmSendTransaction.bind(this),
