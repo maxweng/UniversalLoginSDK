@@ -1,7 +1,7 @@
 import {utils} from 'ethers';
 
 const defaultDeployOptions = {
-  gasLimit: utils.bigNumberify(3500000),
+  gasLimit: utils.bigNumberify(5000000),
   gasPrice: utils.bigNumberify(9000000000),
 };
 

@@ -14,11 +14,13 @@ class FXPointsService {
   }
 
   async getPlayerInfoByAddress(address) {
-    let keys = await this.tokenContract.queryKeys(address);
-    let balance = await this.tokenContract.calcBalance(address);
+    const keys = await this.tokenContract.queryKeys(address);
+    const balance = await this.tokenContract.calcBalance(address);
+    const probability = await this.tokenContract.getJackpotProbabilityOfPlayer(address)
     return {
       keys,
-      balance
+      balance,
+      probability
     }
   }
 

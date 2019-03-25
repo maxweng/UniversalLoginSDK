@@ -22,7 +22,7 @@ class ContractsDeployer {
     const tokenContract = await deployContract(this.deployer, Token);
 
     console.log('deploying fxPointsContract ...')
-    this.fxPointsContract = await deployContract(this.deployer, FXPoints);
+    this.fxPointsContract = await deployContract(this.deployer, FXPoints,[], {gasLimit:5000000});
 
     const variables = {};
     variables.TOKEN_CONTRACT_ADDRESS = tokenContract.address;
@@ -30,18 +30,16 @@ class ContractsDeployer {
     console.log({variables})
     console.log('all deployed!')
 
-    console.log("add team member ...")
-    const ret = await this.fxPointsContract.addTeamMember(this.deployerAddr, 100, { from: this.deployerAddr })
-    console.log({ret})
+    // console.log("add team member ...")
+    // const ret = await this.fxPointsContract.addTeamMember(this.deployerAddr, 100, { from: this.deployerAddr })
+    // console.log({ret})
 
-    console.log("activate game ...")
-    const tx = await this.fxPointsContract.activateGame({ from: this.deployerAddr,gasPrice: 31000000000000,gasLimit: 1000000});
-    console.log("activateGame tx is: ",tx)
+    // console.log("activate game ...")
+    // const tx = await this.fxPointsContract.activateGame({ from: this.deployerAddr,gasPrice: 31000000000000,gasLimit: 1000000});
+    // console.log("activateGame tx is: ",tx)
 
     // const jackpotEth = await this.fxPointsContract.getJackpotEth.call();
     // console.log({jackpotEth})
-
-    
   }
 }
 

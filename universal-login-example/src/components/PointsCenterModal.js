@@ -55,6 +55,7 @@ class PointsCenterModal extends Component {
       userBalance, 
       userName,
       services,
+      probability,
       onWithdraw,
       onShowDividend,
       onShowRecording,
@@ -188,7 +189,7 @@ class PointsCenterModal extends Component {
                       <img src={images.wdzjl} />
                     </Grid.Column>
                     <Grid.Column>
-                      15%
+                      {probability} %
                     </Grid.Column>
                   </Grid.Row>
                 </Grid>

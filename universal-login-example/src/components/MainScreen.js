@@ -75,7 +75,7 @@ class MainScreen extends Component {
     this.authorisationService = services.authorisationService;
     this.nativeNotificationService = services.nativeNotificationService;
     this.gameUrl = services.config.gameUrl + '?access_code=' + getQueryString('access_code');
-    
+    console.log('userAddress:',this.identityService.identity.address.toLowerCase())
     this.state = {
       lastClick: '0', 
       lastPresser: 'nobody', 
@@ -144,6 +144,7 @@ class MainScreen extends Component {
     let userInfo = await this.IbankService.getUserInfo();
     let userBalance = await this.IbankService.getBalance();
     let playerInfo = await this.identityService.getPlayerInfo();
+    
     let gamePool = await this.identityService.getFXPInfo();
     let timeLeft = gamePool.end-parseInt(new Date().getTime()/1000);
     this.setState({
@@ -151,6 +152,7 @@ class MainScreen extends Component {
       userBalance: userBalance.balance,
       fxPoints: parseFloat(playerInfo.keys).toFixed(2),
       dividends: parseFloat(playerInfo.balance),
+      probability: playerInfo.probability,
       airDropPot: parseFloat(gamePool.airDropPot).toFixed(2),
       roundTime: gamePool.roundTime,
       start: gamePool.start,
@@ -163,8 +165,7 @@ class MainScreen extends Component {
         timeLeft: that.state.timeLeft - 1
       })
     }, 1000)
-
-    console.log('userAddress:',this.identityService.identity.address.toLowerCase())
+    
     if(window.frames[0])
     window.frames[0].postMessage({type:'userAddress',address:this.identityService.identity.address},'*')
   }
@@ -323,6 +324,7 @@ class MainScreen extends Component {
       end: this.state.end,
       timeLeft: this.state.timeLeft,
       services: this.props.services,
+      probability: this.state.probability,
       onWithdraw: this.withdraw.bind(this),
       onShowDividend: this.showDividend.bind(this),
       onShowRecording: this.showRecording.bind(this),
