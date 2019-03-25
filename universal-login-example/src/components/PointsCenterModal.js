@@ -56,6 +56,7 @@ class PointsCenterModal extends Component {
       userName,
       services,
       probability,
+      roundId,
       onWithdraw,
       onShowDividend,
       onShowRecording,
@@ -194,7 +195,7 @@ class PointsCenterModal extends Component {
                   </Grid.Row>
                 </Grid>
                 <div className="footer">
-                  <img src={images.bonusWithdrawBtn} onClick={onBonusWithdraw} style={{'left': '15px'}}/>
+                  <img src={images.bonusWithdrawBtn} onClick={onBonusWithdraw.bind(this,roundId)} style={{'left': '15px'}}/>
                   <img src={images.lotteryBtn} onClick={onShowRecording}/>
                 </div>
               </Grid.Column>

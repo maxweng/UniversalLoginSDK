@@ -17,6 +17,9 @@ class IdentityService {
     this.provider = provider;
     this.addresses = addresses;
     this.defaultPaymentOptions = defaultPaymentOptions;
+    // console.log('......')
+    // console.log(utils.formatBytes32String('123456'))
+    // console.log(utils.keccak256(utils.formatBytes32String('123456')))
   }
 
   async sendTransaction(to, amount) {
@@ -143,8 +146,8 @@ class IdentityService {
   }
 
   async withdraw(amount) {
-    amount = utils.parseEther(amount.toFixed(4).toString())
-    if(amount.lte(0))return
+    // amount = utils.parseEther(parseInt(amount*100000)/100000 + '')
+    // if(amount.lte(0))return
     const message = {
       to: this.addresses.fxPoints,
       from: this.identity.address,
@@ -154,20 +157,26 @@ class IdentityService {
       ...this.defaultPaymentOptions
     }
 
-    await this.execute(message);
+    const result = await this.execute(message);
+    console.log('withdraw: ',result)
+    return result
   }
 
-  async bonusWithdraw(randNum) {
+  async bonusWithdraw(randNum, roundId) {
+    randNum = '0x3132333435360000000000000000000000000000000000000000000000000000'
+    roundId = '3'
     const message = {
       to: this.addresses.fxPoints,
       from: this.identity.address,
       value: 0,
-      data: new utils.Interface(FXPoints.interface).functions.withdrawJackpot.encode([randNum]),
+      data: new utils.Interface(FXPoints.interface).functions.withdrawJackpot.encode([randNum, 1]),
       gasToken: this.addresses.token,
       ...this.defaultPaymentOptions
     }
 
-    await this.execute(message);
+    const result = await this.execute(message);
+    console.log('bonusWithdraw: ',result)
+    return result
   }
 }
 

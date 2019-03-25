@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {utils} from 'ethers';
 import Iframe from 'react-iframe'
 import { Button } from 'semantic-ui-react'
 import MainScreenView from '../views/MainScreenView';
@@ -11,6 +12,7 @@ import PointsCenterModal from './PointsCenterModal';
 import DividendModal from './DividendModal';
 import RecordingModal from './RecordingModal';
 import AccountModal from './AccountModal';
+import TransactionTipModal from './TransactionTipModal';
 import { ADDRCONFIG } from 'dns';
 import { getQueryString, sleep, isAddress } from '../utils/utils';
 
@@ -75,6 +77,7 @@ class MainScreen extends Component {
     this.authorisationService = services.authorisationService;
     this.nativeNotificationService = services.nativeNotificationService;
     this.gameUrl = services.config.gameUrl + '?access_code=' + getQueryString('access_code');
+    if(this.identityService.identity && this.identityService.identity.address)
     console.log('userAddress:',this.identityService.identity.address.toLowerCase())
     this.state = {
       lastClick: '0', 
@@ -87,9 +90,10 @@ class MainScreen extends Component {
       openDividend: false,
       openRecording: false,
       openAccountModal: false,
+      openTransactionTip: false,
       fxPoints: 0,
       dividends: 0,
-      bonus: 0,
+      bonus: '',
       airDropPot: 0,
       roundTime: 0,
       start: 0,
@@ -101,6 +105,7 @@ class MainScreen extends Component {
       loading: false,
       to: '',
       balance: 0,
+      transactionMsg: ''
     };
   }
 
@@ -140,24 +145,27 @@ class MainScreen extends Component {
     //等待identityService.identity数据有了以后才继续往下执行
     await this.waitAccountLoadFinished();
     await this.updateFxPoints();
-    let userInfo = await this.IbankService.getUserInfo();
-    let userBalance = await this.IbankService.getBalance();
-    let playerInfo = await this.identityService.getPlayerInfo();
-    
-    let gamePool = await this.identityService.getFXPInfo();
-    let timeLeft = gamePool.end-parseInt(new Date().getTime()/1000);
-    this.setState({
-      userName: userInfo.user_name,
-      userBalance: userBalance.balance,
-      fxPoints: parseFloat(playerInfo.keys).toFixed(2),
-      dividends: parseFloat(playerInfo.balance),
-      probability: playerInfo.probability,
-      airDropPot: parseFloat(gamePool.airDropPot).toFixed(2),
-      roundTime: gamePool.roundTime,
-      start: gamePool.start,
-      end: gamePool.end,
-      timeLeft
-    })
+    try {
+      let userInfo = {}//await this.IbankService.getUserInfo();
+      let userBalance = {}//await this.IbankService.getBalance();
+      let playerInfo = await this.identityService.getPlayerInfo();
+      let gamePool = await this.identityService.getFXPInfo();
+      let timeLeft = gamePool.end-parseInt(new Date().getTime()/1000);
+      this.setState({
+        userName: userInfo.user_name,
+        userBalance: userBalance.balance,
+        fxPoints: parseFloat(playerInfo.keys).toFixed(2),
+        dividends: parseFloat(playerInfo.balance),
+        probability: playerInfo.probability,
+        airDropPot: parseFloat(gamePool.airDropPot).toFixed(2),
+        roundTime: gamePool.roundTime,
+        start: gamePool.start,
+        end: gamePool.end,
+        timeLeft
+      })
+    } catch (error) {
+      console.log(error)
+    }
 
     setInterval(function(){
       that.setState({
@@ -210,6 +218,16 @@ class MainScreen extends Component {
     this.setState({ openDividend: false })
   }
 
+  showTransactionTip(event) {
+    if(event)
+    event.preventDefault()
+    this.setState({ openTransactionTip: true })
+  }
+
+  closeTransactionTip() {
+    this.setState({ openTransactionTip: false })
+  }
+
   showAccount(event) {
     if(event)
     event.preventDefault()
@@ -236,11 +254,42 @@ class MainScreen extends Component {
   }
 
   async withdraw() {
-    await this.identityService.withdraw(this.state.dividends);
+    try {
+      const amount = utils.parseEther(parseInt(this.state.dividends*100000)/100000 + '')
+      if(amount.lte(0))return
+      this.setState({
+        transactionMsg: '交易已发送，请等待片刻...'
+      })
+      this.showTransactionTip();
+      const result = await this.identityService.withdraw(amount);
+      console.log(result)
+      if(result){
+        this.setState({
+          transactionMsg: '交易已完成。点击头像进入钱包页面，查看分红奖励是否到账'
+        })
+      }else{
+        this.setState({
+          transactionMsg: '交易失败'
+        })
+      }
+      let playerInfo = await this.identityService.getPlayerInfo();
+   
+      this.setState({
+        fxPoints: parseFloat(playerInfo.keys).toFixed(2),
+        dividends: parseFloat(playerInfo.balance),
+        probability: playerInfo.probability,
+      })
+    } catch (error) {
+      alert(error)
+    }
   }
 
-  async bonusWithdraw() {
-    await this.identityService.bonusWithdraw(this.state.bonus);
+  async bonusWithdraw(roundId) {
+    try {
+      await this.identityService.bonusWithdraw(this.state.bonus, roundId);
+    } catch (error) {
+      alert(error)
+    }
   }
 
   async updateFxPoints() {
@@ -250,9 +299,11 @@ class MainScreen extends Component {
       fxPoints = parseFloat(fxPoints, 10).toFixed(2);
       let balance = await this.identityService.getBalance(address);
       balance = parseFloat(balance, 10).toFixed(4);
+      let playerInfo = await this.identityService.getPlayerInfo();
       this.setState({
         fxPoints,
-        balance
+        balance,
+        dividends: parseFloat(playerInfo.balance),
       });
     } catch (error) {
       console.log(error)
@@ -327,7 +378,7 @@ class MainScreen extends Component {
       onShowDividend: this.showDividend.bind(this),
       onShowRecording: this.showRecording.bind(this),
       onShowAccount: this.showAccount.bind(this),
-      onBonusWithdraw: this.bonusWithdraw.bind(this),
+      onBonusWithdraw: this.bonusWithdraw.bind(this)
     }
 
     const AccountModalProps = {
