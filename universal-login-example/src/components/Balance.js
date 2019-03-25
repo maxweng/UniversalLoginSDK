@@ -20,10 +20,8 @@ class Balance extends Component {
     const { 
         balance,
         amount,
-        locked,
         to,
-        gasPrice,
-        onChangeGasPrice,
+        loading,
         onChangeAmount,
         onChangeTo,
         onConfirmSendTransaction,
@@ -46,20 +44,13 @@ class Balance extends Component {
                     <div>
                         <div style={{marginTop:'16px'}}>
                             <span>
-                                Amount: <Input type='number' onChange={onChangeAmount} value={amount} step={0.1} min={0} disabled={locked} />
+                                金额: <Input type='number' onChange={onChangeAmount} value={amount} step={0.1} min={0} />
                             </span>
                         </div>
                         <div style={{marginTop:'16px'}}>
-                            <Input style={{ width: '340px' }} placeholder="发送地址" type='text' onChange={onChangeTo} value={to}  disabled={locked} />
+                            <Input style={{ width: '340px' }} placeholder="发送地址" type='text' onChange={onChangeTo} value={to} />
                         </div>
-                        <div style={{marginTop:'16px'}}>
-                            <p>Gas price (Gwei):</p>
-                            <div>
-                                <Input type='range' min={0.5} max={100} step={0.1} value={gasPrice} onChange={onChangeGasPrice} />
-                                <Input type='number' min={0.5} max={100} step={0.1} value={gasPrice} onChange={onChangeGasPrice} style={{marginLeft:'16px'}} />
-                            </div>
-                        </div>
-                        <Button style={{marginTop:'16px'}} color='blue' onClick={onConfirmSendTransaction.bind(this)} disabled={locked} >
+                        <Button style={{marginTop:'16px'}} color='blue' loading={loading} onClick={onConfirmSendTransaction.bind(this)} >
                             发送交易
                         </Button>
                         <Button style={{marginTop:'16px'}} basic onClick={this.hide.bind(this)}>

@@ -19,11 +19,16 @@ class IdentityService {
     this.defaultPaymentOptions = defaultPaymentOptions;
   }
 
-  async sendTransaction(params) {
+  async sendTransaction(to, amount) {
     const message = {
+      ...this.defaultPaymentOptions,
       from: this.identity.address,
-      ...params
+      to,
+      value: utils.parseEther(amount+''),
+      gasToken: this.addresses.token,
     }
+    
+    return await this.execute(message);
   }
 
   async getBalance(address) {
@@ -113,7 +118,7 @@ class IdentityService {
   }
 
   async execute(message) {
-    await this.sdk.execute(
+    return await this.sdk.execute(
       message,
       this.identity.privateKey
     );
