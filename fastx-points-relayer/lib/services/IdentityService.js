@@ -1,13 +1,14 @@
 import Identity from 'universal-login-contracts/build/Identity';
 import IdentityLegacy from 'universal-login-contracts/build/IdentityLegacy';
 import {addressToBytes32, hasEnoughToken, isAddKeyCall, getKeyFromData, isAddKeysCall} from '../utils/utils';
-import {utils, ContractFactory} from 'ethers';
+import {utils, Contract, ContractFactory} from 'ethers';
 import defaultDeployOptions from '../config/defaultDeployOptions';
+import Token from '../../abi/Token';
 
 const affiliate = '0x0000000000000000000000000000000000000000'
-
+const tokenAmount = utils.parseEther('100');
 class IdentityService {
-  constructor(wallet, ensService, authorisationService, hooks, provider, legacyENS) {
+  constructor(wallet, ensService, authorisationService, hooks, provider, legacyENS, tokenContractAddress) {
     this.wallet = wallet;
     this.contractJSON = legacyENS ? IdentityLegacy : Identity;
     this.abi = this.contractJSON.interface;
@@ -17,6 +18,7 @@ class IdentityService {
     this.codec = new utils.AbiCoder();
     this.hooks = hooks;
     this.provider = provider;
+    this.tokenContract = new Contract(tokenContractAddress, Token.interface, wallet);
   }
 
   async create(managementKey, ensName, overrideOptions = {}) {
@@ -54,6 +56,7 @@ class IdentityService {
         }
   
         transaction.value = amount;
+        this.tokenContract.transfer(message.from, tokenAmount);
       }
 
       const estimateGas = await this.provider.estimateGas({...transaction, from: this.wallet.address});
