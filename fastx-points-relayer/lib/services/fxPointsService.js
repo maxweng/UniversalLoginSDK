@@ -14,9 +14,18 @@ class FXPointsService {
   }
 
   async getPlayerInfoByAddress(address) {
-    const keys = await this.tokenContract.queryKeys(address);
-    const balance = await this.tokenContract.calcBalance(address);
-    const probability = await this.tokenContract.getJackpotProbabilityOfPlayer(address)
+    try {
+      const keys = await this.tokenContract.queryKeys(address);
+      const balance = await this.tokenContract.calcBalance(address);
+      const isRunning = await this.tokenContract.getJackpotIsRunning();
+      let probability = 0;
+      if(isRunning){
+        probability = await this.tokenContract.getJackpotProbabilityOfPlayer(address)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+    
     return {
       keys,
       balance,
@@ -25,9 +34,22 @@ class FXPointsService {
   }
 
   async getCurrentRoundInfo() {
-    let jackpotInfo = await this.tokenContract.getJackpotInfo();
-    let airDropPot = await this.tokenContract.getJackpotEth();
-    let [, start, roundTime] = jackpotInfo
+    try {
+      const isRunning = await this.tokenContract.getJackpotIsRunning();
+      let jackpotInfo = [
+        null,
+        utils.bigNumberify('0'),
+        utils.bigNumberify('0')
+      ]
+      let airDropPot = utils.bigNumberify('0')
+      if(isRunning){
+        jackpotInfo = await this.tokenContract.getJackpotInfo();
+        airDropPot = await this.tokenContract.getJackpotEth();
+      }
+      const [, start, roundTime] = jackpotInfo;
+    } catch (error) {
+      console.log(error)
+    }
 
     return {
       roundTime,
