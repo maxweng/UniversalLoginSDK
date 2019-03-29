@@ -52,7 +52,6 @@ class PointsCenterModal extends Component {
       fxPoints, 
       dividends, 
       airDropPot, 
-      userBalance, 
       userName,
       services,
       probability,

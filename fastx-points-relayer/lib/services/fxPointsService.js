@@ -18,9 +18,10 @@ class FXPointsService {
       const keys = await this.tokenContract.queryKeys(address);
       const balance = await this.tokenContract.calcBalance(address);
       const isRunning = await this.tokenContract.getJackpotIsRunning();
+      const jackpotEth = await this.tokenContract.getJackpotEth();
       let probability = 0;
-      if(isRunning){
-        probability = await this.tokenContract.getJackpotProbabilityOfPlayer(address)
+      if(isRunning && !jackpotEth.eq(0)){
+        probability = await this.tokenContract.getJackpotProbabilityOfPlayer(address);
       }
     } catch (error) {
       console.log(error)
@@ -29,7 +30,7 @@ class FXPointsService {
     return {
       keys,
       balance,
-      probability
+      probability: probability.div(100)
     }
   }
 

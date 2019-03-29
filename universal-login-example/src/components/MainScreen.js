@@ -69,8 +69,10 @@ class MainScreen extends Component {
     const {services} = this.props;
     this.historyService = services.historyService;
     this.ensNameService = services.ensNameService;
-    this.clickService = services.clickService;
+    //this.clickService = services.clickService;
     this.tokenService = services.tokenService;
+    
+
     this.fxPointsService = services.fxPointsService;
     this.identityService = services.identityService;
     this.IbankService = services.IbankService;
@@ -79,10 +81,10 @@ class MainScreen extends Component {
     this.gameUrl = services.config.gameUrl + '?access_code=' + getQueryString('access_code');
     if(this.identityService.identity && this.identityService.identity.address)
     console.log('userAddress:',this.identityService.identity.address.toLowerCase())
+    
     this.state = {
       lastClick: '0', 
       lastPresser: 'nobody', 
-      userBalance: {},
       events: [], 
       loaded: false, 
       busy: false, 
@@ -146,14 +148,12 @@ class MainScreen extends Component {
     await this.waitAccountLoadFinished();
     await this.updateFxPoints();
     try {
-      let userInfo = {}//await this.IbankService.getUserInfo();
-      let userBalance = {}//await this.IbankService.getBalance();
+      let userInfo = await this.IbankService.getUserInfo();
       let playerInfo = await this.identityService.getPlayerInfo();
       let gamePool = await this.identityService.getFXPInfo();
       let timeLeft = gamePool.end-parseInt(new Date().getTime()/1000);
       this.setState({
         userName: userInfo.user_name,
-        userBalance: userBalance.balance,
         fxPoints: parseFloat(playerInfo.keys).toFixed(2),
         dividends: parseFloat(playerInfo.balance),
         probability: playerInfo.probability,
@@ -262,7 +262,6 @@ class MainScreen extends Component {
       })
       this.showTransactionTip();
       const result = await this.identityService.withdraw(amount);
-      console.log(result)
       if(result){
         this.setState({
           transactionMsg: '交易已完成。点击头像进入钱包页面，查看分红奖励是否到账'
@@ -363,7 +362,6 @@ class MainScreen extends Component {
     const pointsCenterModalProps = {
       images,
       userName: this.state.userName,
-      userBalance: this.state.userBalance,
       avatar: this.state.avatar,
       fxPoints: this.state.fxPoints,
       dividends: this.state.dividends,
