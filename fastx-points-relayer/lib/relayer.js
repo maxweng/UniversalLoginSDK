@@ -81,7 +81,7 @@ class Relayer {
     this.ensService = new ENSService(this.config.chainSpec.ensAddress, this.config.ensRegistrars, this.provider, this.config.chainSpec.publicResolverAddress);
     this.authorisationService = new AuthorisationService(this.database);
     this.identityService = new IdentityService(this.wallet, this.ensService, this.authorisationService, this.hooks, this.provider, this.config.legacyENS,this.tokenContractAddress);
-    this.fXPointsService = new FXPointsService(this.config.fxPointsContractAddress,this.provider)
+    this.fXPointsService = new FXPointsService(this.wallet, this.config.fxPointsContractAddress,this.provider)
     this.app.use(bodyParser.json());
     this.app.use('/identity', IdentityRouter(this.identityService));
     this.app.use('/config', ConfigRouter(this.config.chainSpec));

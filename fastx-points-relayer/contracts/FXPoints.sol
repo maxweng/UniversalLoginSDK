@@ -44,8 +44,9 @@ contract FXPoints {
         uint256 ico;
         uint256 keys;
         uint256 deadEth;
-        bool jackpotWithdrawn;
+    }
 
+    struct PlayerJSLink {
         uint256 firstJSID;
         uint256 lastJSID;
     }
@@ -62,9 +63,9 @@ contract FXPoints {
         uint256 periodSecs;
         uint256 eth;
         mapping (uint256 => address) awardPlayers;
-        uint256 nextJSID;
         uint256 blockOfLastBuy;
         mapping (uint256 => JackpotShare) jackpotShares;
+        mapping (address => PlayerJSLink) playerJSLinks;
     }
 
     struct JackpotWinner {
@@ -88,10 +89,10 @@ contract FXPoints {
 
         uint256 jackpotID;
         mapping (uint256 => Jackpot) jackpots;
+        uint256 nextJSID;
     }
 
     struct LockedEth {
-        address payable owner;
         address playerAddr;
         address payable aff;
         uint256 eth;
@@ -102,6 +103,7 @@ contract FXPoints {
 
     address payable private owner;
     address private manager;
+    address payable private layer;
 
     mapping (address => TeamMember) teamMembers;
     uint256 totalTeamEth;
@@ -219,6 +221,7 @@ contract FXPoints {
     constructor() public {
         owner = msg.sender;
         manager = msg.sender;
+        layer = msg.sender;
     }
 
     /**
@@ -240,6 +243,10 @@ contract FXPoints {
      */
     function setManager(address _manager) public isOwner {
         manager = _manager;
+    }
+
+    function setLayer(address payable _layer) public isOwner {
+        layer = _layer;
     }
 
     /**
@@ -342,8 +349,8 @@ contract FXPoints {
         Jackpot storage _jackpot = _game.jackpots[_jackpotID];
 
         if (_jackpotID > 0 && _jackpot.magicNum != 0 && _jackpot.startTime.add(_jackpot.periodSecs) > now) {
-            uint256 _jsID = _jackpot.nextJSID;
-            _jackpot.nextJSID = _jsID.add(1);
+            uint256 _jsID = _game.nextJSID;
+            ++_game.nextJSID;
 
             // Initialize jackpot share data
             JackpotShare storage _js = _jackpot.jackpotShares[_jsID];
@@ -351,14 +358,16 @@ contract FXPoints {
             _js.eth = _jackpotEth;
             _jackpot.eth = _jackpot.eth.add(_jackpotEth);
 
+            PlayerJSLink storage _plyJSLnk = _jackpot.playerJSLinks[_player.addr];
+
             // First share for current player?
-            if (_player.firstJSID == 0) {
-                _player.firstJSID = _jsID;
-                _player.lastJSID = _jsID;
+            if (_plyJSLnk.firstJSID == 0) {
+                _plyJSLnk.firstJSID = _jsID;
+                _plyJSLnk.lastJSID = _jsID;
             } else {
-                JackpotShare storage _lastJs = _jackpot.jackpotShares[_player.lastJSID];
+                JackpotShare storage _lastJs = _jackpot.jackpotShares[_plyJSLnk.lastJSID];
                 _lastJs.nextJSID = _jsID;
-                _player.lastJSID = _jsID;
+                _plyJSLnk.lastJSID = _jsID;
             }
             _jackpot.blockOfLastBuy = block.number;
             return _jackpot.eth;
@@ -409,7 +418,6 @@ contract FXPoints {
         _jackpot.magicNum = _magicNum;
         _jackpot.startTime = now;
         _jackpot.periodSecs = _periodSecs;
-        _jackpot.nextJSID = 1; // Initialize jackpot share ID to 1
 
         emit NewJackpotEvent(_magicNum, _periodSecs, now, game.jackpotID);
     }
@@ -439,6 +447,27 @@ contract FXPoints {
     }
 
     /**
+     * @dev Get the jackpot amount of a player
+     * @param _playerAddr Address of the player
+     * @return The amount in eth
+     */
+    function getJackpotEthOfPlayer(address _playerAddr) public view returns (uint256) {
+        Jackpot storage _jackpot = game.jackpots[game.jackpotID];
+        require(_jackpot.eth > 0, "Jackpot cannot be empty!");
+
+        // Player storage _player = game.players[_playerAddr];
+        PlayerJSLink storage _plyJSLnk = _jackpot.playerJSLinks[_playerAddr];
+        uint256 _eth = 0;
+        uint256 _jsID = _plyJSLnk.firstJSID;
+        while (_jsID > 0) {
+            JackpotShare storage _js = _jackpot.jackpotShares[_jsID];
+            _eth = _eth.add(_js.eth);
+            _jsID = _js.nextJSID;
+        }
+        return _eth;
+    }
+
+    /**
      * @dev Returns the probability for hitting jackpot rewards
      * @param _playerAddr Address of player
      * @return Returns the probability in percent multiplied with 100. For example, returns 500 means 5%, 50 means 0.5%
@@ -447,14 +476,7 @@ contract FXPoints {
         Jackpot storage _jackpot = game.jackpots[game.jackpotID];
         require(_jackpot.eth > 0, "Jackpot cannot be empty!");
 
-        Player storage _player = game.players[_playerAddr];
-        uint256 _eth = 0;
-        uint256 _jsID = _player.firstJSID;
-        while (_jsID > 0) {
-            JackpotShare storage _js = _jackpot.jackpotShares[_jsID];
-            _eth = _eth.add(_js.eth);
-            _jsID = _js.nextJSID;
-        }
+        uint256 _eth = getJackpotEthOfPlayer(_playerAddr);
         return _eth.mul(10000) / _jackpot.eth;
     }
 
@@ -495,6 +517,8 @@ contract FXPoints {
         Jackpot storage _jackpot = game.jackpots[_jackpotID];
         require(_jackpot.startTime.add(_jackpot.periodSecs) < now, "Jackpot is not finished!");
 
+        PlayerJSLink storage _plyJSLnk = _jackpot.playerJSLinks[_playerAddr];
+
         uint256 _jackpotEth = _jackpot.eth;
         require(_jackpotEth > 0, "No eth in jackpot!");
 
@@ -513,7 +537,7 @@ contract FXPoints {
         mapping (uint256 => address) storage _awardPlayers = _jackpot.awardPlayers;
         while (_awardIdx <= 10) {
             if (_awardPlayers[_awardIdx] == address(0)) {
-                uint256 _currJSID = _player.firstJSID;
+                uint256 _currJSID = _plyJSLnk.firstJSID;
                 while (_currJSID > 0) {
                     JackpotShare storage _js = _jackpot.jackpotShares[_currJSID];
                     if (_result >= _js.pos && _result < _js.pos.add(_js.eth)) {
@@ -565,7 +589,7 @@ contract FXPoints {
         require(game.active, "The game status is not active!");
         require(isICOPhase(), "Currently not in the ICO phase!");
 
-        Player storage _player = game.players[msg.sender];
+        Player storage _player = game.players[_playerAddr];
         _player.addr = _playerAddr;
         _player.ico = _player.ico.add(_eth);
         _player.eth = _player.eth.add(_eth);
@@ -653,7 +677,7 @@ contract FXPoints {
         Player storage _player = game.players[_playerAddr];
         if (_player.addr == address(0)) {
             // A new player is coming.
-            _player.addr = msg.sender;
+            _player.addr = _playerAddr;
 
             if (_aff != address(0)) {
                 _player.aff = _aff;
@@ -765,15 +789,14 @@ contract FXPoints {
 
     /**
      * @dev Lock eth to contract
-     * @param _playerAddr Address of the player
      * @param _aff Address of affiliate
      * @return The lockedEthID is generated by contract
      */
-    function playRound(address _playerAddr, address payable _aff) public payable {
+    function playRound(address payable _aff) public payable {
         require(msg.value > 0, "The amount of the receiving eth cannot be zero.");
 
         LockedEth storage _lockedEth = lockedEths[nextLockedEthID];
-        _lockedEth.owner = msg.sender;
+        address _playerAddr = msg.sender;
         _lockedEth.playerAddr = _playerAddr;
         _lockedEth.aff = _aff;
         _lockedEth.eth = msg.value;
@@ -788,7 +811,7 @@ contract FXPoints {
      */
     function finishRound(uint256 _ID, bool _win) public {
         LockedEth storage _lockedEth = lockedEths[_ID];
-        require(_lockedEth.owner == msg.sender, "You are not the owner of the locked eth.");
+        require(layer == msg.sender, "You are not the owner of the locked eth.");
         require(_lockedEth.eth > 0, "No more eth are locked.");
 
         uint256 _eth;
@@ -796,7 +819,7 @@ contract FXPoints {
             // Only 10% eth will be used to buy keys
             _eth = _lockedEth.eth.mul(10) / 100;
             // Return the eth to owner
-            _lockedEth.owner.transfer(_lockedEth.eth - _eth);
+            layer.transfer(_lockedEth.eth - _eth);
         } else {
             _eth = _lockedEth.eth;
         }

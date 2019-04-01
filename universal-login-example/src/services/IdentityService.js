@@ -45,7 +45,7 @@ class IdentityService {
       to: this.addresses.fxPoints,
       from: this.identity.address,
       value: amount,
-      data: new utils.Interface(FXPoints.interface).functions.buyKeys.encode([affiliate]),
+      data: new utils.Interface(FXPoints.interface).functions.playRound.encode([affiliate]),
       gasToken: this.addresses.token,
       ...this.defaultPaymentOptions
     };
